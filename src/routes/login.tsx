@@ -19,7 +19,7 @@ export const Route = createFileRoute("/login")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: LoginScreen;
+  component: LoginScreen,
 });
 
 const inputBase =
