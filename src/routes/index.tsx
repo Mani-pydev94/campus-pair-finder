@@ -80,7 +80,7 @@ function Index() {
 
       <button
         type="button"
-        className="fade-up mt-8 h-14 w-full rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-semibold text-white shadow-cta transition-transform duration-150 active:scale-[0.97]"
+        className="fade-up mt-8 h-14 w-full rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform duration-150 active:scale-[0.97]"
         style={{ animationDelay: "340ms" }}
       >
         Get Started
