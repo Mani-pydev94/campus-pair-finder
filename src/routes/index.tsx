@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, GraduationCap, Users } from "lucide-react";
 import students from "@/assets/students.png";
 
@@ -91,9 +91,9 @@ function Index() {
         style={{ animationDelay: "420ms" }}
       >
         Already have an account?{" "}
-        <button type="button" className="font-semibold text-brand">
+        <Link to="/login" className="font-semibold text-brand">
           Login
-        </button>
+        </Link>
       </p>
     </main>
   );

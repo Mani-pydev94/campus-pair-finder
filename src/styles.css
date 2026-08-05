@@ -66,6 +66,9 @@
   --color-brand: oklch(0.573 0.229 288.2);
   --color-brand-deep: oklch(0.508 0.223 290);
   --color-on-brand: oklch(1 0 0);
+  --color-brand-light: oklch(0.615 0.208 287.5);
+  --color-line: oklch(0.918 0.006 264.5);
+  --color-danger: oklch(0.637 0.208 25.3);
   --color-ink: oklch(0.176 0 0);
   --color-subtle: oklch(0.575 0 0);
   --shadow-cta: 0 12px 28px -8px color-mix(in oklab, oklch(0.573 0.229 288.2) 55%, transparent);
