@@ -208,7 +208,7 @@ function QuestionnaireHub() {
 
       {/* Sections */}
       <section className="mt-6 space-y-4">
-        {sections.map(({ icon: Icon, emoji, title, count, description, status, tone, progress }, i) => {
+        {sections.map(({ emoji, title, count, description, status, tone, progress }, i) => {
           const locked = status === "locked";
           return (
             <button
@@ -226,7 +226,6 @@ function QuestionnaireHub() {
                 className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-[20px] ${tone}`}
               >
                 <span aria-hidden>{emoji}</span>
-                <Icon className="hidden" />
               </span>
 
               <span className="min-w-0 flex-1">
