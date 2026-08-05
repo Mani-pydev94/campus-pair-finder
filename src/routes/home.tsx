@@ -255,7 +255,7 @@ function HomeDashboard() {
             >
               <Icon className={`h-5 w-5 ${active ? "text-brand" : "text-subtle"}`} />
               <span
-                className={`text-[10px] font-semibold ${active ? "text-brand" : "text-subtle"}`}
+                className={`w-full truncate px-0.5 text-center text-[9.5px] font-semibold ${active ? "text-brand" : "text-subtle"}`}
               >
                 {label}
               </span>
