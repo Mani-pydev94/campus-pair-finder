@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Campus Connect AI — Find Your Perfect Study Partner" },
       {
         property: "og:description",
-        content: "AI powered matches based on your personality, goals, values and interests.",
+        content: "AI powered study partner matches based on your personality, goals, values and interests.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
