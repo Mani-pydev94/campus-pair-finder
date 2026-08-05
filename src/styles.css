@@ -67,6 +67,7 @@
   --color-brand-deep: oklch(0.508 0.223 290);
   --color-on-brand: oklch(1 0 0);
   --color-brand-light: oklch(0.615 0.208 287.5);
+  --color-mint: oklch(0.741 0.135 175.5);
   --color-line: oklch(0.918 0.006 264.5);
   --color-danger: oklch(0.637 0.208 25.3);
   --color-ink: oklch(0.176 0 0);
