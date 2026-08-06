@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
@@ -29,6 +30,11 @@ const HomeRoute = HomeRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchesReadyRoute = MatchesReadyRouteImport.update({
+  id: '/matches-ready',
+  path: '/matches-ready',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuestionRoute = QuestionRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/matches-ready': typeof MatchesReadyRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/matches-ready': typeof MatchesReadyRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
+  '/matches-ready': typeof MatchesReadyRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/home'
     | '/login'
+    | '/matches-ready'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/home'
     | '/login'
+    | '/matches-ready'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/home'
     | '/login'
+    | '/matches-ready'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
+  MatchesReadyRoute: typeof MatchesReadyRoute
   QuestionRoute: typeof QuestionRoute
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matches-ready': {
+      id: '/matches-ready'
+      path: '/matches-ready'
+      fullPath: '/matches-ready'
+      preLoaderRoute: typeof MatchesReadyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/question': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
+  MatchesReadyRoute: MatchesReadyRoute,
   QuestionRoute: QuestionRoute,
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
