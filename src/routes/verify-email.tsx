@@ -1,0 +1,313 @@
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useState, useEffect } from 'react';
+import { 
+  ArrowLeft, 
+  Mail, 
+  Sparkles, 
+  GraduationCap, 
+  CheckCircle2, 
+  RefreshCcw, 
+  AlertCircle,
+  Clock,
+  ExternalLink,
+  Check
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import confetti from 'canvas-confetti';
+
+export const Route = createFileRoute('/verify-email')({
+  component: VerifyEmailScreen,
+});
+
+function VerifyEmailScreen() {
+  const [isVerified, setIsVerified] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(45);
+  const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [timeLeft]);
+
+  const handleVerify = () => {
+    // Simulate verification check
+    // In a real app, this would call a server function
+    const success = Math.random() > 0.3; // 70% success rate for demo
+    
+    if (success) {
+      setIsVerified(true);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#6D5EF7', '#23C8A4', '#FFD700']
+      });
+    } else {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 4000);
+    }
+  };
+
+  const handleResend = () => {
+    setIsResending(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsResending(false);
+      setTimeLeft(60);
+    }, 1500);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isVerified) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", damping: 12, stiffness: 200 }}
+          className="w-24 h-24 bg-brand rounded-full flex items-center justify-center mb-8 relative"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1.5, opacity: 0 }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            className="absolute inset-0 bg-brand rounded-full"
+          />
+          <Check className="w-12 h-12 text-white" />
+        </motion.div>
+
+        <motion.h1
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-3xl font-bold text-ink mb-4"
+        >
+          You're Verified! 🎉
+        </motion.h1>
+
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-subtle text-lg mb-12 max-w-xs"
+        >
+          Your account is now active. Let's build your student profile.
+        </motion.p>
+
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="w-full max-w-sm"
+        >
+          <Button 
+            asChild
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            <Link to="/questionnaire-intro">Continue</Link>
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Top Bar */}
+      <header className="px-6 py-4 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
+        <Link 
+          to="/signup"
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-line hover:bg-gray-100 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-ink" />
+        </Link>
+        
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
+          <span className="font-bold text-sm tracking-tight text-ink">Campus Connect AI</span>
+        </div>
+        
+        <div className="w-10" /> {/* Spacer */}
+      </header>
+
+      <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full">
+        {/* Hero Illustration */}
+        <div className="relative h-[30vh] flex items-center justify-center mb-8">
+          <motion.div
+            animate={{ 
+              y: [0, -10, 0],
+            }}
+            transition={{ 
+              duration: 4, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="relative z-10"
+          >
+            <img 
+              src="/src/assets/verify-email.png" 
+              alt="Verify Email Illustration" 
+              className="h-48 w-auto object-contain"
+            />
+          </motion.div>
+          
+          {/* Floating Icons */}
+          <motion.div 
+            animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            className="absolute top-10 right-10 p-3 bg-white rounded-2xl shadow-lg z-20"
+          >
+            <Mail className="w-6 h-6 text-brand" />
+          </motion.div>
+          
+          <motion.div 
+            animate={{ y: [0, 15, 0], rotate: [0, -10, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-10 left-10 p-2.5 bg-white rounded-xl shadow-md z-20"
+          >
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+          </motion.div>
+
+          <div className="absolute inset-0 bg-brand/5 rounded-full blur-3xl opacity-50" />
+        </div>
+
+        {/* Headline */}
+        <motion.h1 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl font-bold text-center text-ink mb-3"
+        >
+          Verify Your Email 📩
+        </motion.h1>
+
+        {/* Description */}
+        <motion.p 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-subtle text-center mb-8 leading-relaxed"
+        >
+          We've sent a verification link to your email address. Please check your inbox to activate your account.
+        </motion.p>
+
+        {/* Email Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="p-5 border-line shadow-sm rounded-3xl mb-8 overflow-hidden relative group">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-brand/10 flex items-center justify-center">
+                <Mail className="w-6 h-6 text-brand" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-medium text-subtle mb-0.5 uppercase tracking-wider">Verification email sent to:</p>
+                <p className="text-base font-bold text-ink">student@university.edu</p>
+              </div>
+              <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Sent
+              </Badge>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Actions */}
+        <div className="space-y-4 mb-8">
+          <Button 
+            onClick={handleVerify}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
+          >
+            I've Verified My Email
+          </Button>
+
+          <Button 
+            variant="outline"
+            disabled={timeLeft > 0 || isResending}
+            onClick={handleResend}
+            className="w-full h-14 rounded-2xl border-line text-ink font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 disabled:opacity-50"
+          >
+            {isResending ? (
+              <RefreshCcw className="w-5 h-5 animate-spin" />
+            ) : (
+              <ExternalLink className="w-5 h-5 text-subtle" />
+            )}
+            Resend Verification Email
+          </Button>
+
+          {timeLeft > 0 && (
+            <p className="text-center text-sm text-subtle flex items-center justify-center gap-1.5">
+              <Clock className="w-4 h-4" />
+              You can resend another email in <span className="font-bold text-brand">{formatTime(timeLeft)}</span>
+            </p>
+          )}
+        </div>
+
+        {/* Error State */}
+        <AnimatePresence>
+          {showError && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mb-8"
+            >
+              <Card className="p-4 border-red-100 bg-red-50/50 rounded-2xl flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-red-900">Verification Pending</p>
+                  <p className="text-xs text-red-700">We couldn't verify your status yet. Please click the link in your email.</p>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleVerify}
+                  className="text-xs font-bold text-red-600 hover:bg-red-100"
+                >
+                  Try Again
+                </Button>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Help Section */}
+        <Card className="p-6 bg-gray-50 border-none rounded-3xl">
+          <h3 className="font-bold text-ink mb-4">Didn't receive the email?</h3>
+          <ul className="space-y-3">
+            {[
+              "Check your spam folder.",
+              "Make sure your email address is correct.",
+              "Wait a few minutes.",
+              "Try resending the email."
+            ].map((text, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-subtle">
+                <div className="w-5 h-5 rounded-full bg-brand/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-brand" />
+                </div>
+                {text}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </main>
+      
+      {/* Safe Area Padding */}
+      <div className="h-8" />
+    </div>
+  );
+}
