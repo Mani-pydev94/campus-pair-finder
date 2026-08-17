@@ -113,14 +113,21 @@ function QuestionScreen() {
   const [leaving, setLeaving] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const categoryQuestions = useMemo(() => questionnaireData[category] || questionnaireData["Values"], [category]);
-  const currentQuestion = useMemo(() => categoryQuestions[currentQuestionIndex] || categoryQuestions[0], [categoryQuestions, currentQuestionIndex]);
+  const categoryQuestions = useMemo(() => {
+    return questionnaireData[category] || questionnaireData["Values"];
+  }, [category]);
+
+  const currentQuestion = useMemo(() => {
+    return categoryQuestions[currentQuestionIndex] || categoryQuestions[0];
+  }, [categoryQuestions, currentQuestionIndex]);
 
   useEffect(() => {
-    const totalQuestions = categoryQuestions.length;
-    const currentProgress = Math.round(((currentQuestionIndex) / totalQuestions) * 100);
-    setProgress(currentProgress);
-  }, [currentQuestionIndex, categoryQuestions.length]);
+    if (categoryQuestions) {
+      const totalQuestions = categoryQuestions.length;
+      const currentProgress = Math.round(((currentQuestionIndex) / totalQuestions) * 100);
+      setProgress(currentProgress);
+    }
+  }, [currentQuestionIndex, categoryQuestions]);
 
   const next = async () => {
     if (!currentQuestion) return;
