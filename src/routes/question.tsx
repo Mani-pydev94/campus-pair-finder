@@ -66,6 +66,7 @@ function QuestionScreen() {
         .upsert({
           user_id: session.user.id,
           question_id: 'q1_values',
+          category: 'Values',
           answer: answer || 'skipped',
           importance: weight || 'medium',
         });
