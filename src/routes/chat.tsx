@@ -372,7 +372,18 @@ function ChatScreen() {
           {(activeTab === "private" ? privateChats : groupChats).map((chat, idx) => (
             <div 
               key={chat.name} 
-              className="group flex items-center gap-4 rounded-[24px] border border-border/40 bg-white p-4 shadow-[0_12px_24px_-12px_rgba(0,0,0,0.06)] transition-all active:scale-[0.98] active:bg-secondary/20"
+              onClick={() => {
+                if ("score" in chat) {
+                  setActiveChat({
+                    name: chat.name,
+                    avatar: chat.avatar,
+                    score: chat.score
+                  });
+                } else {
+                  toast.info("Group chat functionality coming soon!");
+                }
+              }}
+              className="group flex items-center gap-4 rounded-[24px] border border-border/40 bg-white p-4 shadow-[0_12px_24px_-12px_rgba(0,0,0,0.06)] transition-all active:scale-[0.98] active:bg-secondary/20 cursor-pointer"
             >
               <div className="relative shrink-0">
                 {"avatar" in chat ? (
