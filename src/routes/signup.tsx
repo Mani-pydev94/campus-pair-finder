@@ -137,7 +137,11 @@ function SignupScreen() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    console.log("Form submitted");
+    if (!validate()) {
+      console.log("Validation failed", errors);
+      return;
+    }
 
     setLoading(true);
     // Simulate API call
