@@ -398,6 +398,7 @@ function ExploreMatchesScreen() {
       {/* Floating Action Button */}
       <Link 
         to="/chat"
+        search={{ name: undefined, avatar: undefined, score: undefined }}
         className="fixed bottom-24 right-6 flex items-center gap-2 rounded-full bg-brand p-4 px-6 text-white shadow-[0_12px_24px_-8px_rgba(109,94,247,0.5)] transition-transform active:scale-95 z-50"
       >
         <Sparkles className="h-5 w-5 fill-white" />

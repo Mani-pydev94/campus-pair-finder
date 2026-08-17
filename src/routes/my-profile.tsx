@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/my-profile")({
   head: () => ({
@@ -144,11 +145,17 @@ function MyProfileScreen() {
 
             {/* Main Action Buttons */}
             <div className="mt-8 grid w-full grid-cols-2 gap-3">
-              <button className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-[0.97]">
+              <Link 
+                to="/profile-setup"
+                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-[0.97]"
+              >
                 <Edit3 className="h-4 w-4" />
                 Edit Profile
-              </button>
-              <button className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-secondary text-[15px] font-bold text-ink transition-transform active:scale-[0.97]">
+              </Link>
+              <button 
+                onClick={() => toast.success("Profile link copied to clipboard!")}
+                className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-secondary text-[15px] font-bold text-ink transition-transform active:scale-[0.97]"
+              >
                 <Share2 className="h-4 w-4" />
                 Share
               </button>

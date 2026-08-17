@@ -24,6 +24,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import match1 from "@/assets/match-1.jpg";
+import match2 from "@/assets/match-2.jpg";
+import match3 from "@/assets/match-3.jpg";
 
 export const Route = createFileRoute("/communities")({
   head: () => ({
