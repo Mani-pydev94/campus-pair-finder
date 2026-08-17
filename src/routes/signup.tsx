@@ -151,7 +151,7 @@ function SignupScreen() {
       password: formData.password,
       options: {
         data: {
-          display_name: formData.fullName,
+          display_name: formData.name,
         },
       },
     });
