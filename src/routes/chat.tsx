@@ -32,7 +32,7 @@ import student3 from "@/assets/match-3.jpg";
 
 
 export const Route = createFileRoute("/chat")({
-  validateSearch: (search: Record<string, unknown>): { name?: string; avatar?: string; score?: number } => {
+  validateSearch: (search: Record<string, unknown>): { name: string | undefined; avatar: string | undefined; score: number | undefined } => {
     return {
       name: (search['name'] as string) || undefined,
       avatar: (search['avatar'] as string) || undefined,
