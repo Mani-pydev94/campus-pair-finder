@@ -139,13 +139,19 @@ function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
-    if (activeChat) {
+    const container = scrollContainerRef.current;
+    if (!container || !activeChat) return;
+
+    const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
+
+    if (isNearBottom) {
       scrollToBottom();
     }
   }, [messages, activeChat]);
