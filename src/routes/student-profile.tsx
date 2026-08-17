@@ -33,12 +33,12 @@ import { supabase } from "@/integrations/supabase/client";
 import sophiaImg from "@/assets/matches/student-1.jpg";
 
 export const Route = createFileRoute("/student-profile")({
-  validateSearch: (search: Record<string, unknown>): { id?: string } => {
+  validateSearch: (search: Record<string, unknown>): { id: string | undefined } => {
     return {
-      id: (search.id as string) || undefined,
+      id: (search['id'] as string) || undefined,
     };
   },
-  head: ({ search }) => ({
+  head: () => ({
     meta: [
       { title: "Student AI Compatibility Profile" },
       {
@@ -63,9 +63,9 @@ function StudentProfileScreen() {
       try {
         if (!id) {
           // Fallback to static demo data if no ID
-          setLoading(false);
           const timer = setTimeout(() => setProgress(96), 300);
-          return () => clearTimeout(timer);
+          setLoading(false);
+          return;
         }
 
         const { data, error } = await supabase
@@ -76,7 +76,7 @@ function StudentProfileScreen() {
         
         if (error) throw error;
         setStudentData(data);
-        const timer = setTimeout(() => setProgress(Math.floor(Math.random() * 20) + 80), 300);
+        setTimeout(() => setProgress(Math.floor(Math.random() * 20) + 80), 300);
       } catch (e) {
         console.error(e);
       } finally {
@@ -418,7 +418,7 @@ function StudentProfileScreen() {
         {/* Action Buttons */}
         <div className="fade-up space-y-3 pt-4" style={{ animationDelay: '1000ms' }}>
           <button className="w-full h-[64px] rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-bold text-white shadow-xl shadow-brand/20 transition-transform active:scale-[0.98]">
-            Connect with Sophia
+            Connect with {displayName.split(' ')[0]}
           </button>
           <div className="grid grid-cols-2 gap-3">
             <button className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
