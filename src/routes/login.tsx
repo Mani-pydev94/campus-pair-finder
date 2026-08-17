@@ -188,9 +188,9 @@ function LoginScreen() {
         style={{ animationDelay: "340ms" }}
       >
         Don't have an account?{" "}
-        <button type="button" className="font-semibold text-brand">
+        <Link to="/signup" className="font-semibold text-brand">
           Create Account
-        </button>
+        </Link>
       </p>
     </main>
   );
