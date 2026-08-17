@@ -385,18 +385,25 @@ function ExploreMatchesScreen() {
           <p className="mt-2 text-[15px] font-medium text-white/80 leading-relaxed">
             Students preparing for Azure Certification are active now.
           </p>
-          <button className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[15px] font-bold text-brand transition-all active:scale-95">
+          <Link 
+            to="/communities"
+            className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[15px] font-bold text-brand transition-all active:scale-95 w-fit"
+          >
             Explore Group
             <ChevronRight className="h-4 w-4" />
-          </button>
+          </Link>
         </div>
       </div>
-
+ 
       {/* Floating Action Button */}
-      <button className="fixed bottom-24 right-6 flex items-center gap-2 rounded-full bg-brand p-4 px-6 text-white shadow-[0_12px_24px_-8px_rgba(109,94,247,0.5)] transition-transform active:scale-95 z-50">
+      <Link 
+        to="/chat"
+        search={{ name: undefined, avatar: undefined, score: undefined }}
+        className="fixed bottom-24 right-6 flex items-center gap-2 rounded-full bg-brand p-4 px-6 text-white shadow-[0_12px_24px_-8px_rgba(109,94,247,0.5)] transition-transform active:scale-95 z-50"
+      >
         <Sparkles className="h-5 w-5 fill-white" />
         <span className="text-[15px] font-bold tracking-tight">Ask AI</span>
-      </button>
+      </Link>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 inset-x-0 z-50 px-6 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent">
@@ -406,7 +413,7 @@ function ExploreMatchesScreen() {
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },
             { icon: Globe, label: "Groups", path: "/communities", active: false },
             { icon: MessageSquare, label: "Chat", path: "/chat", active: false },
-            { icon: User, label: "Profile", path: "/home", active: false },
+            { icon: User, label: "Profile", path: "/my-profile", active: false },
           ].map((item) => (
             <Link
               key={item.label}

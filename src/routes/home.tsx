@@ -10,6 +10,7 @@ import {
   Network,
   FlaskConical,
   BookOpen,
+  Trophy,
   Cloud,
   Brain,
   Camera,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import match1 from "@/assets/match-1.jpg";
 import match2 from "@/assets/match-2.jpg";
 import match3 from "@/assets/match-3.jpg";
@@ -182,16 +184,16 @@ function HomeDashboard() {
         <h2 className="px-6 text-[22px] font-bold tracking-[-0.01em] text-ink">Quick Actions</h2>
         <div className="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {quickActions.map(({ label, icon: Icon, from, to }) => (
-            <button
+            <Link
               key={label}
-              type="button"
+              to="/explore-matches"
               className="flex w-[104px] shrink-0 snap-start flex-col items-center gap-3 rounded-[18px] border border-line/70 bg-card p-4 shadow-[0_12px_28px_-24px_rgba(18,18,18,0.5)] transition-transform duration-150 active:scale-[0.96]"
             >
               <span className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br ${from} ${to}`}>
                 <Icon className="h-5 w-5 text-on-brand" />
               </span>
               <span className="text-center text-[13px] font-semibold leading-tight text-ink">{label}</span>
-            </button>
+            </Link>
           ))}
         </div>
       </section>
@@ -250,12 +252,12 @@ function HomeDashboard() {
               <div className="p-4">
                 <h3 className="truncate text-[15px] font-semibold text-ink">{name}</h3>
                 <p className="mt-1 text-[13px] text-subtle">{members}</p>
-                <button
-                  type="button"
-                  className="mt-3 h-9 w-full rounded-xl bg-brand/10 text-[13px] font-semibold text-brand transition-transform duration-150 active:scale-[0.96]"
+                <Link
+                  to="/communities"
+                  className="mt-3 flex h-9 w-full items-center justify-center rounded-xl bg-brand/10 text-[13px] font-semibold text-brand transition-transform duration-150 active:scale-[0.96]"
                 >
                   Join
-                </button>
+                </Link>
               </div>
             </article>
           ))}
@@ -283,6 +285,7 @@ function HomeDashboard() {
                 </p>
                 <button
                   type="button"
+                  onClick={() => toast.success(`Registration request sent for ${e.name}!`)}
                   className="mt-3 h-9 w-full rounded-xl bg-gradient-to-r from-brand to-brand-light text-[13px] font-semibold text-on-brand transition-transform duration-150 active:scale-[0.96]"
                 >
                   Register
@@ -300,7 +303,7 @@ function HomeDashboard() {
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },
             { label: "Communities", icon: Users, path: "/communities", active: false },
             { label: "Chat", icon: MessageSquare, path: "/chat", active: false },
-            { label: "Profile", icon: User, path: "/home", active: false },
+            { label: "Profile", icon: User, path: "/my-profile", active: false },
           ].map(({ label, icon: Icon, path, active }) => (
             <Link
               key={label}

@@ -23,6 +23,7 @@ import {
   Zap
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import match1 from "@/assets/match-1.jpg";
 import match2 from "@/assets/match-2.jpg";
 import match3 from "@/assets/match-3.jpg";
@@ -190,9 +191,12 @@ function CommunitiesScreen() {
             </p>
             <div className="mt-6 flex items-center justify-between">
               <span className="text-[15px] font-semibold text-white/90">12 Recommended Communities</span>
-              <button className="flex h-11 items-center justify-center rounded-xl bg-white px-5 text-[15px] font-bold text-brand shadow-lg transition-transform active:scale-95">
+              <Link 
+                to="/explore-matches"
+                className="flex h-11 items-center justify-center rounded-xl bg-white px-5 text-[15px] font-bold text-brand shadow-lg transition-transform active:scale-95"
+              >
                 Explore Now
-              </button>
+              </Link>
             </div>
           </div>
           {/* Decorative shapes */}
@@ -247,10 +251,16 @@ function CommunitiesScreen() {
                   </span>
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  <button className="flex h-10 items-center justify-center rounded-xl bg-brand text-[14px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-95">
+                  <button 
+                    onClick={() => toast.success(`Request to join ${comm.name} sent!`)}
+                    className="flex h-10 items-center justify-center rounded-xl bg-brand text-[14px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-95"
+                  >
                     Join
                   </button>
-                  <button className="flex h-10 items-center justify-center rounded-xl bg-[#F5F5F7] text-[14px] font-bold text-ink transition-transform active:scale-95">
+                  <button 
+                    onClick={() => toast.info(`Previewing ${comm.name}...`)}
+                    className="flex h-10 items-center justify-center rounded-xl bg-[#F5F5F7] text-[14px] font-bold text-ink transition-transform active:scale-95"
+                  >
                     Preview
                   </button>
                 </div>
@@ -294,7 +304,7 @@ function CommunitiesScreen() {
       <section className="fade-up mt-10" style={{ animationDelay: "300ms" }}>
         <div className="flex items-center justify-between px-6">
           <h2 className="text-[22px] font-bold text-ink">Trending This Week 🔥</h2>
-          <button className="text-[14px] font-bold text-brand">See All</button>
+          <button onClick={() => toast.info("Showing all trending communities...")} className="text-[14px] font-bold text-brand">See All</button>
         </div>
         <div className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {trending.map((comm) => (
@@ -338,7 +348,10 @@ function CommunitiesScreen() {
               </div>
             ))}
           </div>
-          <button className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-[15px] font-bold text-ink shadow-sm transition-transform active:scale-[0.98]">
+          <button 
+            onClick={() => toast.info("Opening full activity feed...")}
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-3.5 text-[15px] font-bold text-ink shadow-sm transition-transform active:scale-[0.98]"
+          >
             View All Activity
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -346,7 +359,10 @@ function CommunitiesScreen() {
       </section>
 
       {/* Create Button FAB */}
-      <button className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95">
+      <button 
+        onClick={() => toast.success("Create community feature coming soon!")}
+        className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95"
+      >
         <Plus className="h-6 w-6" />
         <span className="text-[16px] font-bold">Create</span>
       </button>
@@ -359,7 +375,7 @@ function CommunitiesScreen() {
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },
             { label: "Communities", icon: Users, path: "/communities", active: true },
             { label: "Chat", icon: MessageSquare, path: "/chat", active: false },
-            { label: "Profile", icon: User, path: "/home", active: false },
+            { label: "Profile", icon: User, path: "/my-profile", active: false },
           ].map(({ label, icon: Icon, path, active }) => (
             <Link
               key={label}
