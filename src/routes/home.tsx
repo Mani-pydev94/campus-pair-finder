@@ -59,9 +59,9 @@ const quickActions = [
 ];
 
 const matches = [
-  { name: "Arjun Sharma", age: 22, college: "RV College of Engineering", score: 92, photo: match1 },
-  { name: "Ananya Reddy", age: 21, college: "IIIT Hyderabad", score: 89, photo: match2 },
-  { name: "Vikram Mehta", age: 22, college: "COEP Pune", score: 86, photo: match3 },
+  { id: "1", name: "Sophia Johnson", age: 21, college: "Stanford University", score: 96, photo: match1 },
+  { id: "2", name: "Ananya Reddy", age: 21, college: "IIIT Hyderabad", score: 89, photo: match2 },
+  { id: "3", name: "Vikram Mehta", age: 22, college: "COEP Pune", score: 86, photo: match3 },
 ];
 
 const communities = [
@@ -205,9 +205,10 @@ function HomeDashboard() {
         </div>
         <div className="mt-4 space-y-3">
           {matches.map((m) => (
-            <button
+            <Link
               key={m.name}
-              type="button"
+              to="/student-profile"
+              search={{ id: m.id }}
               className="flex w-full items-center gap-4 rounded-[18px] border border-line/70 bg-card p-4 text-left shadow-[0_14px_32px_-28px_rgba(18,18,18,0.6)] transition-transform duration-150 active:scale-[0.98]"
             >
               <img
@@ -228,7 +229,7 @@ function HomeDashboard() {
                 </span>
               </span>
               <ChevronRight className="h-5 w-5 shrink-0 text-subtle" />
-            </button>
+            </Link>
           ))}
         </div>
       </section>
