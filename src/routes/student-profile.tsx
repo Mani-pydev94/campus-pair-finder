@@ -22,29 +22,29 @@ import {
   Target,
   BrainCircuit,
   Rocket,
-  Code2
+  Code2,
+  Loader2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import asset
 import sophiaImg from "@/assets/matches/student-1.jpg";
 
 export const Route = createFileRoute("/student-profile")({
+  validateSearch: (search: Record<string, unknown>): { id: string | undefined } => {
+    return {
+      id: (search['id'] as string) || undefined,
+    };
+  },
   head: () => ({
     meta: [
-      { title: "Sophia Johnson — AI Compatibility Profile" },
+      { title: "Student AI Compatibility Profile" },
       {
         name: "description",
-        content: "Understand why Sophia Johnson is your perfect academic and project collaborator.",
+        content: "Understand your AI-powered compatibility with this student.",
       },
-      { property: "og:title", content: "Sophia Johnson — AI Compatibility Profile" },
-      {
-        property: "og:description",
-        content: "Understand why Sophia Johnson is your perfect academic and project collaborator.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: StudentProfileScreen,
@@ -52,13 +52,56 @@ export const Route = createFileRoute("/student-profile")({
 
 function StudentProfileScreen() {
   const router = useRouter();
+  const { id } = Route.useSearch();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [studentData, setStudentData] = useState<any>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setProgress(96), 300);
-    return () => clearTimeout(timer);
-  }, []);
+    async function loadStudent() {
+      try {
+        if (!id) {
+          // Fallback to static demo data if no ID
+          const timer = setTimeout(() => setProgress(96), 300);
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*, academic_profiles(*)')
+          .eq('id', id)
+          .single();
+        
+        if (error) throw error;
+        setStudentData(data);
+        setTimeout(() => setProgress(Math.floor(Math.random() * 20) + 80), 300);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStudent();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <Loader2 className="h-10 w-10 text-brand animate-spin" />
+      </div>
+    );
+  }
+
+  const displayName = studentData?.display_name || "Sophia Johnson";
+  const university = studentData?.academic_profiles?.university || "Stanford University";
+  const degree = studentData?.academic_profiles?.degree || "Computer Science";
+  const city = studentData?.city || "San Francisco";
+  const age = studentData?.age || 21;
+  const image = studentData?.avatar_url || sophiaImg;
+  const bio = studentData?.bio || "Sophia shares your passion for AI, collaborative learning and hackathons.";
+  const skills = studentData?.academic_profiles?.skills?.join(", ") || "React, Node.js, Python, PostgreSQL, Azure, TensorFlow";
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-white pb-[max(7rem,env(safe-area-inset-bottom)+2.5rem)] pt-[max(1rem,env(safe-area-inset-top))]">
@@ -89,7 +132,7 @@ function StudentProfileScreen() {
         <div className="flex flex-col items-center text-center fade-up">
           <div className="relative">
             <div className="h-36 w-36 overflow-hidden rounded-full border-[6px] border-brand/5 shadow-2xl animate-in zoom-in duration-700">
-              <img src={sophiaImg} alt="Sophia Johnson" className="h-full w-full object-cover" />
+              <img src={image} alt={displayName} className="h-full w-full object-cover" />
             </div>
             <div className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white shadow-lg border-2 border-white">
               <BadgeCheck className="h-6 w-6" />
@@ -97,16 +140,16 @@ function StudentProfileScreen() {
           </div>
           
           <div className="mt-5 space-y-1">
-            <h2 className="text-[34px] font-bold tracking-tight text-ink">Sophia Johnson, 21</h2>
+            <h2 className="text-[34px] font-bold tracking-tight text-ink">{displayName}, {age}</h2>
             <p className="flex items-center justify-center gap-1.5 text-[16px] font-medium text-subtle">
               <GraduationCap className="h-4 w-4 text-brand" />
-              Stanford University
+              {university}
             </p>
             <div className="flex items-center justify-center gap-3 mt-2">
-              <span className="text-[14px] font-semibold text-subtle px-3 py-1 bg-[#F5F5F7] rounded-full">Computer Science</span>
+              <span className="text-[14px] font-semibold text-subtle px-3 py-1 bg-[#F5F5F7] rounded-full">{degree}</span>
               <span className="flex items-center gap-1 text-[14px] font-semibold text-subtle">
                 <MapPin className="h-3.5 w-3.5" />
-                San Francisco
+                {city}
               </span>
             </div>
           </div>
@@ -122,15 +165,15 @@ function StudentProfileScreen() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-md">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
-                <h3 className="text-[18px] font-bold">Why AI Recommends Sophia</h3>
+                <h3 className="text-[18px] font-bold">Why AI Recommends {displayName.split(' ')[0]}</h3>
               </div>
               
               <p className="text-[20px] font-medium leading-[1.6] text-white/95">
-                Sophia shares your passion for AI, collaborative learning and hackathons. Both of you prefer structured planning and open communication.
+                {bio}
               </p>
               
               <p className="text-[15px] leading-relaxed text-white/80">
-                She is likely to be an excellent teammate for technical projects and placement preparation due to your matching productivity cycles and career growth ambitions.
+                {displayName.split(' ')[0]} is likely to be an excellent teammate for technical projects and placement preparation due to your matching productivity cycles and career growth ambitions.
               </p>
             </div>
 
@@ -262,7 +305,7 @@ function StudentProfileScreen() {
               Areas That Make Your Team Stronger
             </h3>
             <p className="mt-4 text-[15px] leading-relaxed text-subtle font-medium">
-              Sophia enjoys public speaking and presenting while you prefer strategic planning behind the scenes. These complementary strengths often create highly balanced project teams.
+              {displayName.split(' ')[0]} enjoys public speaking and presenting while you prefer strategic planning behind the scenes. These complementary strengths often create highly balanced project teams.
             </p>
           </div>
         </section>
@@ -274,11 +317,11 @@ function StudentProfileScreen() {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-[13px] font-bold text-subtle uppercase tracking-wider">Degree</p>
-                <p className="text-[16px] font-bold text-ink mt-1">B.S. Comp Science</p>
+                <p className="text-[16px] font-bold text-ink mt-1">{degree}</p>
               </div>
               <div>
                 <p className="text-[13px] font-bold text-subtle uppercase tracking-wider">Year</p>
-                <p className="text-[16px] font-bold text-ink mt-1">Junior (3rd Year)</p>
+                <p className="text-[16px] font-bold text-ink mt-1">{studentData?.academic_profiles?.year_of_study || "3rd Year"}</p>
               </div>
             </div>
             
@@ -286,7 +329,7 @@ function StudentProfileScreen() {
               <div>
                 <p className="text-[13px] font-bold text-subtle uppercase tracking-wider">Technical Skills</p>
                 <p className="text-[15px] font-medium text-ink mt-1.5 leading-relaxed">
-                  React, Node.js, Python, PostgreSQL, Azure, TensorFlow
+                  {skills}
                 </p>
               </div>
               <div>
@@ -375,7 +418,7 @@ function StudentProfileScreen() {
         {/* Action Buttons */}
         <div className="fade-up space-y-3 pt-4" style={{ animationDelay: '1000ms' }}>
           <button className="w-full h-[64px] rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-bold text-white shadow-xl shadow-brand/20 transition-transform active:scale-[0.98]">
-            Connect with Sophia
+            Connect with {displayName.split(' ')[0]}
           </button>
           <div className="grid grid-cols-2 gap-3">
             <button className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2">

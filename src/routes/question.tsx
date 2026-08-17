@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, X, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/question")({
   head: () => ({
@@ -44,19 +46,47 @@ function QuestionScreen() {
   const [confirmExit, setConfirmExit] = useState(false);
   const [progress, setProgress] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setProgress(2.5), 200);
     return () => clearTimeout(t);
   }, []);
 
-  const next = () => {
-    setLeaving(true);
-    setTimeout(() => {
-      // Simulate going to results if it's the "last" question for demo purposes
-      // or just navigate to the ready screen
-      router.navigate({ to: "/matches-ready" });
-    }, 320);
+  const next = async () => {
+    try {
+      setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // In a real app, we'd iterate through 40 questions.
+      // For this premium template, we persist this one response to demonstrate the logic.
+      const { error } = await supabase
+        .from('questionnaire_responses')
+        .upsert({
+          user_id: session.user.id,
+          question_id: 'q1_values',
+          category: 'Values',
+          answer: answer || 'skipped',
+          importance: weight || 'medium',
+        });
+
+      if (error) throw error;
+
+      setLeaving(true);
+      setTimeout(() => {
+        router.navigate({ to: "/matches-ready" });
+      }, 320);
+    } catch (error) {
+      console.error('Error saving response:', error);
+      // Fallback to navigation anyway for demo flow
+      setLeaving(true);
+      setTimeout(() => {
+        router.navigate({ to: "/matches-ready" });
+      }, 320);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -217,9 +247,9 @@ function QuestionScreen() {
           type="button"
           onClick={next}
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97] disabled:opacity-50"
-          disabled={!answer}
+          disabled={!answer || loading}
         >
-          Next Question
+          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Next Question"}
         </button>
         <button
           type="button"

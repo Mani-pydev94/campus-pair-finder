@@ -14,10 +14,12 @@ import {
   Globe,
   User,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 // Import assets
 import student1 from "@/assets/matches/student-1.jpg";
@@ -117,6 +119,73 @@ function ExploreMatchesScreen() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [bookmarked, setBookmarked] = useState<number[]>([]);
+  const [dbMatches, setDbMatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadMatches() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // Fetch profiles excluding current user
+        let query = supabase
+          .from('profiles')
+          .select(`
+            *,
+            academic_profiles (*)
+          `);
+        
+        if (session) {
+          query = query.neq('id', session.user.id);
+        }
+
+        const { data, error } = await query.limit(20);
+        
+        if (error) throw error;
+        
+        if (data) {
+          // Map DB profiles to UI match objects
+          const mapped = data.map((p: any) => ({
+            id: p.id,
+            name: p.display_name || "Anonymous",
+            age: p.age || 20,
+            college: p.academic_profiles?.university || "Unknown University",
+            course: p.academic_profiles?.degree || "Student",
+            city: p.city || "Remote",
+            image: p.avatar_url || student1,
+            score: Math.floor(Math.random() * 30) + 70, // Simulated score until engine built
+            tags: [
+              ...(p.academic_profiles?.skills?.slice(0, 2) || []),
+              ...(p.academic_profiles?.interests?.slice(0, 1) || [])
+            ],
+            insight: p.bio || "No bio provided yet.",
+            reasons: ["Verified Student", "Active Profile"]
+          }));
+          setDbMatches(mapped);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadMatches();
+  }, []);
+
+  // Filter logic
+  const filteredMatches = useMemo(() => {
+    // Merge static demo matches for richness if no DB matches yet
+    const baseMatches = dbMatches.length > 0 ? dbMatches : matches;
+    
+    return baseMatches.filter(m => {
+      const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          m.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          m.tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      if (activeFilter === "All") return matchesSearch;
+      return matchesSearch && m.tags.includes(activeFilter);
+    });
+  }, [dbMatches, searchQuery, activeFilter]);
 
   const toggleBookmark = (id: number) => {
     setBookmarked(prev => 
@@ -178,13 +247,18 @@ function ExploreMatchesScreen() {
 
         {/* Match Count */}
         <div>
-          <h2 className="text-[15px] font-bold text-ink">124 Compatible Students Found</h2>
+          <h2 className="text-[15px] font-bold text-ink">{filteredMatches.length} Compatible Students Found</h2>
           <p className="text-[13px] text-subtle mt-0.5">Sorted by AI Compatibility</p>
         </div>
 
         {/* Match List */}
         <div className="space-y-6">
-          {matches.map((match, idx) => (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="h-10 w-10 text-brand animate-spin" />
+              <p className="text-subtle font-medium">Finding compatible students...</p>
+            </div>
+          ) : filteredMatches.map((match, idx) => (
             <div 
               key={match.id}
               className="fade-up rounded-[28px] bg-white border border-line/60 p-5 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.06)] group"
@@ -211,7 +285,7 @@ function ExploreMatchesScreen() {
 
               {/* Purpose Tags */}
               <div className="flex flex-wrap gap-1.5 mt-5">
-                {match.tags.map((tag) => (
+                {match.tags.map((tag: string) => (
                   <span key={tag} className="rounded-full bg-[#F5F5F7] px-3 py-1 text-[11px] font-bold text-subtle uppercase tracking-wider">
                     {tag}
                   </span>
@@ -231,7 +305,7 @@ function ExploreMatchesScreen() {
 
               {/* Match Reasons */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {match.reasons.map((reason) => (
+                {match.reasons.map((reason: string) => (
                   <div key={reason} className="flex items-center gap-1.5 rounded-full bg-mint/10 px-3 py-1.5 text-[12px] font-semibold text-mint-deep">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     {reason}
@@ -243,6 +317,7 @@ function ExploreMatchesScreen() {
               <div className="flex items-center gap-3 mt-6">
                 <Link 
                   to="/student-profile"
+                  search={{ id: match.id }}
                   className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-brand text-[16px] font-bold text-white shadow-lg shadow-brand/20 transition-all active:scale-95"
                 >
                   View Profile

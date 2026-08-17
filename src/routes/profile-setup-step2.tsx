@@ -12,7 +12,8 @@ import {
   Search,
   CheckCircle2,
   Sparkles,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/profile-setup-step2')({
   head: () => ({
@@ -52,6 +54,32 @@ function AcademicProfileSetup() {
   const [careerGoal, setCareerGoal] = useState("");
   const [learningBio, setLearningBio] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadAcademicProfile() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from('academic_profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          setUniversity(profile['university'] || "");
+          setDegree(profile['degree'] || "");
+          setFieldOfStudy(profile['field_of_study'] || "");
+          setYearOfStudy(profile['year_of_study'] || "");
+          setSelectedSkills(profile['skills'] || []);
+          setSelectedInterests(profile['interests'] || []);
+          setCareerGoal(profile['career_goal'] || "");
+          setLearningBio(profile['learning_bio'] || "");
+        }
+      }
+    }
+    loadAcademicProfile();
+  }, []);
 
   const toggleItem = (item: string, state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
     setState(prev => 
@@ -59,14 +87,41 @@ function AcademicProfileSetup() {
     );
   };
 
-  const handleComplete = () => {
-    setIsSuccess(true);
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#6D5EF7', '#23C8A4', '#FFFFFF']
-    });
+  const handleComplete = async () => {
+    try {
+      setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase
+        .from('academic_profiles')
+        .upsert({
+          id: session.user.id,
+          university,
+          degree,
+          field_of_study: fieldOfStudy,
+          year_of_study: yearOfStudy,
+          skills: selectedSkills,
+          interests: selectedInterests,
+          career_goal: careerGoal,
+          learning_bio: learningBio,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      setIsSuccess(true);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#6D5EF7', '#23C8A4', '#FFFFFF']
+      });
+    } catch (error) {
+      console.error('Error saving academic profile:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -391,10 +446,11 @@ function AcademicProfileSetup() {
 
         {/* Primary Button */}
         <Button 
+          disabled={loading}
           className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#6D5EF7] to-[#A78BFA] text-lg font-bold text-white shadow-lg shadow-[#6D5EF7]/20 hover:scale-[1.01] active:scale-[0.98] transition-all"
           onClick={handleComplete}
         >
-          Complete Profile
+          {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Complete Profile"}
         </Button>
       </main>
 
