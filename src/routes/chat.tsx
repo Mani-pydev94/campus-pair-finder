@@ -22,7 +22,7 @@ import {
   User,
   CheckCheck
 } from "lucide-react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -138,6 +138,17 @@ function ChatScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (activeChat) {
+      scrollToBottom();
+    }
+  }, [messages, activeChat]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
@@ -184,7 +195,7 @@ function ChatScreen() {
 
   if (activeChat) {
     return (
-      <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
+      <div className="mx-auto h-screen w-full max-w-[520px] bg-white pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))] flex flex-col">
         <header className="flex items-center justify-between px-6">
           <button 
             onClick={() => setActiveChat(null)}
@@ -206,9 +217,9 @@ function ChatScreen() {
           </div>
         </header>
 
-        <div className="mt-8 flex-1 px-6">
+        <div className="mt-8 flex-1 overflow-y-auto px-6 pb-8 custom-scrollbar">
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-8 shrink-0">
               <div className="relative">
                 <img src={activeChat.avatar} alt={activeChat.name} className="h-24 w-24 rounded-[32px] object-cover shadow-xl" />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-white shadow-lg ring-2 ring-white">
@@ -252,10 +263,11 @@ function ChatScreen() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-1/2 w-full max-w-[520px] -translate-x-1/2 bg-white/80 p-4 backdrop-blur-xl border-t border-border/40 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="bg-white/80 p-4 backdrop-blur-xl border-t border-border/40 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-3">
             <button className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary/40 text-subtle transition-transform active:scale-90">
               <Plus className="h-6 w-6" />
