@@ -128,21 +128,43 @@ function ChatScreen() {
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
   const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [messages, setMessages] = useState(initialConversation);
+  const [messages, setMessages] = useState(initialConversation.map(m => ({ ...m, id: Math.random().toString(), status: 'sent' as const })));
   const [newMessage, setNewMessage] = useState("");
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
     
-    const msg = {
+    const messageId = Math.random().toString();
+    const text = newMessage;
+    
+    // 1. Optimistic Update
+    const optimisticMsg = {
+      id: messageId,
       sender: "You",
-      text: newMessage,
-      type: "outgoing" as const
+      text: text,
+      type: "outgoing" as const,
+      status: 'sending' as const
     };
     
-    setMessages([...messages, msg]);
+    setMessages(prev => [...prev, optimisticMsg]);
     setNewMessage("");
-    toast.success("Message sent!");
+
+    // 2. Simulate Server Reconciliation
+    // In a real app, this would be a server function or API call
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network latency
+      
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, status: 'sent' as const } : msg
+      ));
+      
+      toast.success("Message sent!");
+    } catch (error) {
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, status: 'error' as const } : msg
+      ));
+      toast.error("Failed to send message");
+    }
   };
 
   const filteredMatches = useMemo(() => {
