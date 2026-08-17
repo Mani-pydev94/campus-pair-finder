@@ -22,6 +22,7 @@ import { Route as ProfileSetupStep2RouteImport } from './routes/profile-setup-st
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudentProfileRouteImport } from './routes/student-profile'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
@@ -91,6 +92,11 @@ const QuestionnaireIntroRoute = QuestionnaireIntroRouteImport.update({
   path: '/questionnaire-intro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
   '/verify-email': typeof VerifyEmailRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/reset-password'
     | '/signup'
     | '/student-profile'
     | '/verify-email'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/reset-password'
     | '/signup'
     | '/student-profile'
     | '/verify-email'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/reset-password'
     | '/signup'
     | '/student-profile'
     | '/verify-email'
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   QuestionRoute: typeof QuestionRoute
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   StudentProfileRoute: typeof StudentProfileRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuestionnaireIntroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -369,6 +389,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuestionRoute: QuestionRoute,
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   StudentProfileRoute: StudentProfileRoute,
   VerifyEmailRoute: VerifyEmailRoute,
