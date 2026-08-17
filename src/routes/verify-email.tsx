@@ -19,6 +19,22 @@ import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 
 export const Route = createFileRoute('/verify-email')({
+  head: () => ({
+    meta: [
+      { title: "Verify Your Email — Campus Connect AI" },
+      {
+        name: "description",
+        content: "One final step to join the most compatible student community.",
+      },
+      { property: "og:title", content: "Verify Your Email — Campus Connect AI" },
+      {
+        property: "og:description",
+        content: "One final step to join the most compatible student community.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: VerifyEmailScreen,
 });
 
