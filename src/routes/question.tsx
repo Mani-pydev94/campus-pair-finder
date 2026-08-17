@@ -114,11 +114,11 @@ function QuestionScreen() {
   const [loading, setLoading] = useState(false);
 
   const categoryQuestions = useMemo(() => {
-    return questionnaireData[category] || questionnaireData["Values"];
+    return (questionnaireData[category] || questionnaireData["Values"]) as Question[];
   }, [category]);
 
   const currentQuestion = useMemo(() => {
-    return categoryQuestions[currentQuestionIndex] || categoryQuestions[0];
+    return (categoryQuestions[currentQuestionIndex] || categoryQuestions[0]) as Question;
   }, [categoryQuestions, currentQuestionIndex]);
 
   useEffect(() => {
@@ -147,7 +147,7 @@ function QuestionScreen() {
         .from('questionnaire_responses')
         .upsert({
           user_id: session.user.id,
-          question_id: numericId,
+          question_id: numericId as any,
           category: category,
           answer: answer || 'skipped',
           importance: weight || 'Somewhat Important',
