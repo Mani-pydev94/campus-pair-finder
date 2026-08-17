@@ -169,7 +169,7 @@ function LoginScreen() {
           </div>
 
           <div className="flex justify-end">
-            <Link to="/forgot-password" truncate={true} className="text-sm font-semibold text-brand">
+            <Link to="/forgot-password" className="text-sm font-semibold text-brand">
               Forgot Password?
             </Link>
           </div>
