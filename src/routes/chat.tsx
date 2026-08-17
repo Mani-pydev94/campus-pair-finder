@@ -110,6 +110,14 @@ const groupChats = [
   }
 ];
 
+interface Message {
+  id: string;
+  sender: string;
+  text: string;
+  type: "incoming" | "outgoing";
+  status: "sending" | "sent" | "error";
+}
+
 const sharedFiles = [
   { name: "Project Proposal.pdf", size: "2.4 MB", type: "PDF" },
   { name: "Azure Notes.docx", size: "1.1 MB", type: "DOCX" },
@@ -117,9 +125,9 @@ const sharedFiles = [
 ];
 
 const initialConversation = [
-  { sender: "Sophia", text: "Are you interested in participating in the hackathon next month?", type: "incoming" },
-  { sender: "You", text: "Yes. I'm preparing for the Azure challenge as well.", type: "outgoing" },
-  { sender: "Sophia", text: "Great. Let's create a team.", type: "incoming" }
+  { id: "1", sender: "Sophia", text: "Are you interested in participating in the hackathon next month?", type: "incoming" as const, status: "sent" as const },
+  { id: "2", sender: "You", text: "Yes. I'm preparing for the Azure challenge as well.", type: "outgoing" as const, status: "sent" as const },
+  { id: "3", sender: "Sophia", text: "Great. Let's create a team.", type: "incoming" as const, status: "sent" as const }
 ];
 
 function ChatScreen() {
@@ -128,7 +136,7 @@ function ChatScreen() {
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
   const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [messages, setMessages] = useState(initialConversation.map(m => ({ ...m, id: Math.random().toString(), status: 'sent' as const })));
+  const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
 
   const handleSendMessage = async () => {
