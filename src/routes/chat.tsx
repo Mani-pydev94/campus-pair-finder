@@ -24,9 +24,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import student1 from "@/assets/match-1.jpg";
 import student2 from "@/assets/match-2.jpg";
 import student3 from "@/assets/match-3.jpg";
+
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -363,10 +365,14 @@ function ChatScreen() {
       </section>
 
       {/* FAB */}
-      <button className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95">
+      <button 
+        onClick={() => toast.info("New Chat functionality coming soon!")}
+        className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95"
+      >
         <Plus className="h-6 w-6" />
         <span className="text-[16px] font-bold">New Chat</span>
       </button>
+
 
       {/* Bottom Navigation */}
       <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-[520px] px-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
