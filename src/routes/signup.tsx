@@ -318,7 +318,7 @@ function SignupScreen() {
 
           {/* Terms */}
           <div className="flex flex-col gap-2">
-            <label className="group flex cursor-pointer items-start gap-3">
+            <label htmlFor="agreeTerms" className="group flex cursor-pointer items-start gap-3">
               <div className="relative mt-0.5 flex h-5 w-5 items-center justify-center">
                 <input
                   id="agreeTerms"
