@@ -19,6 +19,7 @@ import {
   Heart,
   ClipboardList,
   User,
+  MessageSquare,
   Loader2,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";

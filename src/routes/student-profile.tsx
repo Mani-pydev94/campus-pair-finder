@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Globe,
   User,
+  MessageSquare,
   Zap,
   Lightbulb,
   Target,

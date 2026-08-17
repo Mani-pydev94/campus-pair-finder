@@ -13,6 +13,7 @@ import {
   ClipboardList,
   Globe,
   User,
+  MessageSquare,
   ExternalLink,
   ChevronRight,
   Loader2
