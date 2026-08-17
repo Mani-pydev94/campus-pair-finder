@@ -23,9 +23,7 @@ import {
   Zap
 } from "lucide-react";
 import { useState } from "react";
-import match1 from "@/assets/match-1.jpg";
-import match2 from "@/assets/match-2.jpg";
-import match3 from "@/assets/match-3.jpg";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/communities")({
   head: () => ({
@@ -190,9 +188,12 @@ function CommunitiesScreen() {
             </p>
             <div className="mt-6 flex items-center justify-between">
               <span className="text-[15px] font-semibold text-white/90">12 Recommended Communities</span>
-              <button className="flex h-11 items-center justify-center rounded-xl bg-white px-5 text-[15px] font-bold text-brand shadow-lg transition-transform active:scale-95">
+              <Link 
+                to="/explore-matches"
+                className="flex h-11 items-center justify-center rounded-xl bg-white px-5 text-[15px] font-bold text-brand shadow-lg transition-transform active:scale-95"
+              >
                 Explore Now
-              </button>
+              </Link>
             </div>
           </div>
           {/* Decorative shapes */}
@@ -247,10 +248,16 @@ function CommunitiesScreen() {
                   </span>
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-3">
-                  <button className="flex h-10 items-center justify-center rounded-xl bg-brand text-[14px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-95">
+                  <button 
+                    onClick={() => toast.success(`Request to join ${comm.name} sent!`)}
+                    className="flex h-10 items-center justify-center rounded-xl bg-brand text-[14px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-95"
+                  >
                     Join
                   </button>
-                  <button className="flex h-10 items-center justify-center rounded-xl bg-[#F5F5F7] text-[14px] font-bold text-ink transition-transform active:scale-95">
+                  <button 
+                    onClick={() => toast.info(`Previewing ${comm.name}...`)}
+                    className="flex h-10 items-center justify-center rounded-xl bg-[#F5F5F7] text-[14px] font-bold text-ink transition-transform active:scale-95"
+                  >
                     Preview
                   </button>
                 </div>

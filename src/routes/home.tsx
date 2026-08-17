@@ -10,6 +10,7 @@ import {
   Network,
   FlaskConical,
   BookOpen,
+  Trophy,
   Cloud,
   Brain,
   Camera,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import match1 from "@/assets/match-1.jpg";
 import match2 from "@/assets/match-2.jpg";
 import match3 from "@/assets/match-3.jpg";
