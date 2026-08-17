@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Globe,
   User,
+  MessageSquare,
   Zap,
   Lightbulb,
   Target,
@@ -444,7 +445,7 @@ function StudentProfileScreen() {
             { icon: Home, label: "Home", path: "/home", active: false },
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },
             { icon: Globe, label: "Groups", path: "/communities", active: false },
-            { icon: ClipboardList, label: "Quiz", path: "/questionnaire-intro", active: false },
+            { icon: MessageSquare, label: "Chat", path: "/chat", active: false },
             { icon: User, label: "Profile", path: "/home", active: false },
           ].map((item) => (
             <Link
