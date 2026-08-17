@@ -132,7 +132,7 @@ function VerifyEmailScreen() {
             asChild
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            <Link to="/questionnaire-intro">Continue</Link>
+            <Link to="/profile-setup">Continue</Link>
           </Button>
         </motion.div>
       </div>

@@ -14,6 +14,7 @@ import { Route as ExploreMatchesRouteImport } from './routes/explore-matches'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
+import { Route as ProfileSetupRouteImport } from './routes/profile-setup'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
@@ -44,6 +45,11 @@ const LoginRoute = LoginRouteImport.update({
 const MatchesReadyRoute = MatchesReadyRouteImport.update({
   id: '/matches-ready',
   path: '/matches-ready',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileSetupRoute = ProfileSetupRouteImport.update({
+  id: '/profile-setup',
+  path: '/profile-setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuestionRoute = QuestionRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
+  '/profile-setup': typeof ProfileSetupRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
+  '/profile-setup': typeof ProfileSetupRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
+  '/profile-setup': typeof ProfileSetupRoute
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/matches-ready'
+    | '/profile-setup'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/matches-ready'
+    | '/profile-setup'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/login'
     | '/matches-ready'
+    | '/profile-setup'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -165,6 +177,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MatchesReadyRoute: typeof MatchesReadyRoute
+  ProfileSetupRoute: typeof ProfileSetupRoute
   QuestionRoute: typeof QuestionRoute
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/matches-ready'
       fullPath: '/matches-ready'
       preLoaderRoute: typeof MatchesReadyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile-setup': {
+      id: '/profile-setup'
+      path: '/profile-setup'
+      fullPath: '/profile-setup'
+      preLoaderRoute: typeof ProfileSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/question': {
@@ -261,6 +281,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MatchesReadyRoute: MatchesReadyRoute,
+  ProfileSetupRoute: ProfileSetupRoute,
   QuestionRoute: QuestionRoute,
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
