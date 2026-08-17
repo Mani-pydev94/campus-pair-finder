@@ -435,12 +435,19 @@ function ChatScreen() {
 
       {/* FAB */}
       <button 
-        onClick={() => setShowNewChatFlow(true)}
-        className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95"
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log("New Chat Clicked");
+          setShowNewChatFlow(true);
+        }}
+        className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-[60] flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95 cursor-pointer"
       >
         <Plus className="h-6 w-6" />
         <span className="text-[16px] font-bold">New Chat</span>
       </button>
+
 
 
 
