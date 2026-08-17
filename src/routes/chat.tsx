@@ -134,7 +134,8 @@ function ChatScreen() {
     return all.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
 
-  if (showNewChatFlow) {
+
+  const renderNewChatFlow = () => {
     return (
       <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))] animate-in slide-in-from-right duration-300">
         <header className="flex items-center justify-between px-6">
@@ -191,9 +192,13 @@ function ChatScreen() {
         </div>
       </div>
     );
-  }
+  };
+
+
+  if (showNewChatFlow) return renderNewChatFlow();
 
   return (
+
 
     <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
       {/* Top Bar */}
