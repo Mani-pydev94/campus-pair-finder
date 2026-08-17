@@ -110,6 +110,14 @@ const groupChats = [
   }
 ];
 
+interface Message {
+  id: string;
+  sender: string;
+  text: string;
+  type: "incoming" | "outgoing";
+  status: "sending" | "sent" | "error";
+}
+
 const sharedFiles = [
   { name: "Project Proposal.pdf", size: "2.4 MB", type: "PDF" },
   { name: "Azure Notes.docx", size: "1.1 MB", type: "DOCX" },
@@ -117,9 +125,9 @@ const sharedFiles = [
 ];
 
 const initialConversation = [
-  { sender: "Sophia", text: "Are you interested in participating in the hackathon next month?", type: "incoming" },
-  { sender: "You", text: "Yes. I'm preparing for the Azure challenge as well.", type: "outgoing" },
-  { sender: "Sophia", text: "Great. Let's create a team.", type: "incoming" }
+  { id: "1", sender: "Sophia", text: "Are you interested in participating in the hackathon next month?", type: "incoming" as const, status: "sent" as const },
+  { id: "2", sender: "You", text: "Yes. I'm preparing for the Azure challenge as well.", type: "outgoing" as const, status: "sent" as const },
+  { id: "3", sender: "Sophia", text: "Great. Let's create a team.", type: "incoming" as const, status: "sent" as const }
 ];
 
 function ChatScreen() {
@@ -128,21 +136,43 @@ function ChatScreen() {
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
   const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [messages, setMessages] = useState(initialConversation);
+  const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
     
-    const msg = {
+    const messageId = Math.random().toString();
+    const text = newMessage;
+    
+    // 1. Optimistic Update
+    const optimisticMsg = {
+      id: messageId,
       sender: "You",
-      text: newMessage,
-      type: "outgoing" as const
+      text: text,
+      type: "outgoing" as const,
+      status: 'sending' as const
     };
     
-    setMessages([...messages, msg]);
+    setMessages(prev => [...prev, optimisticMsg]);
     setNewMessage("");
-    toast.success("Message sent!");
+
+    // 2. Simulate Server Reconciliation
+    // In a real app, this would be a server function or API call
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network latency
+      
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, status: 'sent' as const } : msg
+      ));
+      
+      toast.success("Message sent!");
+    } catch (error) {
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, status: 'error' as const } : msg
+      ));
+      toast.error("Failed to send message");
+    }
   };
 
   const filteredMatches = useMemo(() => {
@@ -193,7 +223,7 @@ function ChatScreen() {
 
             {messages.map((msg, i) => (
               <div 
-                key={i} 
+                key={msg.id} 
                 className={cn(
                   "max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-500",
                   msg.type === "outgoing" ? "self-end" : "self-start"
@@ -202,13 +232,23 @@ function ChatScreen() {
               >
                 <div 
                   className={cn(
-                    "rounded-[24px] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm",
+                    "rounded-[24px] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm relative",
                     msg.type === "outgoing" 
                       ? "rounded-tr-md bg-brand text-white" 
                       : "rounded-tl-md bg-white text-ink border border-border/40"
                   )}
                 >
                   {msg.text}
+                  {msg.type === "outgoing" && (
+                    <div className="absolute -bottom-5 right-1 flex items-center gap-1">
+                      {msg.status === "sending" && <div className="h-3 w-3 animate-spin rounded-full border-2 border-brand/30 border-t-brand" />}
+                      {msg.status === "sent" && <CheckCheck className="h-3 w-3 text-brand" />}
+                      {msg.status === "error" && <span className="text-[10px] text-destructive">Failed</span>}
+                      <span className="text-[10px] text-subtle/60 font-medium">
+                        {msg.status === "sending" ? "Sending..." : "Just now"}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
