@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter, Outlet } from "@tanstack/react-router";
 import { 
   ArrowLeft, 
   Search, 
