@@ -134,6 +134,10 @@ function ChatScreen() {
     return all.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
 
+  useEffect(() => {
+    console.log("showNewChatFlow state:", showNewChatFlow);
+  }, [showNewChatFlow]);
+
 
   if (showNewChatFlow) {
     return (
