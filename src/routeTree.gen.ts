@@ -16,6 +16,7 @@ import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
+import { Route as SignupRouteImport } from './routes/signup'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const QuestionnaireIntroRoute = QuestionnaireIntroRouteImport.update({
   path: '/questionnaire-intro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/signup'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
+    | '/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   QuestionRoute: typeof QuestionRoute
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuestionnaireIntroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuestionRoute: QuestionRoute,
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
