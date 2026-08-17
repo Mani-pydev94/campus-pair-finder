@@ -116,7 +116,7 @@ const sharedFiles = [
   { name: "ML Resources.pdf", size: "5.8 MB", type: "PDF" }
 ];
 
-const conversation = [
+const initialConversation = [
   { sender: "Sophia", text: "Are you interested in participating in the hackathon next month?", type: "incoming" },
   { sender: "You", text: "Yes. I'm preparing for the Azure challenge as well.", type: "outgoing" },
   { sender: "Sophia", text: "Great. Let's create a team.", type: "incoming" }
@@ -128,6 +128,22 @@ function ChatScreen() {
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
   const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [messages, setMessages] = useState(initialConversation);
+  const [newMessage, setNewMessage] = useState("");
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    
+    const msg = {
+      sender: "You",
+      text: newMessage,
+      type: "outgoing" as const
+    };
+    
+    setMessages([...messages, msg]);
+    setNewMessage("");
+    toast.success("Message sent!");
+  };
 
   const filteredMatches = useMemo(() => {
     const all = [...pinnedChats, ...privateChats];
@@ -175,7 +191,7 @@ function ChatScreen() {
               </p>
             </div>
 
-            {conversation.map((msg, i) => (
+            {messages.map((msg, i) => (
               <div 
                 key={i} 
                 className={cn(
@@ -208,11 +224,14 @@ function ChatScreen() {
               <input 
                 type="text" 
                 placeholder="Type a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="h-12 w-full rounded-2xl bg-secondary/30 px-5 text-[15px] outline-none transition-all focus:bg-secondary/50 focus:ring-1 focus:ring-brand/20"
               />
             </div>
             <button 
-              onClick={() => toast.success("Message sent!")}
+              onClick={handleSendMessage}
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-lg shadow-brand/20 transition-transform active:scale-90"
             >
               <MessageSquare className="h-5 w-5" />
@@ -475,7 +494,7 @@ function ChatScreen() {
 
         <div className="mt-5 space-y-4 rounded-[32px] border border-border/40 bg-secondary/20 p-6">
           <div className="flex flex-col gap-4">
-            {conversation.map((msg, i) => (
+            {messages.map((msg, i) => (
               <div 
                 key={i} 
                 className={cn(
