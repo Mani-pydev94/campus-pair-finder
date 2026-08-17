@@ -1,72 +1,36 @@
 # Plan: Implement Full Backend Integration for Campus Connect AI
 
-I will implement a robust backend for Campus Connect AI using Lovable Cloud (Supabase). This includes user authentication, profiles, academic data, questionnaire results, and an AI-driven matching engine.
+I will implement a robust backend for Campus Connect AI using Lovable Cloud. This includes user authentication, student profiles, academic data, questionnaire results, and an AI-driven matching engine.
 
-## Database Schema
+## User Experience Improvements
 
-### 1. `profiles`
-Stores basic user information linked to auth.
-- `id`: uuid (PK, references auth.users)
-- `display_name`: text
-- `age`: int
-- `gender`: text
-- `city`: text
-- `languages`: text[]
-- `bio`: text
-- `avatar_url`: text
-- `updated_at`: timestamp
+- **Real Auth**: Users can sign up, log in, and verify their university emails for real.
+- **Persistent Profiles**: All student data, including academic interests and learning styles, will be saved securely.
+- **Dynamic Matching**: The "Top Matches" on your dashboard will reflect real students based on shared values and goals.
+- **Smart Onboarding**: The app will remember your progress, guiding you through verification and profile setup.
 
-### 2. `academic_profiles`
-Stores student-specific academic data.
-- `id`: uuid (PK, references auth.users)
-- `university`: text
-- `degree`: text
-- `field_of_study`: text
-- `year_of_study`: text
-- `skills`: text[]
-- `interests`: text[]
-- `career_goal`: text
-- `learning_bio`: text
+## Technical Implementation
 
-### 3. `questionnaire_responses`
-Stores compatibility data for matching.
-- `id`: uuid (PK)
-- `user_id`: uuid (references auth.users)
-- `question_id`: int
-- `answer`: text
-- `importance`: text
-- `category`: text
+### 1. Authentication & Security
+- Activate **Google** and **Microsoft** social login providers.
+- Configure Supabase Auth for email/password and university email verification.
+- Implement **Row Level Security (RLS)** to ensure students can only edit their own data while allowing them to discover others.
 
-### 4. `matches` (Optional/View)
-While matches are calculated on the fly, I'll provide a server function to handle the logic.
+### 2. Data Architecture
+- **Profiles Table**: Linked to authentication, storing display names, bios, and avatars.
+- **Academic Table**: Stores university details, skills (Python, UI/UX, etc.), and career goals.
+- **Responses Table**: Captures questionnaire data to power the compatibility engine.
 
-## Implementation Steps
+### 3. Smart Matching Engine
+- Create a **Server Function** to calculate compatibility scores (e.g., 96%) between students.
+- Logic factors: Shared skills, aligned career goals, and matching personality traits from the questionnaire.
 
-### Phase 1: Authentication & Social Login
-- Enable **Google** and **Microsoft** social auth providers.
-- Implement login/signup logic using `lovable.auth.signInWithOAuth`.
-- Update the email verification flow to use real Supabase auth state.
+### 4. Application Integration
+- Replace all mock data and "simulated delays" with real database queries.
+- Connect the frontend screens (`/signup`, `/login`, `/profile-setup`, `/explore-matches`) to the new backend.
+- Set up **Cloud Storage** for profile photos.
 
-### Phase 2: Database & RLS
-- Create tables with proper foreign keys to `auth.users`.
-- Enable RLS and implement policies:
-  - Users can read/write their own profiles.
-  - Authenticated users can read other students' profiles (for explore/matching).
-- Add security-definer functions for role-based access if needed.
-
-### Phase 3: Profile Setup Integration
-- Replace simulated delays with real `supabase` calls in `profile-setup` and `profile-setup-step2`.
-- Handle image uploads to Lovable Cloud storage.
-
-### Phase 4: Compatibility Engine
-- Implement a server function `getMatches` that calculates compatibility scores based on shared interests, skills, and questionnaire answers.
-- Update the `explore-matches` and `home` screens to fetch data from the database instead of using mocks.
-
-### Phase 5: Routing & UX
-- Add auth guards to routes like `/home`, `/explore-matches`, and `/student-profile`.
-- Ensure a seamless onboarding flow (Signup -> Verify -> Profile Setup -> Questionnaire).
-
-## Technical Details
-- **Stack**: TanStack Start v1, React 19, Supabase (Lovable Cloud).
-- **Security**: Row Level Security (RLS) on all tables, secure server functions.
-- **AI**: Compatibility logic will run on the server for security and performance.
+## Security & Reliability
+- All sensitive operations will happen on the server.
+- Database triggers will handle data consistency (e.g., creating a profile automatically on signup).
+- SEO-optimized routes with proper metadata.
