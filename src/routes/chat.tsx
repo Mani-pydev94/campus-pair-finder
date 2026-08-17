@@ -139,13 +139,19 @@ function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
   useEffect(() => {
-    if (activeChat) {
+    const container = scrollContainerRef.current;
+    if (!container || !activeChat) return;
+
+    const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
+
+    if (isNearBottom) {
       scrollToBottom();
     }
   }, [messages, activeChat]);
@@ -217,7 +223,10 @@ function ChatScreen() {
           </div>
         </header>
 
-        <div className="mt-8 flex-1 overflow-y-auto px-6 pb-8 custom-scrollbar">
+        <div 
+          ref={scrollContainerRef}
+          className="mt-8 flex-1 overflow-y-auto px-6 pb-8 custom-scrollbar"
+        >
           <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center justify-center py-8 shrink-0">
               <div className="relative">
