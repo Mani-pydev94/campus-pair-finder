@@ -199,9 +199,10 @@ function ChatScreen() {
   }
 
   return (
-
-
     <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
+      {/* State Debug */}
+      <div className="hidden">{showNewChatFlow ? "OPEN" : "CLOSED"}</div>
+      
       {/* Top Bar */}
       <header className="fade-up flex items-center justify-between px-6">
         <button 
