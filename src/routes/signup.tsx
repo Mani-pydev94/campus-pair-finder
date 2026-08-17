@@ -14,9 +14,13 @@ import {
   Target,
   Rocket,
   BookOpen,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import confetti from "canvas-confetti";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -140,10 +144,44 @@ function SignupScreen() {
     if (!validate()) return;
 
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    setErrors({});
+
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        data: {
+          display_name: formData.fullName,
+        },
+      },
+    });
+
     setLoading(false);
-    setSuccess(true);
+
+    if (error) {
+      setErrors({ email: error.message });
+      return;
+    }
+
+    if (data.user) {
+      setSuccess(true);
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ["#6D5EF7", "#23C8A4", "#FFD700"],
+      });
+    }
+  }
+
+  async function handleSocialLogin(provider: "google" | "microsoft") {
+    const result = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin + "/home",
+    });
+
+    if (result.error) {
+      console.error(`${provider} login error:`, result.error);
+    }
   }
 
   if (success) {
@@ -363,11 +401,19 @@ function SignupScreen() {
 
       {/* Social Buttons */}
       <div className="fade-up mt-6 flex flex-col gap-3" style={{ animationDelay: "240ms" }}>
-        <button className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]">
+        <button
+          type="button"
+          onClick={() => handleSocialLogin("google")}
+          className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]"
+        >
           <GoogleIcon />
           Continue with Google
         </button>
-        <button className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]">
+        <button
+          type="button"
+          onClick={() => handleSocialLogin("microsoft")}
+          className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]"
+        >
           <MicrosoftIcon />
           Continue with Microsoft
         </button>
