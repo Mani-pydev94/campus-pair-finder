@@ -125,7 +125,6 @@ function QuestionnaireHub() {
       if (data) {
         setAnswered(data.length);
         const progressMap: Record<string, number> = {};
-        if (!progressMap) return; // Should never happen but helps TS
         
         const sectionMax: Record<string, number> = {
           "Values": 6,
@@ -139,8 +138,8 @@ function QuestionnaireHub() {
 
         (data as any[]).forEach(resp => {
           if (resp.category) {
-            if (!progressMap[resp.category]) progressMap[resp.category] = 0;
-            progressMap[resp.category]++;
+            const current = progressMap[resp.category] || 0;
+            progressMap[resp.category] = current + 1;
           }
         });
 
