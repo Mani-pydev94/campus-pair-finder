@@ -112,23 +112,23 @@ function SignupScreen() {
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
-    if (!formData.name.trim()) nextErrors.name = "Please enter your name.";
+    if (!formData.name.trim()) nextErrors["name"] = "Please enter your name.";
     
     const emailValue = formData.email.trim();
-    if (!emailValue) nextErrors.email = "Please enter your college email.";
+    if (!emailValue) nextErrors["email"] = "Please enter your college email.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(emailValue))
-      nextErrors.email = "Please enter a valid college email.";
+      nextErrors["email"] = "Please enter a valid college email.";
 
     if (passwordRequirements.filter(r => !r.met).length > 0) {
-      nextErrors.password = "Password doesn't meet security requirements.";
+      nextErrors["password"] = "Password doesn't meet security requirements.";
     }
 
     if (formData.confirmPassword !== formData.password) {
-      nextErrors.confirmPassword = "Passwords do not match.";
+      nextErrors["confirmPassword"] = "Passwords do not match.";
     }
 
     if (!formData.agreeTerms) {
-      nextErrors.agreeTerms = "You must agree to the terms.";
+      nextErrors["agreeTerms"] = "You must agree to the terms.";
     }
 
     setErrors(nextErrors);
@@ -212,10 +212,10 @@ function SignupScreen() {
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={cn(inputBase, errors.name && "border-danger focus:border-danger")}
+                className={cn(inputBase, errors["name"] && "border-danger focus:border-danger")}
               />
             </div>
-            {errors.name && <p className="mt-1.5 text-xs font-medium text-danger">{errors.name}</p>}
+            {errors["name"] && <p className="mt-1.5 text-xs font-medium text-danger">{errors["name"]}</p>}
           </div>
 
           {/* Email */}
@@ -229,11 +229,11 @@ function SignupScreen() {
                 placeholder="Enter your college email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={cn(inputBase, errors.email && "border-danger focus:border-danger")}
+                className={cn(inputBase, errors["email"] && "border-danger focus:border-danger")}
               />
             </div>
             <p className="mt-1.5 text-xs text-subtle">Use your official university email for verification.</p>
-            {errors.email && <p className="mt-1.5 text-xs font-medium text-danger">{errors.email}</p>}
+            {errors["email"] && <p className="mt-1.5 text-xs font-medium text-danger">{errors["email"]}</p>}
           </div>
 
           {/* Password */}
@@ -247,7 +247,7 @@ function SignupScreen() {
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={cn(inputBase, "pr-12", errors.password && "border-danger focus:border-danger")}
+                className={cn(inputBase, "pr-12", errors["password"] && "border-danger focus:border-danger")}
               />
               <button
                 type="button"
@@ -289,7 +289,7 @@ function SignupScreen() {
                 ))}
               </ul>
             </div>
-            {errors.password && <p className="mt-2 text-xs font-medium text-danger">{errors.password}</p>}
+            {errors["password"] && <p className="mt-2 text-xs font-medium text-danger">{errors["password"]}</p>}
           </div>
 
           {/* Confirm Password */}
@@ -303,7 +303,7 @@ function SignupScreen() {
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className={cn(inputBase, "pr-12", errors.confirmPassword && "border-danger focus:border-danger")}
+                className={cn(inputBase, "pr-12", errors["confirmPassword"] && "border-danger focus:border-danger")}
               />
               <button
                 type="button"
@@ -313,7 +313,7 @@ function SignupScreen() {
                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-            {errors.confirmPassword && <p className="mt-1.5 text-xs font-medium text-danger">{errors.confirmPassword}</p>}
+            {errors["confirmPassword"] && <p className="mt-1.5 text-xs font-medium text-danger">{errors["confirmPassword"]}</p>}
           </div>
 
           {/* Terms */}
@@ -333,7 +333,7 @@ function SignupScreen() {
                 I agree to the <Link to="/signup" className="font-semibold text-brand">Terms of Service</Link> and <Link to="/signup" className="font-semibold text-brand">Privacy Policy</Link>.
               </span>
             </label>
-            {errors.agreeTerms && <p className="text-xs font-medium text-danger">{errors.agreeTerms}</p>}
+            {errors["agreeTerms"] && <p className="text-xs font-medium text-danger">{errors["agreeTerms"]}</p>}
           </div>
 
           {/* Submit Button */}
