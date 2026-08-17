@@ -285,7 +285,7 @@ function ExploreMatchesScreen() {
 
               {/* Purpose Tags */}
               <div className="flex flex-wrap gap-1.5 mt-5">
-                {match.tags.map((tag) => (
+                {match.tags.map((tag: string) => (
                   <span key={tag} className="rounded-full bg-[#F5F5F7] px-3 py-1 text-[11px] font-bold text-subtle uppercase tracking-wider">
                     {tag}
                   </span>
@@ -305,7 +305,7 @@ function ExploreMatchesScreen() {
 
               {/* Match Reasons */}
               <div className="flex flex-wrap gap-2 mt-4">
-                {match.reasons.map((reason) => (
+                {match.reasons.map((reason: string) => (
                   <div key={reason} className="flex items-center gap-1.5 rounded-full bg-mint/10 px-3 py-1.5 text-[12px] font-semibold text-mint-deep">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     {reason}
