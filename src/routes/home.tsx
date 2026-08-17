@@ -20,6 +20,7 @@ import {
   ClipboardList,
   User,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import match1 from "@/assets/match-1.jpg";
 import match2 from "@/assets/match-2.jpg";
 import match3 from "@/assets/match-3.jpg";
@@ -152,9 +153,9 @@ function HomeDashboard() {
       <section className="fade-up mt-9 px-6" style={{ animationDelay: "200ms" }}>
         <div className="flex items-center justify-between gap-4">
           <h2 className="text-[22px] font-bold tracking-[-0.01em] text-ink">Top Matches for You</h2>
-          <button type="button" className="shrink-0 text-sm font-semibold text-brand">
+          <Link to="/explore-matches" className="shrink-0 text-sm font-semibold text-brand transition-transform active:scale-95">
             See All
-          </button>
+          </Link>
         </div>
         <div className="mt-4 space-y-3">
           {matches.map((m) => (
@@ -247,10 +248,16 @@ function HomeDashboard() {
 
       <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-[520px] px-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-between rounded-[22px] border border-line/70 bg-card px-3 py-3 shadow-[0_20px_44px_-22px_rgba(18,18,18,0.45)]">
-          {navItems.map(({ label, icon: Icon, active }) => (
-            <button
+          {[
+            { label: "Home", icon: HomeIcon, path: "/home", active: true },
+            { label: "Matches", icon: Heart, path: "/explore-matches", active: false },
+            { label: "Questionnaire", icon: ClipboardList, path: "/questionnaire-intro", active: false },
+            { label: "Communities", icon: Users, path: "/home", active: false },
+            { label: "Profile", icon: User, path: "/home", active: false },
+          ].map(({ label, icon: Icon, path, active }) => (
+            <Link
               key={label}
-              type="button"
+              to={path}
               className="flex flex-1 flex-col items-center gap-1 transition-transform duration-150 active:scale-[0.9]"
             >
               <Icon className={`h-5 w-5 ${active ? "text-brand" : "text-subtle"}`} />
@@ -259,7 +266,7 @@ function HomeDashboard() {
               >
                 {label}
               </span>
-            </button>
+            </Link>
           ))}
         </div>
       </nav>
