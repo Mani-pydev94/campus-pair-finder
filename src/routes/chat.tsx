@@ -223,7 +223,7 @@ function ChatScreen() {
 
             {messages.map((msg, i) => (
               <div 
-                key={i} 
+                key={msg.id} 
                 className={cn(
                   "max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-500",
                   msg.type === "outgoing" ? "self-end" : "self-start"
@@ -232,13 +232,23 @@ function ChatScreen() {
               >
                 <div 
                   className={cn(
-                    "rounded-[24px] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm",
+                    "rounded-[24px] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm relative",
                     msg.type === "outgoing" 
                       ? "rounded-tr-md bg-brand text-white" 
                       : "rounded-tl-md bg-white text-ink border border-border/40"
                   )}
                 >
                   {msg.text}
+                  {msg.type === "outgoing" && (
+                    <div className="absolute -bottom-5 right-1 flex items-center gap-1">
+                      {msg.status === "sending" && <div className="h-3 w-3 animate-spin rounded-full border-2 border-brand/30 border-t-brand" />}
+                      {msg.status === "sent" && <CheckCheck className="h-3 w-3 text-brand" />}
+                      {msg.status === "error" && <span className="text-[10px] text-destructive">Failed</span>}
+                      <span className="text-[10px] text-subtle/60 font-medium">
+                        {msg.status === "sending" ? "Sending..." : "Just now"}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
