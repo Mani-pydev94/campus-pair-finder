@@ -360,6 +360,8 @@ function QuestionScreen() {
     } catch (error) {
       console.error('Error saving response:', error);
       if (categoryQuestions && currentQuestionIndex < categoryQuestions.length - 1) {
+        setAnswer(null);
+        setWeight(null);
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         router.navigate({ to: "/questionnaire-hub" });
