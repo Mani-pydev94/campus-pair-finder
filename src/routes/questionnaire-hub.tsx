@@ -113,7 +113,8 @@ function QuestionnaireHub() {
 
   useEffect(() => {
     async function fetchProgress() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData?.session;
       if (!session) return;
 
       const { data } = await supabase
@@ -145,7 +146,8 @@ function QuestionnaireHub() {
         const finalMap: Record<string, number> = {};
         Object.keys(sectionMax).forEach(cat => {
           const count = progressMap[cat] || 0;
-          finalMap[cat] = Math.min(Math.round((count / sectionMax[cat]) * 100), 100);
+          const max = sectionMax[cat] || 1;
+          finalMap[cat] = Math.min(Math.round((count / max) * 100), 100);
         });
 
         setSectionProgress(finalMap);
