@@ -15,7 +15,7 @@ import {
   Image as ImageIcon,
   Trash2,
   Loader2,
-  CheckCircle2
+  CheckCircle2 as LucideCheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -417,7 +417,7 @@ function ProfileSetupScreen() {
               {strengthItems.map((item, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   {item.completed ? (
-                    <CheckCircle2 className="w-3 h-3 text-mint" />
+                    <LucideCheckCircle2 className="w-3 h-3 text-mint" />
                   ) : (
                     <div className="w-3 h-3 rounded-full border border-subtle/30" />
                   )}
