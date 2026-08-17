@@ -406,7 +406,7 @@ function ExploreMatchesScreen() {
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },
             { icon: Globe, label: "Groups", path: "/communities", active: false },
             { icon: MessageSquare, label: "Chat", path: "/chat", active: false },
-            { icon: User, label: "Profile", path: "/home", active: false },
+            { icon: User, label: "Profile", path: "/my-profile", active: false },
           ].map((item) => (
             <Link
               key={item.label}

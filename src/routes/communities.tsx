@@ -359,7 +359,7 @@ function CommunitiesScreen() {
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },
             { label: "Communities", icon: Users, path: "/communities", active: true },
             { label: "Chat", icon: MessageSquare, path: "/chat", active: false },
-            { label: "Profile", icon: User, path: "/home", active: false },
+            { label: "Profile", icon: User, path: "/my-profile", active: false },
           ].map(({ label, icon: Icon, path, active }) => (
             <Link
               key={label}
