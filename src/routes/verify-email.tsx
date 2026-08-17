@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/verify-email')({
   head: () => ({
@@ -39,10 +40,38 @@ export const Route = createFileRoute('/verify-email')({
 });
 
 function VerifyEmailScreen() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
   const [isVerified, setIsVerified] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
   const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    async function getSession() {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setUser(data.session.user);
+        if (data.session.user.email_confirmed_at) {
+          setIsVerified(true);
+        }
+      }
+    }
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        setUser(session.user);
+        if (session.user.email_confirmed_at) {
+          setIsVerified(true);
+        }
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -52,12 +81,10 @@ function VerifyEmailScreen() {
     return undefined;
   }, [timeLeft]);
 
-  const handleVerify = () => {
-    // Simulate verification check
-    // In a real app, this would call a server function
-    const success = Math.random() > 0.3; // 70% success rate for demo
+  const handleVerify = async () => {
+    const { data, error } = await supabase.auth.refreshSession();
     
-    if (success) {
+    if (data.user?.email_confirmed_at) {
       setIsVerified(true);
       confetti({
         particleCount: 150,
@@ -71,13 +98,21 @@ function VerifyEmailScreen() {
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
+    if (!user?.email) return;
     setIsResending(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsResending(false);
+    
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: user.email,
+    });
+
+    setIsResending(false);
+    if (!error) {
       setTimeLeft(60);
-    }, 1500);
+    } else {
+      setShowError(true);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -233,7 +268,7 @@ function VerifyEmailScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-subtle mb-0.5 uppercase tracking-wider">Verification email sent to:</p>
-                <p className="text-base font-bold text-ink">student@university.edu</p>
+                <p className="text-base font-bold text-ink">{user?.email || "student@university.edu"}</p>
               </div>
               <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

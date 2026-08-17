@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { ArrowLeft, GraduationCap, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -55,7 +57,7 @@ function LoginScreen() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const next: { email?: string; password?: string } = {};
     const value = email.trim();
@@ -67,10 +69,29 @@ function LoginScreen() {
     if (Object.keys(next).length > 0) return;
 
     setLoading(true);
-    window.setTimeout(() => {
-      setLoading(false);
-      router.navigate({ to: "/home" });
-    }, 1600);
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setErrors({ email: error.message });
+      return;
+    }
+
+    router.navigate({ to: "/home" });
+  }
+
+  async function handleSocialLogin(provider: "google" | "microsoft") {
+    const result = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin + "/home",
+    });
+
+    if (result.error) {
+      console.error(`${provider} login error:`, result.error);
+    }
   }
 
   return (
@@ -172,6 +193,7 @@ function LoginScreen() {
       <div className="fade-up mt-6 space-y-3" style={{ animationDelay: "280ms" }}>
         <button
           type="button"
+          onClick={() => handleSocialLogin("google")}
           className="flex h-[54px] w-full items-center justify-center gap-3 rounded-[14px] border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]"
         >
           <GoogleIcon />
@@ -179,6 +201,7 @@ function LoginScreen() {
         </button>
         <button
           type="button"
+          onClick={() => handleSocialLogin("microsoft")}
           className="flex h-[54px] w-full items-center justify-center gap-3 rounded-[14px] border border-line bg-background text-[15px] font-semibold text-ink transition-transform duration-150 active:scale-[0.97]"
         >
           <MicrosoftIcon />
