@@ -18,6 +18,7 @@ import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as StudentProfileRouteImport } from './routes/student-profile'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentProfileRoute = StudentProfileRouteImport.update({
+  id: '/student-profile',
+  path: '/student-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
   '/signup': typeof SignupRoute
+  '/student-profile': typeof StudentProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
   '/signup': typeof SignupRoute
+  '/student-profile': typeof StudentProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
   '/signup': typeof SignupRoute
+  '/student-profile': typeof StudentProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/questionnaire-hub'
     | '/questionnaire-intro'
     | '/signup'
+    | '/student-profile'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/questionnaire-hub'
     | '/questionnaire-intro'
     | '/signup'
+    | '/student-profile'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/questionnaire-hub'
     | '/questionnaire-intro'
     | '/signup'
+    | '/student-profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
   SignupRoute: typeof SignupRoute
+  StudentProfileRoute: typeof StudentProfileRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student-profile': {
+      id: '/student-profile'
+      path: '/student-profile'
+      fullPath: '/student-profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
   SignupRoute: SignupRoute,
+  StudentProfileRoute: StudentProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
