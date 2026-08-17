@@ -146,7 +146,7 @@ function QuestionnaireHub() {
         const finalMap: Record<string, number> = {};
         Object.keys(sectionMax).forEach(cat => {
           const count = progressMap[cat] || 0;
-          const max = sectionMax[cat] || 1;
+          const max = (sectionMax as Record<string, number>)[cat] || 1;
           finalMap[cat] = Math.min(Math.round((count / max) * 100), 100);
         });
 
