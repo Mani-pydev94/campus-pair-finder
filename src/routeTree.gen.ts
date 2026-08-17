@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExploreMatchesRouteImport } from './routes/explore-matches'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
@@ -21,6 +22,11 @@ import { Route as SignupRouteImport } from './routes/signup'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreMatchesRoute = ExploreMatchesRouteImport.update({
+  id: '/explore-matches',
+  path: '/explore-matches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -61,6 +67,7 @@ const SignupRoute = SignupRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/explore-matches'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/explore-matches'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/explore-matches'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -125,6 +137,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExploreMatchesRoute: typeof ExploreMatchesRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MatchesReadyRoute: typeof MatchesReadyRoute
@@ -141,6 +154,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore-matches': {
+      id: '/explore-matches'
+      path: '/explore-matches'
+      fullPath: '/explore-matches'
+      preLoaderRoute: typeof ExploreMatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -197,6 +217,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExploreMatchesRoute: ExploreMatchesRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MatchesReadyRoute: MatchesReadyRoute,

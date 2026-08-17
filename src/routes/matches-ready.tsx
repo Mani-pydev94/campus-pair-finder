@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
@@ -220,12 +220,12 @@ function MatchesReady() {
           <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-ink">
             Top Recommended Students
           </h2>
-          <button
-            type="button"
+          <Link
+            to="/explore-matches"
             className="flex items-center gap-0.5 text-[14px] font-semibold text-brand transition-transform active:scale-95"
           >
             See All <ChevronRight className="h-4 w-4" />
-          </button>
+          </Link>
         </div>
 
         <section className="mt-4 space-y-5">
