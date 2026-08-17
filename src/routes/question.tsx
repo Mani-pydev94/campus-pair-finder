@@ -25,6 +25,30 @@ const questionnaireData: Record<string, Question[]> = {
       text: "Do you believe in strict adherence to deadlines over project quality?", 
       aiInsight: "We match you with people who share your standards for excellence and timing.",
       icon: "❤️"
+    },
+    {
+      id: "v3",
+      text: "How much do you value personal growth compared to academic success?",
+      aiInsight: "Helps us find partners who prioritize self-improvement as much as you do.",
+      icon: "❤️"
+    },
+    {
+      id: "v4",
+      text: "Do you prefer working with people who share your political views?",
+      aiInsight: "Aligns your social environment with your core belief systems.",
+      icon: "❤️"
+    },
+    {
+      id: "v5",
+      text: "Is social responsibility a major factor in your career choices?",
+      aiInsight: "Matches you with purpose-driven individuals who want to make an impact.",
+      icon: "❤️"
+    },
+    {
+      id: "v6",
+      text: "How important is family and tradition in your daily life decisions?",
+      aiInsight: "Connects you with others who share similar cultural or familial priorities.",
+      icon: "❤️"
     }
   ],
   "Personality": [
@@ -32,6 +56,48 @@ const questionnaireData: Record<string, Question[]> = {
       id: "p1", 
       text: "Do you feel energized after spending time with a large group of people?", 
       aiInsight: "Helps us balance team dynamics between introverts and extroverts.",
+      icon: "🧠"
+    },
+    {
+      id: "p2",
+      text: "Do you tend to follow a strict schedule rather than being spontaneous?",
+      aiInsight: "Finds partners who match your organizational style and pace.",
+      icon: "🧠"
+    },
+    {
+      id: "p3",
+      text: "Do you consider yourself a creative thinker more than a logical one?",
+      aiInsight: "Balances teams with a mix of innovative and analytical minds.",
+      icon: "🧠"
+    },
+    {
+      id: "p4",
+      text: "How do you handle high-pressure situations or tight deadlines?",
+      aiInsight: "Ensures your study group can remain calm and productive under stress.",
+      icon: "🧠"
+    },
+    {
+      id: "p5",
+      text: "Are you more focused on the big picture than the small details?",
+      aiInsight: "Pairs detail-oriented students with visionary thinkers.",
+      icon: "🧠"
+    },
+    {
+      id: "p6",
+      text: "Do you enjoy being the center of attention in social settings?",
+      aiInsight: "Refines your social compatibility with different personality types.",
+      icon: "🧠"
+    },
+    {
+      id: "p7",
+      text: "Do you often rely on your intuition when making important decisions?",
+      aiInsight: "Connects you with others who trust their gut feelings similarly.",
+      icon: "🧠"
+    },
+    {
+      id: "p8",
+      text: "Are you easily affected by the emotions of those around you?",
+      aiInsight: "Matches you with empathetic or steady partners based on your needs.",
       icon: "🧠"
     }
   ],
@@ -41,6 +107,36 @@ const questionnaireData: Record<string, Question[]> = {
       text: "Do you prefer written updates over verbal meetings for project progress?", 
       aiInsight: "Aligns your team with your preferred collaboration channels.",
       icon: "💬"
+    },
+    {
+      id: "c2",
+      text: "How comfortable are you with giving direct, critical feedback?",
+      aiInsight: "Matches you with people who share your communication transparency.",
+      icon: "💬"
+    },
+    {
+      id: "c3",
+      text: "Do you prefer to resolve conflicts immediately as they arise?",
+      aiInsight: "Ensures your group has a healthy approach to disagreement resolution.",
+      icon: "💬"
+    },
+    {
+      id: "c4",
+      text: "Are you a frequent user of emojis and informal language in professional chats?",
+      aiInsight: "Synchronizes your digital communication style with others.",
+      icon: "💬"
+    },
+    {
+      id: "c5",
+      text: "Do you prefer one-on-one deep conversations over group discussions?",
+      aiInsight: "Finds the best setting for you to voice your ideas effectively.",
+      icon: "💬"
+    },
+    {
+      id: "c6",
+      text: "How often do you check your messages during a typical study session?",
+      aiInsight: "Aligns response time expectations within your match group.",
+      icon: "💬"
     }
   ],
   "Learning Style": [
@@ -48,6 +144,30 @@ const questionnaireData: Record<string, Question[]> = {
       id: "l1", 
       text: "Do you learn better by doing (hands-on) than by reading theory?", 
       aiInsight: "Finds study partners who process information like you do.",
+      icon: "📚"
+    },
+    {
+      id: "l2",
+      text: "Do you prefer visual aids like charts and diagrams over text?",
+      aiInsight: "Matches your learning preferences for better collaborative studying.",
+      icon: "📚"
+    },
+    {
+      id: "l3",
+      text: "Do you find it easier to remember information that you hear?",
+      aiInsight: "Identifies if you benefit from auditory learning or discussions.",
+      icon: "📚"
+    },
+    {
+      id: "l4",
+      text: "Do you like to study in complete silence without any distractions?",
+      aiInsight: "Connects you with partners who respect your need for a quiet space.",
+      icon: "📚"
+    },
+    {
+      id: "l5",
+      text: "Do you enjoy teaching others what you have just learned?",
+      aiInsight: "Finds partners who benefit from the 'protégé effect' with you.",
       icon: "📚"
     }
   ],
@@ -57,6 +177,30 @@ const questionnaireData: Record<string, Question[]> = {
       text: "Are you more interested in joining a large corporation than starting your own business?", 
       aiInsight: "Connects you with others moving in the same career direction.",
       icon: "🎯"
+    },
+    {
+      id: "g2",
+      text: "Is financial stability your primary motivation for your career choice?",
+      aiInsight: "Aligns your professional drive with like-minded individuals.",
+      icon: "🎯"
+    },
+    {
+      id: "g3",
+      text: "Do you plan to pursue further studies (Master's, PhD) after graduation?",
+      aiInsight: "Finds long-term academic partners who share your educational path.",
+      icon: "🎯"
+    },
+    {
+      id: "g4",
+      text: "How important is work-life balance in your future career plans?",
+      aiInsight: "Matches you with others who share your professional lifestyle values.",
+      icon: "🎯"
+    },
+    {
+      id: "g5",
+      text: "Are you interested in working in a different country in the future?",
+      aiInsight: "Connects you with global-minded students and potential travelers.",
+      icon: "🎯"
     }
   ],
   "Lifestyle": [
@@ -65,6 +209,30 @@ const questionnaireData: Record<string, Question[]> = {
       text: "Are you a morning person who prefers to study before 9 AM?", 
       aiInsight: "Finds partners who are active during your peak productivity hours.",
       icon: "🌍"
+    },
+    {
+      id: "s2",
+      text: "Do you lead an active lifestyle with regular exercise and sports?",
+      aiInsight: "Matches you with students who balance health and academics.",
+      icon: "🌍"
+    },
+    {
+      id: "s3",
+      text: "How much time do you spend on social media on a daily basis?",
+      aiInsight: "Helps manage distractions within your potential study group.",
+      icon: "🌍"
+    },
+    {
+      id: "s4",
+      text: "Do you prefer to keep your study space strictly organized?",
+      aiInsight: "Ensures physical or digital workspace compatibility with partners.",
+      icon: "🌍"
+    },
+    {
+      id: "s5",
+      text: "Do you enjoy traveling and exploring new cultures and cuisines?",
+      aiInsight: "Connects you through shared lifestyle interests and curiosity.",
+      icon: "🌍"
     }
   ],
   "Interests & Hobbies": [
@@ -72,6 +240,30 @@ const questionnaireData: Record<string, Question[]> = {
       id: "h1", 
       text: "Do you enjoy participating in competitive hackathons?", 
       aiInsight: "Matches you based on shared passions and hobbies.",
+      icon: "🎨"
+    },
+    {
+      id: "h2",
+      text: "Are you interested in video games or competitive e-sports?",
+      aiInsight: "Finds community through shared gaming and digital entertainment.",
+      icon: "🎨"
+    },
+    {
+      id: "h3",
+      text: "Do you enjoy reading fiction or non-fiction books in your free time?",
+      aiInsight: "Connects you with fellow book lovers and intellectual peers.",
+      icon: "🎨"
+    },
+    {
+      id: "h4",
+      text: "Are you a fan of attending live music concerts or festivals?",
+      aiInsight: "Matches your social energy and taste in entertainment.",
+      icon: "🎨"
+    },
+    {
+      id: "h5",
+      text: "Do you enjoy outdoor activities like hiking, camping, or cycling?",
+      aiInsight: "Finds adventure-minded partners for off-campus activities.",
       icon: "🎨"
     }
   ]
