@@ -420,7 +420,7 @@ function ExploreMatchesScreen() {
               to={item.path}
               className={cn(
                 "flex flex-col items-center gap-1 transition-colors",
-                item.active ? "text-brand" : "text-white/40 hover:text-white/60"
+                item.active ? "text-brand" : "text-subtle hover:text-ink"
               )}
             >
               <item.icon className={cn("h-5 w-5", item.active && "fill-brand/20")} />
