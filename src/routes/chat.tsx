@@ -267,7 +267,7 @@ function ChatScreen() {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-1/2 w-full max-w-[520px] -translate-x-1/2 bg-white/80 p-4 backdrop-blur-xl border-t border-border/40 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="bg-white/80 p-4 backdrop-blur-xl border-t border-border/40 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-3">
             <button className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary/40 text-subtle transition-transform active:scale-90">
               <Plus className="h-6 w-6" />
