@@ -125,6 +125,7 @@ function ChatScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"private" | "group">("private");
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
+  const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMatches = useMemo(() => {
@@ -133,10 +134,93 @@ function ChatScreen() {
     return all.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
 
-  useEffect(() => {
-    console.log("showNewChatFlow state:", showNewChatFlow);
-  }, [showNewChatFlow]);
 
+  if (activeChat) {
+    return (
+      <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
+        <header className="flex items-center justify-between px-6">
+          <button 
+            onClick={() => setActiveChat(null)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-border shadow-sm transition-transform active:scale-90"
+          >
+            <ArrowLeft className="h-5 w-5 text-ink" />
+          </button>
+          <div className="flex flex-col items-center">
+            <h1 className="text-[17px] font-bold tracking-tight text-ink">{activeChat.name}</h1>
+            <span className="text-[11px] font-medium text-success">Online</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/40 text-subtle transition-transform active:scale-90">
+              <Phone className="h-4 w-4" />
+            </button>
+            <button className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/40 text-subtle transition-transform active:scale-90">
+              <Video className="h-4 w-4" />
+            </button>
+          </div>
+        </header>
+
+        <div className="mt-8 flex-1 px-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="relative">
+                <img src={activeChat.avatar} alt={activeChat.name} className="h-24 w-24 rounded-[32px] object-cover shadow-xl" />
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-white shadow-lg ring-2 ring-white">
+                  {activeChat.score}% Match
+                </div>
+              </div>
+              <h2 className="mt-6 text-[20px] font-bold text-ink">Chat with {activeChat.name}</h2>
+              <p className="mt-2 text-center text-[14px] text-subtle px-8">
+                You both love Azure project and Cloud Computing. Start your collaboration!
+              </p>
+            </div>
+
+            {conversation.map((msg, i) => (
+              <div 
+                key={i} 
+                className={cn(
+                  "max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-500",
+                  msg.type === "outgoing" ? "self-end" : "self-start"
+                )}
+                style={{ animationDelay: `${i * 150}ms` }}
+              >
+                <div 
+                  className={cn(
+                    "rounded-[24px] px-5 py-3.5 text-[15px] leading-relaxed shadow-sm",
+                    msg.type === "outgoing" 
+                      ? "rounded-tr-md bg-brand text-white" 
+                      : "rounded-tl-md bg-white text-ink border border-border/40"
+                  )}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="fixed bottom-0 left-1/2 w-full max-w-[520px] -translate-x-1/2 bg-white/80 p-4 backdrop-blur-xl border-t border-border/40 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="flex items-center gap-3">
+            <button className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-secondary/40 text-subtle transition-transform active:scale-90">
+              <Plus className="h-6 w-6" />
+            </button>
+            <div className="relative flex-1">
+              <input 
+                type="text" 
+                placeholder="Type a message..."
+                className="h-12 w-full rounded-2xl bg-secondary/30 px-5 text-[15px] outline-none transition-all focus:bg-secondary/50 focus:ring-1 focus:ring-brand/20"
+              />
+            </div>
+            <button 
+              onClick={() => toast.success("Message sent!")}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand text-white shadow-lg shadow-brand/20 transition-transform active:scale-90"
+            >
+              <MessageSquare className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showNewChatFlow) {
     return (
@@ -174,6 +258,11 @@ function ChatScreen() {
                 key={`${match.name}-${i}`}
                 onClick={() => {
                   toast.success(`Starting conversation with ${match.name}`);
+                  setActiveChat({
+                    name: match.name,
+                    avatar: match.avatar,
+                    score: match.score
+                  });
                   setShowNewChatFlow(false);
                 }}
                 className="flex w-full items-center gap-4 rounded-2xl p-2 transition-all active:scale-[0.98] active:bg-secondary/40"
@@ -283,7 +372,18 @@ function ChatScreen() {
           {(activeTab === "private" ? privateChats : groupChats).map((chat, idx) => (
             <div 
               key={chat.name} 
-              className="group flex items-center gap-4 rounded-[24px] border border-border/40 bg-white p-4 shadow-[0_12px_24px_-12px_rgba(0,0,0,0.06)] transition-all active:scale-[0.98] active:bg-secondary/20"
+              onClick={() => {
+                if ("score" in chat) {
+                  setActiveChat({
+                    name: chat.name,
+                    avatar: chat.avatar,
+                    score: chat.score
+                  });
+                } else {
+                  toast.info("Group chat functionality coming soon!");
+                }
+              }}
+              className="group flex items-center gap-4 rounded-[24px] border border-border/40 bg-white p-4 shadow-[0_12px_24px_-12px_rgba(0,0,0,0.06)] transition-all active:scale-[0.98] active:bg-secondary/20 cursor-pointer"
             >
               <div className="relative shrink-0">
                 {"avatar" in chat ? (
