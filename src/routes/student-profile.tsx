@@ -88,11 +88,11 @@ function StudentProfileScreen() {
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center fade-up">
           <div className="relative">
-            <div className="h-32 w-32 overflow-hidden rounded-full border-4 border-brand/5 shadow-xl animate-in zoom-in duration-700">
+            <div className="h-36 w-36 overflow-hidden rounded-full border-[6px] border-brand/5 shadow-2xl animate-in zoom-in duration-700">
               <img src={sophiaImg} alt="Sophia Johnson" className="h-full w-full object-cover" />
             </div>
-            <div className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white shadow-lg border-2 border-white">
-              <BadgeCheck className="h-5 w-5" />
+            <div className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full bg-brand text-white shadow-lg border-2 border-white">
+              <BadgeCheck className="h-6 w-6" />
             </div>
           </div>
           
