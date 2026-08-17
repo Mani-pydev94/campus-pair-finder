@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/profile-setup-step2')({
   head: () => ({

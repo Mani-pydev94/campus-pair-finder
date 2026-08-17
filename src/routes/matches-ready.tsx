@@ -18,6 +18,7 @@ import aiNetwork from "@/assets/ai-network.png";
 import m1 from "@/assets/match-1.jpg";
 import m2 from "@/assets/match-2.jpg";
 import m3 from "@/assets/match-3.jpg";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/matches-ready")({
   head: () => ({
@@ -438,7 +439,7 @@ function MatchCard({
       <div className="mt-4 flex gap-3">
         <Link
           to="/student-profile"
-          search={{ id: undefined }}
+          search={{ id: (match as any).id || "demo" }}
           className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep flex items-center justify-center text-[16px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.96]"
         >
           View Profile
