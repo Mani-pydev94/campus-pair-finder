@@ -195,7 +195,7 @@ function ChatScreen() {
 
   if (activeChat) {
     return (
-      <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
+      <div className="mx-auto h-screen w-full max-w-[520px] bg-white pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))] flex flex-col">
         <header className="flex items-center justify-between px-6">
           <button 
             onClick={() => setActiveChat(null)}
