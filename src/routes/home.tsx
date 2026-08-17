@@ -297,7 +297,7 @@ function HomeDashboard() {
       </section>
 
       <nav className="fixed inset-x-0 bottom-0 z-10 mx-auto w-full max-w-[520px] px-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div className="flex items-center justify-between rounded-[22px] border border-line/70 bg-card px-3 py-3 shadow-[0_20px_44px_-22px_rgba(18,18,18,0.45)]">
+        <div className="flex items-center justify-between rounded-[22px] border border-line/70 bg-white px-3 py-3 shadow-[0_20px_44px_-22px_rgba(18,18,18,0.2)]">
           {[
             { label: "Home", icon: HomeIcon, path: "/home", active: true },
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },

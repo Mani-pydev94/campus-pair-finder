@@ -407,7 +407,7 @@ function ExploreMatchesScreen() {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 inset-x-0 z-50 px-6 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent">
-        <div className="flex h-16 items-center justify-between rounded-2xl bg-ink/95 backdrop-blur-md px-4 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.3)] border border-white/10">
+        <div className="flex h-16 items-center justify-between rounded-2xl bg-white px-4 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border border-line/70">
           {[
             { icon: Home, label: "Home", path: "/home", active: false },
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },
@@ -420,7 +420,7 @@ function ExploreMatchesScreen() {
               to={item.path}
               className={cn(
                 "flex flex-col items-center gap-1 transition-colors",
-                item.active ? "text-brand" : "text-white/40 hover:text-white/60"
+                item.active ? "text-brand" : "text-subtle hover:text-ink"
               )}
             >
               <item.icon className={cn("h-5 w-5", item.active && "fill-brand/20")} />
