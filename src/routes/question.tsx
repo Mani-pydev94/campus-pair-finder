@@ -1,29 +1,105 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Check, Sparkles, X, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/question")({
-  head: () => ({
+  validateSearch: (search: Record<string, unknown>): { category: string | undefined } => {
+    return {
+      category: (search['category'] as string) || 'Values',
+    };
+  },
+  head: ({ search }) => ({
     meta: [
-      { title: "Values Question 1 — Campus Connect AI" },
+      { title: `${search.category || 'Values'} Question — Campus Connect AI` },
       {
         name: "description",
         content:
           "Answer one compatibility question at a time and tell us how much it matters to you.",
       },
-      { property: "og:title", content: "Values Question 1 — Campus Connect AI" },
-      {
-        property: "og:description",
-        content: "A calm, one-question-at-a-time way to build your compatibility profile.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: QuestionScreen,
 });
+
+const questionnaireData: Record<string, Array<{ id: string; text: string; description?: string; aiInsight: string; icon: string }>> = {
+  "Values": [
+    { 
+      id: "v1", 
+      text: "How important is honesty in your friendships and project teams?", 
+      aiInsight: "This answer helps us understand how you build trust and collaborate with others.",
+      icon: "❤️"
+    },
+    { 
+      id: "v2", 
+      text: "Do you believe in strict adherence to deadlines over project quality?", 
+      aiInsight: "We match you with people who share your standards for excellence and timing.",
+      icon: "❤️"
+    },
+    { 
+      id: "v3", 
+      text: "How much do you value personal growth over social recognition?", 
+      aiInsight: "This helps us find partners who align with your motivation drivers.",
+      icon: "❤️"
+    }
+  ],
+  "Personality": [
+    { 
+      id: "p1", 
+      text: "Do you feel energized after spending time with a large group of people?", 
+      aiInsight: "Helps us balance team dynamics between introverts and extroverts.",
+      icon: "🧠"
+    },
+    { 
+      id: "p2", 
+      text: "Do you prefer to plan your day in detail rather than seeing what happens?", 
+      aiInsight: "Matches you with teammates who have similar organizational habits.",
+      icon: "🧠"
+    }
+  ],
+  "Communication": [
+    { 
+      id: "c1", 
+      text: "Do you prefer written updates over verbal meetings for project progress?", 
+      aiInsight: "Aligns your team with your preferred collaboration channels.",
+      icon: "💬"
+    }
+  ],
+  "Learning Style": [
+    { 
+      id: "l1", 
+      text: "Do you learn better by doing (hands-on) than by reading theory?", 
+      aiInsight: "Finds study partners who process information like you do.",
+      icon: "📚"
+    }
+  ],
+  "Career Goals": [
+    { 
+      id: "g1", 
+      text: "Are you more interested in joining a large corporation than starting your own business?", 
+      aiInsight: "Connects you with others moving in the same career direction.",
+      icon: "🎯"
+    }
+  ],
+  "Lifestyle": [
+    { 
+      id: "s1", 
+      text: "Are you a morning person who prefers to study before 9 AM?", 
+      aiInsight: "Finds partners who are active during your peak productivity hours.",
+      icon: "🌍"
+    }
+  ],
+  "Interests & Hobbies": [
+    { 
+      id: "h1", 
+      text: "Do you enjoy participating in competitive hackathons?", 
+      aiInsight: "Matches you based on shared passions and hobbies.",
+      icon: "🎨"
+    }
+  ]
+};
 
 const answers = [
   "Strongly Agree",
@@ -41,6 +117,8 @@ const importance = [
 
 function QuestionScreen() {
   const router = useRouter();
+  const { category = 'Values' } = Route.useSearch();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState<string | null>(null);
   const [weight, setWeight] = useState<string | null>(null);
   const [confirmExit, setConfirmExit] = useState(false);
@@ -48,42 +126,59 @@ function QuestionScreen() {
   const [leaving, setLeaving] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const categoryQuestions = useMemo(() => questionnaireData[category] || questionnaireData["Values"], [category]);
+  const currentQuestion = categoryQuestions[currentQuestionIndex];
+
   useEffect(() => {
-    const t = setTimeout(() => setProgress(2.5), 200);
-    return () => clearTimeout(t);
-  }, []);
+    const totalQuestions = categoryQuestions.length;
+    const currentProgress = Math.round(((currentQuestionIndex) / totalQuestions) * 100);
+    setProgress(currentProgress);
+  }, [currentQuestionIndex, categoryQuestions.length]);
 
   const next = async () => {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        toast.error("Please sign in to save progress");
+        return;
+      }
 
-      // In a real app, we'd iterate through 40 questions.
-      // For this premium template, we persist this one response to demonstrate the logic.
+      // Safe parse for question_id
+      const numericId = parseInt(currentQuestion.id.replace(/\D/g, '') || '0');
+
       const { error } = await supabase
         .from('questionnaire_responses')
         .upsert({
           user_id: session.user.id,
-          question_id: 'q1_values',
-          category: 'Values',
+          question_id: numericId,
+          category: category,
           answer: answer || 'skipped',
-          importance: weight || 'medium',
+          importance: weight || 'Somewhat Important',
         });
 
       if (error) throw error;
 
-      setLeaving(true);
-      setTimeout(() => {
-        router.navigate({ to: "/matches-ready" });
-      }, 320);
+      if (currentQuestionIndex < categoryQuestions.length - 1) {
+        // Next question in category
+        setAnswer(null);
+        setWeight(null);
+        setCurrentQuestionIndex(prev => prev + 1);
+      } else {
+        // Category complete
+        setLeaving(true);
+        setTimeout(() => {
+          router.navigate({ to: "/questionnaire-hub" });
+        }, 320);
+      }
     } catch (error) {
       console.error('Error saving response:', error);
-      // Fallback to navigation anyway for demo flow
-      setLeaving(true);
-      setTimeout(() => {
-        router.navigate({ to: "/matches-ready" });
-      }, 320);
+      // Fallback for demo
+      if (currentQuestionIndex < categoryQuestions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+      } else {
+        router.navigate({ to: "/questionnaire-hub" });
+      }
     } finally {
       setLoading(false);
     }
@@ -116,7 +211,7 @@ function QuestionScreen() {
       {/* Progress */}
       <section className="mt-4" aria-label="Questionnaire progress">
         <div className="flex items-center justify-between text-[13px] font-medium text-subtle">
-          <span>Question 1 of 40</span>
+          <span>Question {currentQuestionIndex + 1} of {categoryQuestions.length}</span>
           <span>{progress}%</span>
         </div>
         <div
@@ -147,14 +242,14 @@ function QuestionScreen() {
         {/* Category */}
         <div className="fade-up mt-6 flex justify-center" style={{ animationDelay: "60ms" }}>
           <span className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-[14px] font-semibold text-on-brand shadow-cta">
-            <span aria-hidden>❤️</span> Values
+            <span aria-hidden>{currentQuestion?.icon}</span> {category}
           </span>
         </div>
 
         {/* Question */}
         <section className="fade-up mt-6 text-center" style={{ animationDelay: "120ms" }}>
-          <h2 className="text-[32px] font-bold leading-[1.18] tracking-[-0.02em] text-ink">
-            How important is honesty in your friendships and project teams?
+          <h2 className="text-[28px] font-bold leading-[1.18] tracking-[-0.02em] text-ink min-h-[100px] flex items-center justify-center">
+            {currentQuestion?.text}
           </h2>
           <p className="mx-auto mt-3 max-w-[320px] text-base leading-[1.55] text-subtle">
             Choose the answer that best reflects your personal opinion.
@@ -236,7 +331,7 @@ function QuestionScreen() {
             <Sparkles className="h-5 w-5" />
           </span>
           <p className="mt-3 text-[15px] leading-[1.6] text-on-brand/90">
-            This answer helps us understand how you build trust and collaborate with others.
+            {currentQuestion?.aiInsight}
           </p>
         </section>
       </div>
@@ -249,7 +344,7 @@ function QuestionScreen() {
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97] disabled:opacity-50"
           disabled={!answer || loading}
         >
-          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : "Next Question"}
+          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : currentQuestionIndex < categoryQuestions.length - 1 ? "Next Question" : "Finish Section"}
         </button>
         <button
           type="button"
@@ -260,9 +355,6 @@ function QuestionScreen() {
         </button>
         <p className="mt-1 text-center text-[13px] leading-[1.5] text-subtle">
           Skipping is allowed but may reduce matching accuracy.
-        </p>
-        <p className="mt-4 text-center text-[13px] leading-[1.5] text-subtle">
-          Your answers remain private and are never shared with other students.
         </p>
       </div>
 
