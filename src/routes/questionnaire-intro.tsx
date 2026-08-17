@@ -198,6 +198,7 @@ function QuestionnaireIntro() {
       <div className="fade-up mt-7 space-y-3" style={{ animationDelay: "560ms" }}>
         <Link
           to="/question"
+          search={{ category: "Values" }}
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
         >
           Start Questionnaire
