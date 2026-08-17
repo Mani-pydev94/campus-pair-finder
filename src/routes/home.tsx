@@ -159,7 +159,7 @@ function HomeDashboard() {
         style={{ animationDelay: "80ms" }}
       >
         <h2 className="text-base font-semibold text-ink">Your Profile Strength</h2>
-        <p className="mt-2 text-[40px] font-extrabold leading-none tracking-[-0.02em] text-brand">85%</p>
+        <p className="mt-2 text-[40px] font-extrabold leading-none tracking-[-0.02em] text-brand">{progress}%</p>
         <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-line">
           <div
             className="h-full rounded-full bg-gradient-to-r from-brand to-brand-light transition-[width] duration-1000 ease-out"
@@ -169,12 +169,12 @@ function HomeDashboard() {
         <p className="mt-3 text-sm text-subtle">
           Complete your profile to receive even better recommendations.
         </p>
-        <button
-          type="button"
-          className="mt-5 h-12 w-full rounded-2xl bg-gradient-to-r from-brand to-brand-light text-[15px] font-semibold text-on-brand shadow-cta transition-transform duration-150 active:scale-[0.97]"
+        <Link
+          to="/profile-setup"
+          className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand to-brand-light text-[15px] font-semibold text-on-brand shadow-cta transition-transform duration-150 active:scale-[0.97]"
         >
           Complete Profile
-        </button>
+        </Link>
       </section>
 
       <section className="fade-up mt-9" style={{ animationDelay: "140ms" }}>
