@@ -114,7 +114,7 @@ function QuestionScreen() {
   const [loading, setLoading] = useState(false);
 
   const categoryQuestions = useMemo(() => questionnaireData[category] || questionnaireData["Values"], [category]);
-  const currentQuestion = categoryQuestions[currentQuestionIndex] || categoryQuestions[0];
+  const currentQuestion = useMemo(() => categoryQuestions[currentQuestionIndex] || categoryQuestions[0], [categoryQuestions, currentQuestionIndex]);
 
   useEffect(() => {
     const totalQuestions = categoryQuestions.length;
@@ -133,7 +133,8 @@ function QuestionScreen() {
         return;
       }
 
-      const numericId = parseInt(currentQuestion.id.replace(/\D/g, '') || '0');
+      const numericIdStr = currentQuestion.id.replace(/\D/g, '') || '0';
+      const numericId = parseInt(numericIdStr);
 
       const { error } = await supabase
         .from('questionnaire_responses')
