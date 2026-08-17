@@ -125,6 +125,7 @@ function ChatScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"private" | "group">("private");
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
+  const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMatches = useMemo(() => {
@@ -132,10 +133,6 @@ function ChatScreen() {
     if (!searchQuery) return all;
     return all.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [searchQuery]);
-
-  useEffect(() => {
-    console.log("showNewChatFlow state:", showNewChatFlow);
-  }, [showNewChatFlow]);
 
 
   if (showNewChatFlow) {
