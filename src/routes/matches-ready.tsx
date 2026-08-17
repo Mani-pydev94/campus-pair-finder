@@ -436,12 +436,12 @@ function MatchCard({
       </p>
 
       <div className="mt-4 flex gap-3">
-        <button
-          type="button"
-          className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[16px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.96]"
+        <Link
+          to="/student-profile"
+          className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep flex items-center justify-center text-[16px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.96]"
         >
           View Profile
-        </button>
+        </Link>
         <button
           type="button"
           onClick={onSave}
