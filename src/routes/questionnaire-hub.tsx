@@ -125,6 +125,7 @@ function QuestionnaireHub() {
       if (data) {
         setAnswered(data.length);
         const progressMap: Record<string, number> = {};
+        if (!progressMap) return; // Should never happen but helps TS
         
         const sectionMax: Record<string, number> = {
           "Values": 6,
