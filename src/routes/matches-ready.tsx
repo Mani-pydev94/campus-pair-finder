@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
@@ -11,7 +11,9 @@ import {
   Sparkles,
   User,
   Users,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import aiNetwork from "@/assets/ai-network.png";
 import m1 from "@/assets/match-1.jpg";
 import m2 from "@/assets/match-2.jpg";
@@ -116,17 +118,56 @@ function useCountUp(target: number, active: boolean, duration = 1400) {
 }
 
 function MatchesReady() {
+  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [animate, setAnimate] = useState(false);
   const [saved, setSaved] = useState<string[]>([]);
+  const [dbMatches, setDbMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setReady(true), 1600);
-    const t2 = setTimeout(() => setAnimate(true), 2000);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    async function loadMatches() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        let query = supabase
+          .from('profiles')
+          .select(`
+            *,
+            academic_profiles (*)
+          `);
+        
+        if (session) {
+          query = query.neq('id', session.user.id);
+        }
+
+        const { data, error } = await query.limit(3);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const mapped = data.map((p: any) => ({
+            name: p.display_name || "Student",
+            age: p.age || 20,
+            college: p.academic_profiles?.university || "College",
+            course: p.academic_profiles?.degree || "Student",
+            location: p.city || "Remote",
+            score: Math.floor(Math.random() * 15) + 85,
+            photo: p.avatar_url || m1,
+            reasons: ["Strong Skill Match", "Shared Interests"],
+            insight: p.bio || "Excellent potential for academic collaboration."
+          }));
+          setDbMatches(mapped);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+        const t1 = setTimeout(() => setReady(true), 1600);
+        const t2 = setTimeout(() => setAnimate(true), 2000);
+      }
+    }
+    loadMatches();
   }, []);
 
   const particles = useMemo(
@@ -229,7 +270,7 @@ function MatchesReady() {
         </div>
 
         <section className="mt-4 space-y-5">
-          {matches.map((m, i) => (
+          {(dbMatches.length > 0 ? dbMatches : matches).map((m, i) => (
             <MatchCard
               key={m.name}
               match={m}
