@@ -169,9 +169,9 @@ function LoginScreen() {
           </div>
 
           <div className="flex justify-end">
-            <button type="button" className="text-sm font-semibold text-brand">
+            <Link to="/forgot-password" className="text-sm font-semibold text-brand">
               Forgot Password?
-            </button>
+            </Link>
           </div>
 
           <button

@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as ExploreMatchesRouteImport } from './routes/explore-matches'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
@@ -43,6 +44,11 @@ const CommunitiesRoute = CommunitiesRouteImport.update({
 const ExploreMatchesRoute = ExploreMatchesRouteImport.update({
   id: '/explore-matches',
   path: '/explore-matches',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/communities'
     | '/explore-matches'
+    | '/forgot-password'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/communities'
     | '/explore-matches'
+    | '/forgot-password'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/communities'
     | '/explore-matches'
+    | '/forgot-password'
     | '/home'
     | '/login'
     | '/matches-ready'
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   CommunitiesRoute: typeof CommunitiesRoute
   ExploreMatchesRoute: typeof ExploreMatchesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
   MatchesReadyRoute: typeof MatchesReadyRoute
@@ -253,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/explore-matches'
       fullPath: '/explore-matches'
       preLoaderRoute: typeof ExploreMatchesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -340,6 +360,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   CommunitiesRoute: CommunitiesRoute,
   ExploreMatchesRoute: ExploreMatchesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
   MatchesReadyRoute: MatchesReadyRoute,
