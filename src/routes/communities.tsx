@@ -166,7 +166,7 @@ function CommunitiesScreen() {
           <input 
             type="text" 
             placeholder="Search communities, technologies or interests..."
-            className="h-[52px] w-full rounded-2xl bg-secondary/50 pl-12 pr-12 text-[15px] outline-none ring-1 ring-transparent focus:ring-brand/20 transition-all placeholder:text-subtle"
+            className="h-[52px] w-full rounded-2xl bg-[#F5F5F7] pl-12 pr-12 text-[15px] outline-none ring-1 ring-transparent focus:ring-brand/20 transition-all placeholder:text-subtle"
           />
           <button className="absolute right-4 text-subtle hover:text-ink transition-colors">
             <SlidersHorizontal className="h-5 w-5" />
@@ -211,7 +211,7 @@ function CommunitiesScreen() {
               className={`flex h-10 shrink-0 snap-start items-center rounded-full px-5 text-[14px] font-semibold transition-all ${
                 selectedCategory === cat 
                   ? "bg-brand text-white shadow-lg shadow-brand/20" 
-                  : "bg-secondary/50 text-subtle hover:bg-secondary"
+                  : "bg-[#F5F5F7] text-subtle hover:bg-line"
               }`}
             >
               {cat}
@@ -250,7 +250,7 @@ function CommunitiesScreen() {
                   <button className="flex h-10 items-center justify-center rounded-xl bg-brand text-[14px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-95">
                     Join
                   </button>
-                  <button className="flex h-10 items-center justify-center rounded-xl bg-secondary/80 text-[14px] font-bold text-ink transition-transform active:scale-95">
+                  <button className="flex h-10 items-center justify-center rounded-xl bg-[#F5F5F7] text-[14px] font-bold text-ink transition-transform active:scale-95">
                     Preview
                   </button>
                 </div>
@@ -319,7 +319,7 @@ function CommunitiesScreen() {
       {/* Community Activity Preview */}
       <section className="fade-up mt-10 px-6" style={{ animationDelay: "350ms" }}>
         <h2 className="text-[22px] font-bold text-ink">Recent Activity</h2>
-        <div className="mt-5 rounded-[28px] border border-border/40 bg-secondary/20 p-6">
+        <div className="mt-5 rounded-[28px] border border-border/40 bg-[#F5F5F7]/50 p-6">
           <div className="space-y-6">
             {activityPosts.map((post, idx) => (
               <div key={idx} className="flex gap-4">
