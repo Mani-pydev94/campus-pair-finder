@@ -103,7 +103,7 @@ function HomeDashboard() {
             .single();
           
           if (profile?.display_name) {
-            setUserName(profile.display_name.split(' ')[0]);
+            setUserName(profile.display_name.split(' ')[0] || "Student");
           }
 
           // Fetch profile and academic profile to calculate strength
