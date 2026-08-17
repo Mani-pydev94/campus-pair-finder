@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      academic_profiles: {
+        Row: {
+          career_goal: string | null
+          created_at: string | null
+          degree: string | null
+          field_of_study: string | null
+          id: string
+          interests: string[] | null
+          learning_bio: string | null
+          skills: string[] | null
+          university: string | null
+          updated_at: string | null
+          year_of_study: string | null
+        }
+        Insert: {
+          career_goal?: string | null
+          created_at?: string | null
+          degree?: string | null
+          field_of_study?: string | null
+          id: string
+          interests?: string[] | null
+          learning_bio?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string | null
+          year_of_study?: string | null
+        }
+        Update: {
+          career_goal?: string | null
+          created_at?: string | null
+          degree?: string | null
+          field_of_study?: string | null
+          id?: string
+          interests?: string[] | null
+          learning_bio?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string | null
+          year_of_study?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          created_at: string | null
+          display_name: string | null
+          gender: string | null
+          id: string
+          languages: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          gender?: string | null
+          id: string
+          languages?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          gender?: string | null
+          id?: string
+          languages?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      questionnaire_responses: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string | null
+          id: string
+          importance: string
+          question_id: number
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string | null
+          id?: string
+          importance: string
+          question_id: number
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string | null
+          id?: string
+          importance?: string
+          question_id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
