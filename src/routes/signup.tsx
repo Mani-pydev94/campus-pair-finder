@@ -199,7 +199,10 @@ function SignupScreen() {
 
       {/* Signup Card */}
       <form
-        onSubmit={onSubmit}
+        onSubmit={(e) => {
+          console.log("Form inline onSubmit");
+          onSubmit(e);
+        }}
         noValidate
         className="fade-up mt-8 rounded-[24px] border border-line/60 bg-card p-6 shadow-[0_18px_40px_-24px_rgba(18,18,18,0.25)]"
         style={{ animationDelay: "160ms" }}
