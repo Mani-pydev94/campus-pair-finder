@@ -137,11 +137,7 @@ function SignupScreen() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    console.log("Form submitted");
-    if (!validate()) {
-      console.log("Validation failed", errors);
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
     // Simulate API call
@@ -199,10 +195,7 @@ function SignupScreen() {
 
       {/* Signup Card */}
       <form
-        onSubmit={(e) => {
-          console.log("Form inline onSubmit");
-          onSubmit(e);
-        }}
+        onSubmit={onSubmit}
         noValidate
         className="fade-up mt-8 rounded-[24px] border border-line/60 bg-card p-6 shadow-[0_18px_40px_-24px_rgba(18,18,18,0.25)]"
         style={{ animationDelay: "160ms" }}
