@@ -127,10 +127,53 @@ const RING = 2 * Math.PI * 52;
 
 function QuestionnaireHub() {
   const router = useRouter();
-  const answered = 0;
+  const [answered, setAnswered] = useState(0);
+  const [sectionProgress, setSectionProgress] = useState<Record<string, number>>({});
   const total = 40;
   const percent = Math.round((answered / total) * 100);
   const [ringPercent, setRingPercent] = useState(0);
+
+  useEffect(() => {
+    async function fetchProgress() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data } = await supabase
+        .from('questionnaire_responses')
+        .select('category, question_id')
+        .eq('user_id', session.user.id);
+
+      if (data) {
+        setAnswered(data.length);
+        const progressMap: Record<string, number> = {};
+        
+        // Match the sections array below
+        const sectionMax: Record<string, number> = {
+          "Values": 6,
+          "Personality": 8,
+          "Communication": 6,
+          "Learning Style": 5,
+          "Career Goals": 5,
+          "Lifestyle": 5,
+          "Interests & Hobbies": 5
+        };
+
+        data.forEach(resp => {
+          if (!progressMap[resp.category]) progressMap[resp.category] = 0;
+          progressMap[resp.category]++;
+        });
+
+        const finalMap: Record<string, number> = {};
+        Object.keys(sectionMax).forEach(cat => {
+          const count = progressMap[cat] || 0;
+          finalMap[cat] = Math.min(Math.round((count / sectionMax[cat]) * 100), 100);
+        });
+
+        setSectionProgress(finalMap);
+      }
+    }
+    fetchProgress();
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setRingPercent(percent), 250);
