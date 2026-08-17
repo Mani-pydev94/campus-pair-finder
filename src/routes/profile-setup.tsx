@@ -13,7 +13,8 @@ import {
   ChevronDown,
   X,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/profile-setup')({
   head: () => ({
@@ -50,12 +52,39 @@ function ProfileSetupScreen() {
   const [step] = useState(1);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [city, setCity] = useState("");
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [bio, setBio] = useState("");
+
+  useEffect(() => {
+    async function loadProfile() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (profile) {
+          setDisplayName(profile.display_name || "");
+          setAge(profile.age?.toString() || "");
+          setGender(profile.gender || "");
+          setCity(profile.city || "");
+          setSelectedLanguages(profile.languages || []);
+          setBio(profile.bio || "");
+          setProfilePhoto(profile.avatar_url || null);
+        } else if (session.user.user_metadata?.display_name) {
+          setDisplayName(session.user.user_metadata.display_name);
+        }
+      }
+    }
+    loadProfile();
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Profile Strength Calculation
@@ -76,21 +105,69 @@ function ProfileSetupScreen() {
     );
   };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePhoto(reader.result as string);
-        setShowPhotoDialog(false);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${session.user.id}-${Math.random()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      setProfilePhoto(publicUrl);
+      setShowPhotoDialog(false);
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const removePhoto = () => {
     setProfilePhoto(null);
     setShowPhotoDialog(false);
+  };
+
+  const handleContinue = async () => {
+    try {
+      setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: session.user.id,
+          display_name: displayName,
+          age: age ? parseInt(age) : null,
+          gender,
+          city,
+          languages: selectedLanguages,
+          bio,
+          avatar_url: profilePhoto,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+      router.navigate({ to: "/profile-setup-step2" });
+    } catch (error) {
+      console.error('Error saving profile:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -365,10 +442,11 @@ function ProfileSetupScreen() {
         {/* Buttons */}
         <div className="space-y-4">
           <Button 
+            disabled={loading}
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
-            onClick={() => router.navigate({ to: "/profile-setup-step2" })}
+            onClick={handleContinue}
           >
-            Continue
+            {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Continue"}
           </Button>
 
           <Button 
