@@ -71,15 +71,15 @@ function ProfileSetupScreen() {
           .single();
         
         if (profile) {
-          setDisplayName(profile.display_name || "");
-          setAge(profile.age?.toString() || "");
-          setGender(profile.gender || "");
-          setCity(profile.city || "");
-          setSelectedLanguages(profile.languages || []);
-          setBio(profile.bio || "");
-          setProfilePhoto(profile.avatar_url || null);
-        } else if (session.user.user_metadata?.display_name) {
-          setDisplayName(session.user.user_metadata.display_name);
+          setDisplayName(profile['display_name'] || "");
+          setAge(profile['age']?.toString() || "");
+          setGender(profile['gender'] || "");
+          setCity(profile['city'] || "");
+          setSelectedLanguages(profile['languages'] || []);
+          setBio(profile['bio'] || "");
+          setProfilePhoto(profile['avatar_url'] || null);
+        } else if (session.user.user_metadata?.['display_name']) {
+          setDisplayName(session.user.user_metadata['display_name']);
         }
       }
     }
@@ -115,7 +115,7 @@ function ProfileSetupScreen() {
       if (!session) return;
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${session.user.id}/${Math.random()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
