@@ -334,7 +334,7 @@ function MatchesReady() {
             { label: "Home", icon: Home, path: "/home", active: false },
             { label: "Matches", icon: Users, path: "/explore-matches", active: true },
             { label: "Quiz", icon: BookOpen, path: "/questionnaire-intro", active: false },
-            { label: "Groups", icon: LayoutGrid, path: "/home", active: false },
+            { label: "Groups", icon: LayoutGrid, path: "/communities", active: false },
             { label: "Profile", icon: User, path: "/home", active: false },
           ].map(({ label, icon: Icon, path, active }) => (
             <li key={label} className="flex-1">
