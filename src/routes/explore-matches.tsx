@@ -403,8 +403,8 @@ function ExploreMatchesScreen() {
           {[
             { icon: Home, label: "Home", path: "/home", active: false },
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },
-            { icon: ClipboardList, label: "Quiz", path: "/questionnaire-hub", active: false },
-            { icon: Globe, label: "Groups", path: "/home", active: false },
+            { icon: Globe, label: "Groups", path: "/communities", active: false },
+            { icon: ClipboardList, label: "Quiz", path: "/questionnaire-intro", active: false },
             { icon: User, label: "Profile", path: "/home", active: false },
           ].map((item) => (
             <Link
