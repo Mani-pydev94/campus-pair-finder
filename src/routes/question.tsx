@@ -103,7 +103,7 @@ const importanceOptions = [
 function QuestionScreen() {
   const router = useRouter();
   const search = Route.useSearch();
-  const category = search.category || 'Values';
+  const category = (search as any).category || 'Values';
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answer, setAnswer] = useState<string | null>(null);
@@ -122,7 +122,7 @@ function QuestionScreen() {
   }, [categoryQuestions, currentQuestionIndex]);
 
   useEffect(() => {
-    if (categoryQuestions) {
+    if (categoryQuestions && categoryQuestions.length > 0) {
       const totalQuestions = categoryQuestions.length;
       const currentProgress = Math.round(((currentQuestionIndex) / totalQuestions) * 100);
       setProgress(currentProgress);
@@ -155,7 +155,7 @@ function QuestionScreen() {
 
       if (error) throw error;
 
-      if (currentQuestionIndex < categoryQuestions.length - 1) {
+      if (categoryQuestions && currentQuestionIndex < categoryQuestions.length - 1) {
         setAnswer(null);
         setWeight(null);
         setCurrentQuestionIndex(prev => prev + 1);
@@ -167,7 +167,7 @@ function QuestionScreen() {
       }
     } catch (error) {
       console.error('Error saving response:', error);
-      if (currentQuestionIndex < categoryQuestions.length - 1) {
+      if (categoryQuestions && currentQuestionIndex < categoryQuestions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         router.navigate({ to: "/questionnaire-hub" });
@@ -177,7 +177,7 @@ function QuestionScreen() {
     }
   };
 
-  if (!currentQuestion) return null;
+  if (!currentQuestion || !categoryQuestions) return null;
 
   return (
     <main className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
@@ -313,7 +313,7 @@ function QuestionScreen() {
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97] disabled:opacity-50"
           disabled={!answer || loading}
         >
-          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : currentQuestionIndex < categoryQuestions.length - 1 ? "Next Question" : "Finish Section"}
+          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : currentQuestionIndex < (categoryQuestions?.length || 0) - 1 ? "Next Question" : "Finish Section"}
         </button>
         <button
           type="button"
