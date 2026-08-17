@@ -14,7 +14,8 @@ import {
   X,
   Image as ImageIcon,
   Trash2,
-  Loader2
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
