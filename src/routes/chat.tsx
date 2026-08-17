@@ -22,9 +22,10 @@ import {
   User,
   CheckCheck
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
 import student1 from "@/assets/match-1.jpg";
 import student2 from "@/assets/match-2.jpg";
 import student3 from "@/assets/match-3.jpg";
@@ -124,8 +125,76 @@ const conversation = [
 function ChatScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"private" | "group">("private");
+  const [showNewChatFlow, setShowNewChatFlow] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMatches = useMemo(() => {
+    const all = [...pinnedChats, ...privateChats];
+    if (!searchQuery) return all;
+    return all.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [searchQuery]);
+
+  if (showNewChatFlow) {
+    return (
+      <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))] animate-in slide-in-from-right duration-300">
+        <header className="flex items-center justify-between px-6">
+          <button 
+            onClick={() => setShowNewChatFlow(false)}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-border shadow-sm transition-transform active:scale-90"
+          >
+            <ArrowLeft className="h-5 w-5 text-ink" />
+          </button>
+          <h1 className="text-[20px] font-bold tracking-tight text-ink">New Message</h1>
+          <div className="w-10" />
+        </header>
+
+        <div className="mt-6 px-6">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
+            <input 
+              type="text" 
+              placeholder="Search matches..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-12 w-full rounded-2xl bg-secondary/30 pl-11 pr-4 text-[15px] outline-none transition-all focus:bg-secondary/50 focus:ring-1 focus:ring-brand/20"
+              autoFocus
+            />
+          </div>
+        </div>
+
+        <div className="mt-8 px-6">
+          <h2 className="text-[13px] font-bold uppercase tracking-wider text-subtle">Suggested</h2>
+          <div className="mt-4 space-y-4">
+            {filteredMatches.map((match, i) => (
+              <button 
+                key={`${match.name}-${i}`}
+                onClick={() => {
+                  toast.success(`Starting conversation with ${match.name}`);
+                  setShowNewChatFlow(false);
+                }}
+                className="flex w-full items-center gap-4 rounded-2xl p-2 transition-all active:scale-[0.98] active:bg-secondary/40"
+              >
+                <div className="relative">
+                  <img src={match.avatar} alt={match.name} className="h-12 w-12 rounded-2xl object-cover shadow-sm" />
+                  {('online' in match && match.online) && (
+                    <span className="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-success" />
+                  )}
+                </div>
+                <div className="text-left">
+                  <p className="text-[16px] font-bold text-ink">{match.name}</p>
+                  <p className="text-[12px] font-medium text-brand">{match.score}% Match Compatibility</p>
+                </div>
+                <ChevronRight className="ml-auto h-5 w-5 text-border" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
+
     <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
       {/* Top Bar */}
       <header className="fade-up flex items-center justify-between px-6">
@@ -366,12 +435,13 @@ function ChatScreen() {
 
       {/* FAB */}
       <button 
-        onClick={() => toast.info("New Chat functionality coming soon!")}
+        onClick={() => setShowNewChatFlow(true)}
         className="fixed bottom-[max(6.5rem,calc(env(safe-area-inset-bottom)+5.5rem))] right-6 z-20 flex items-center gap-2 rounded-full bg-brand px-6 py-4 text-white shadow-xl shadow-brand/30 transition-transform active:scale-95"
       >
         <Plus className="h-6 w-6" />
         <span className="text-[16px] font-bold">New Chat</span>
       </button>
+
 
 
       {/* Bottom Navigation */}
