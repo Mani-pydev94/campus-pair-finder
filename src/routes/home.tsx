@@ -19,8 +19,10 @@ import {
   Heart,
   ClipboardList,
   User,
+  Loader2,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import match1 from "@/assets/match-1.jpg";
 import match2 from "@/assets/match-2.jpg";
 import match3 from "@/assets/match-3.jpg";
@@ -86,17 +88,60 @@ const navItems = [
 
 function HomeDashboard() {
   const [progress, setProgress] = useState(0);
+  const [userName, setUserName] = useState("Student");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const id = window.setTimeout(() => setProgress(85), 250);
-    return () => window.clearTimeout(id);
+    async function loadData() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profile?.display_name) {
+            setUserName(profile.display_name.split(' ')[0]);
+          }
+
+          // Fetch profile and academic profile to calculate strength
+          const { data: prof } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          const { data: acad } = await supabase.from('academic_profiles').select('*').eq('id', session.user.id).single();
+          
+          let strength = 0;
+          if (prof) {
+            if (prof.display_name) strength += 10;
+            if (prof.age) strength += 10;
+            if (prof.gender) strength += 10;
+            if (prof.city) strength += 10;
+            if (prof.avatar_url) strength += 10;
+          }
+          if (acad) {
+            if (acad.university) strength += 10;
+            if (acad.degree) strength += 10;
+            if (acad.skills?.length) strength += 10;
+            if (acad.interests?.length) strength += 10;
+            if (acad.career_goal) strength += 10;
+          }
+          
+          setProgress(strength || 0);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, []);
 
   return (
     <div className="mx-auto min-h-screen w-full max-w-[520px] bg-background pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[max(3.25rem,calc(env(safe-area-inset-top)+2rem))]">
       <header className="fade-up grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 px-6">
         <div className="min-w-0">
-          <h1 className="truncate text-[32px] font-bold tracking-[-0.02em] text-ink">Hi, Alex 👋</h1>
+          <h1 className="truncate text-[32px] font-bold tracking-[-0.02em] text-ink">Hi, {userName} 👋</h1>
           <p className="mt-1 text-sm text-subtle">Ready to find your perfect match?</p>
         </div>
         <button
