@@ -366,7 +366,7 @@ function ProfileSetupScreen() {
         <div className="space-y-4">
           <Button 
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
-            onClick={() => router.navigate({ to: "/questionnaire-intro" })}
+            onClick={() => router.navigate({ to: "/profile-setup-step2" })}
           >
             Continue
           </Button>
