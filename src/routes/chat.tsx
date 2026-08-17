@@ -32,6 +32,13 @@ import student3 from "@/assets/match-3.jpg";
 
 
 export const Route = createFileRoute("/chat")({
+  validateSearch: (search: Record<string, unknown>): { name: string | undefined; avatar: string | undefined; score: number | undefined } => {
+    return {
+      name: (search['name'] as string) || undefined,
+      avatar: (search['avatar'] as string) || undefined,
+      score: (search['score'] as number) || undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Chat — Campus Connect AI" },
@@ -132,12 +139,24 @@ const initialConversation = [
 
 function ChatScreen() {
   const router = useRouter();
+  const search = Route.useSearch();
   const [activeTab, setActiveTab] = useState<"private" | "group">("private");
   const [showNewChatFlow, setShowNewChatFlow] = useState(false);
   const [activeChat, setActiveChat] = useState<null | { name: string; avatar: string; score: number }>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialConversation);
   const [newMessage, setNewMessage] = useState("");
+
+  useEffect(() => {
+    if (search.name && search.avatar && search.score !== undefined) {
+      setActiveChat({
+        name: search.name,
+        avatar: search.avatar,
+        score: search.score
+      });
+      // Clear search params to avoid re-triggering if needed, or keep for state consistency
+    }
+  }, [search.name, search.avatar, search.score]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 

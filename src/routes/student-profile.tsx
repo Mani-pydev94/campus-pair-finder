@@ -29,6 +29,7 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 // Import asset
 import sophiaImg from "@/assets/matches/student-1.jpg";
@@ -418,16 +419,31 @@ function StudentProfileScreen() {
 
         {/* Action Buttons */}
         <div className="fade-up space-y-3 pt-4" style={{ animationDelay: '1000ms' }}>
-          <button className="w-full h-[64px] rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-bold text-white shadow-xl shadow-brand/20 transition-transform active:scale-[0.98]">
+          <button 
+            onClick={() => {
+              toast.success(`Connection request sent to ${displayName.split(' ')[0]}!`);
+            }}
+            className="w-full h-[64px] rounded-2xl bg-gradient-to-r from-brand to-brand-deep text-[18px] font-bold text-white shadow-xl shadow-brand/20 transition-transform active:scale-[0.98]"
+          >
             Connect with {displayName.split(' ')[0]}
           </button>
           <div className="grid grid-cols-2 gap-3">
-            <button className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+            <Link 
+              to="/chat"
+              search={{ name: displayName, avatar: image, score: progress }}
+              className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+            >
               <MessageCircle className="h-5 w-5 text-subtle" />
               Message
-            </button>
-            <button className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
-              <Bookmark className="h-5 w-5 text-subtle" />
+            </Link>
+            <button 
+              onClick={() => {
+                setIsBookmarked(true);
+                toast.success("Profile saved to your bookmarks");
+              }}
+              className="h-[56px] rounded-2xl border border-line bg-white text-[16px] font-bold text-ink transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Bookmark className={cn("h-5 w-5", isBookmarked ? "fill-brand text-brand" : "text-subtle")} />
               Save Profile
             </button>
           </div>
