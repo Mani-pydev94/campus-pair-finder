@@ -155,7 +155,7 @@ function SignupScreen() {
         <h2 className="mt-8 text-3xl font-bold tracking-tight text-ink">Welcome to Campus Connect! 🎉</h2>
         <p className="mt-4 text-base text-subtle">Your account has been created successfully.</p>
         <button
-          onClick={() => router.navigate({ to: "/login" })}
+          onClick={() => router.navigate({ to: "/home" })}
           className="mt-12 flex h-14 w-full max-w-[300px] items-center justify-center rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
         >
           Continue

@@ -277,36 +277,35 @@ function MatchesReady() {
           </p>
         </section>
 
-        <button
-          type="button"
-          className="fade-up mt-7 h-14 w-full rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
+        <Link
+          to="/explore-matches"
+          className="fade-up mt-7 flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
           style={{ animationDelay: "340ms" }}
         >
           Show More Matches
-        </button>
+        </Link>
       </main>
 
       {/* Floating bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-20 mx-auto w-full max-w-[430px] px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <ul className="flex items-center justify-between rounded-[26px] border border-white/60 bg-white/80 px-2 py-2.5 shadow-[0_20px_46px_-24px_rgba(18,18,18,0.45)] backdrop-blur-xl">
           {[
-            { label: "Home", icon: Home, active: false },
-            { label: "Matches", icon: Users, active: true },
-            { label: "Quiz", icon: BookOpen, active: false },
-            { label: "Groups", icon: LayoutGrid, active: false },
-            { label: "Profile", icon: User, active: false },
-          ].map(({ label, icon: Icon, active }) => (
+            { label: "Home", icon: Home, path: "/home", active: false },
+            { label: "Matches", icon: Users, path: "/explore-matches", active: true },
+            { label: "Quiz", icon: BookOpen, path: "/questionnaire-intro", active: false },
+            { label: "Groups", icon: LayoutGrid, path: "/home", active: false },
+            { label: "Profile", icon: User, path: "/home", active: false },
+          ].map(({ label, icon: Icon, path, active }) => (
             <li key={label} className="flex-1">
-              <button
-                type="button"
-                aria-current={active ? "page" : undefined}
+              <Link
+                to={path}
                 className={`flex h-12 w-full flex-col items-center justify-center gap-1 rounded-2xl transition-transform active:scale-95 ${
                   active ? "bg-brand/10 text-brand" : "text-subtle"
                 }`}
               >
                 <Icon className="h-[18px] w-[18px]" />
                 <span className="text-[10px] font-semibold">{label}</span>
-              </button>
+              </Link>
             </li>
           ))}
         </ul>

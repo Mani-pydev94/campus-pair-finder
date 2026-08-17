@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BookOpen,
@@ -196,12 +196,12 @@ function QuestionnaireIntro() {
 
       {/* Actions */}
       <div className="fade-up mt-7 space-y-3" style={{ animationDelay: "560ms" }}>
-        <button
-          type="button"
-          className="h-14 w-full rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
+        <Link
+          to="/question"
+          className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
         >
           Start Questionnaire
-        </button>
+        </Link>
         <button
           type="button"
           onClick={() => router.history.back()}

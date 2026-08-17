@@ -67,7 +67,10 @@ function LoginScreen() {
     if (Object.keys(next).length > 0) return;
 
     setLoading(true);
-    window.setTimeout(() => setLoading(false), 1600);
+    window.setTimeout(() => {
+      setLoading(false);
+      router.navigate({ to: "/home" });
+    }, 1600);
   }
 
   return (

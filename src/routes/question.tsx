@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Sparkles, X } from "lucide-react";
 
@@ -53,9 +53,9 @@ function QuestionScreen() {
   const next = () => {
     setLeaving(true);
     setTimeout(() => {
-      setAnswer(null);
-      setWeight(null);
-      setLeaving(false);
+      // Simulate going to results if it's the "last" question for demo purposes
+      // or just navigate to the ready screen
+      router.navigate({ to: "/matches-ready" });
     }, 320);
   };
 
