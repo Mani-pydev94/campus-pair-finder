@@ -15,6 +15,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
 import { Route as ProfileSetupRouteImport } from './routes/profile-setup'
+import { Route as ProfileSetupStep2RouteImport } from './routes/profile-setup-step2'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as QuestionnaireHubRouteImport } from './routes/questionnaire-hub'
 import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-intro'
@@ -50,6 +51,11 @@ const MatchesReadyRoute = MatchesReadyRouteImport.update({
 const ProfileSetupRoute = ProfileSetupRouteImport.update({
   id: '/profile-setup',
   path: '/profile-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileSetupStep2Route = ProfileSetupStep2RouteImport.update({
+  id: '/profile-setup-step2',
+  path: '/profile-setup-step2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuestionRoute = QuestionRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/profile-setup': typeof ProfileSetupRoute
+  '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/profile-setup': typeof ProfileSetupRoute
+  '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/profile-setup': typeof ProfileSetupRoute
+  '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
   '/questionnaire-hub': typeof QuestionnaireHubRoute
   '/questionnaire-intro': typeof QuestionnaireIntroRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/profile-setup'
+    | '/profile-setup-step2'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/profile-setup'
+    | '/profile-setup-step2'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/profile-setup'
+    | '/profile-setup-step2'
     | '/question'
     | '/questionnaire-hub'
     | '/questionnaire-intro'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatchesReadyRoute: typeof MatchesReadyRoute
   ProfileSetupRoute: typeof ProfileSetupRoute
+  ProfileSetupStep2Route: typeof ProfileSetupStep2Route
   QuestionRoute: typeof QuestionRoute
   QuestionnaireHubRoute: typeof QuestionnaireHubRoute
   QuestionnaireIntroRoute: typeof QuestionnaireIntroRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/profile-setup'
       fullPath: '/profile-setup'
       preLoaderRoute: typeof ProfileSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile-setup-step2': {
+      id: '/profile-setup-step2'
+      path: '/profile-setup-step2'
+      fullPath: '/profile-setup-step2'
+      preLoaderRoute: typeof ProfileSetupStep2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/question': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatchesReadyRoute: MatchesReadyRoute,
   ProfileSetupRoute: ProfileSetupRoute,
+  ProfileSetupStep2Route: ProfileSetupStep2Route,
   QuestionRoute: QuestionRoute,
   QuestionnaireHubRoute: QuestionnaireHubRoute,
   QuestionnaireIntroRoute: QuestionnaireIntroRoute,
