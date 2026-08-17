@@ -2,11 +2,6 @@
 
 Create a premium, Apple-inspired AI Compatibility Profile screen for Campus Connect AI. This screen focuses on explaining the *why* behind student recommendations, prioritizing AI insights over simple percentages.
 
-## User Review Required
-
-> [!IMPORTANT]
-> The profile will feature "Sophia Johnson" as the primary example as per the specification. Should I add logic to support multiple student profiles, or focus solely on this premium static example? (Defaulting to premium static example for maximum fidelity to specs).
-
 ## Proposed Changes
 
 ### 1. New Route: `src/routes/student-profile.tsx`
