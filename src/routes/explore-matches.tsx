@@ -195,7 +195,7 @@ function ExploreMatchesScreen() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-white pb-[max(5rem,env(safe-area-inset-bottom)+1.5rem)] pt-[max(1rem,env(safe-area-inset-top))]">
+    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-white pb-[max(4.5rem,env(safe-area-inset-bottom)+1rem)] pt-[max(1rem,env(safe-area-inset-top))]">
       {/* Top App Bar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <button 
@@ -406,8 +406,8 @@ function ExploreMatchesScreen() {
       </Link>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 inset-x-0 z-50 px-6 pb-6 pt-2 bg-gradient-to-t from-white via-white to-transparent">
-        <div className="flex h-16 items-center justify-between rounded-2xl bg-white px-4 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border border-line/70">
+      <nav className="fixed bottom-0 inset-x-0 z-50 px-6 pb-4 pt-1 bg-gradient-to-t from-white via-white to-transparent">
+        <div className="flex h-14 items-center justify-between rounded-2xl bg-white px-4 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border border-line/70">
           {[
             { icon: Home, label: "Home", path: "/home", active: false },
             { icon: Users, label: "Matches", path: "/explore-matches", active: true },

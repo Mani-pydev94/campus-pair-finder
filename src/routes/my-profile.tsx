@@ -95,7 +95,7 @@ function MyProfileScreen() {
   const avatar = profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-[#F8F9FB] pb-[calc(6rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+    <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-[#F8F9FB] pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-black/[0.05] px-6 py-4 flex items-center justify-between">
         <button 
@@ -319,8 +319,8 @@ function MyProfileScreen() {
       </main>
 
       {/* Navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] px-6 pb-[max(1.25rem,env(safe-area-inset-bottom)+0.75rem)] pt-2 bg-white/80 backdrop-blur-xl border-t border-black/[0.05]">
-        <div className="flex items-center justify-between gap-1">
+      <nav className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[430px] px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 bg-white/80 backdrop-blur-xl border-t border-black/[0.05]">
+        <div className="flex items-center justify-between gap-1 h-14">
           {[
             { label: "Home", icon: Home, path: "/home", active: false },
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },

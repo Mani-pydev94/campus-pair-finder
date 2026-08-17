@@ -145,7 +145,7 @@ function CommunitiesScreen() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   return (
-    <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(7.5rem+env(safe-area-inset-bottom))] pt-[max(3.25rem,calc(env(safe-area-inset-top)+2.5rem))]">
+    <div className="mx-auto min-h-screen w-full max-w-[520px] bg-white pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-[max(3.25rem,calc(env(safe-area-inset-top)+2.5rem))]">
       {/* Top Bar */}
       <header className="fade-up flex items-center justify-between px-6">
         <div className="flex items-center gap-2">
@@ -368,8 +368,8 @@ function CommunitiesScreen() {
       </button>
 
       {/* Bottom Navigation */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-[520px] px-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
-        <div className="flex items-center justify-between rounded-[22px] border border-border/40 bg-white px-3 py-3 shadow-[0_20px_44px_-22px_rgba(18,18,18,0.2)]">
+      <nav className="fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-w-[520px] px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center justify-between rounded-[22px] border border-border/40 bg-white px-3 py-2 shadow-[0_20px_44px_-22px_rgba(18,18,18,0.2)]">
           {[
             { label: "Home", icon: HomeIcon, path: "/home", active: false },
             { label: "Matches", icon: Heart, path: "/explore-matches", active: false },
