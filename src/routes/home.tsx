@@ -59,9 +59,9 @@ const quickActions = [
 ];
 
 const matches = [
-  { name: "Arjun Sharma", age: 22, college: "RV College of Engineering", score: 92, photo: match1 },
-  { name: "Ananya Reddy", age: 21, college: "IIIT Hyderabad", score: 89, photo: match2 },
-  { name: "Vikram Mehta", age: 22, college: "COEP Pune", score: 86, photo: match3 },
+  { id: "1", name: "Sophia Johnson", age: 21, college: "Stanford University", score: 96, photo: match1 },
+  { id: "2", name: "Ananya Reddy", age: 21, college: "IIIT Hyderabad", score: 89, photo: match2 },
+  { id: "3", name: "Vikram Mehta", age: 22, college: "COEP Pune", score: 86, photo: match3 },
 ];
 
 const communities = [
