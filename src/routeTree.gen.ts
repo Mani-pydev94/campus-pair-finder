@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as ExploreMatchesRouteImport } from './routes/explore-matches'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
@@ -26,6 +27,11 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunitiesRoute = CommunitiesRouteImport.update({
+  id: '/communities',
+  path: '/communities',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreMatchesRoute = ExploreMatchesRouteImport.update({
@@ -91,6 +97,7 @@ const VerifyEmailRoute = VerifyEmailRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/communities': typeof CommunitiesRoute
   '/explore-matches': typeof ExploreMatchesRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/communities'
     | '/explore-matches'
     | '/home'
     | '/login'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/communities'
     | '/explore-matches'
     | '/home'
     | '/login'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/communities'
     | '/explore-matches'
     | '/home'
     | '/login'
@@ -185,6 +197,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommunitiesRoute: typeof CommunitiesRoute
   ExploreMatchesRoute: typeof ExploreMatchesRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/communities': {
+      id: '/communities'
+      path: '/communities'
+      fullPath: '/communities'
+      preLoaderRoute: typeof CommunitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore-matches': {
@@ -297,6 +317,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommunitiesRoute: CommunitiesRoute,
   ExploreMatchesRoute: ExploreMatchesRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
