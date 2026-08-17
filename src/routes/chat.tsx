@@ -219,7 +219,7 @@ function ChatScreen() {
 
         <div className="mt-8 flex-1 overflow-y-auto px-6 pb-24">
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col items-center justify-center py-8">
+            <div className="flex flex-col items-center justify-center py-8 shrink-0">
               <div className="relative">
                 <img src={activeChat.avatar} alt={activeChat.name} className="h-24 w-24 rounded-[32px] object-cover shadow-xl" />
                 <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-3 py-1 text-[12px] font-bold text-white shadow-lg ring-2 ring-white">
