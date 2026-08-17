@@ -317,6 +317,7 @@ function ExploreMatchesScreen() {
               <div className="flex items-center gap-3 mt-6">
                 <Link 
                   to="/student-profile"
+                  search={{ id: match.id }}
                   className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-brand text-[16px] font-bold text-white shadow-lg shadow-brand/20 transition-all active:scale-95"
                 >
                   View Profile
