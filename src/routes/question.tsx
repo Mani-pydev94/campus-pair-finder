@@ -4,28 +4,15 @@ import { ArrowLeft, Check, Sparkles, X, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/question")({
-  validateSearch: (search: Record<string, unknown>): { category: string | undefined } => {
-    return {
-      category: (search['category'] as string) || 'Values',
-    };
-  },
-  head: ({ search }) => {
-    const category = search?.category || 'Values';
-    return {
-      meta: [
-        { title: `${category} Question — Campus Connect AI` },
-        {
-          name: "description",
-          content: "Answer one compatibility question at a time and tell us how much it matters to you.",
-        },
-      ],
-    };
-  },
-  component: QuestionScreen,
-});
+type Question = {
+  id: string;
+  text: string;
+  description?: string;
+  aiInsight: string;
+  icon: string;
+};
 
-const questionnaireData: Record<string, Array<{ id: string; text: string; description?: string; aiInsight: string; icon: string }>> = {
+const questionnaireData: Record<string, Question[]> = {
   "Values": [
     { 
       id: "v1", 
@@ -38,12 +25,6 @@ const questionnaireData: Record<string, Array<{ id: string; text: string; descri
       text: "Do you believe in strict adherence to deadlines over project quality?", 
       aiInsight: "We match you with people who share your standards for excellence and timing.",
       icon: "❤️"
-    },
-    { 
-      id: "v3", 
-      text: "How much do you value personal growth over social recognition?", 
-      aiInsight: "This helps us find partners who align with your motivation drivers.",
-      icon: "❤️"
     }
   ],
   "Personality": [
@@ -51,12 +32,6 @@ const questionnaireData: Record<string, Array<{ id: string; text: string; descri
       id: "p1", 
       text: "Do you feel energized after spending time with a large group of people?", 
       aiInsight: "Helps us balance team dynamics between introverts and extroverts.",
-      icon: "🧠"
-    },
-    { 
-      id: "p2", 
-      text: "Do you prefer to plan your day in detail rather than seeing what happens?", 
-      aiInsight: "Matches you with teammates who have similar organizational habits.",
       icon: "🧠"
     }
   ],
@@ -102,6 +77,15 @@ const questionnaireData: Record<string, Array<{ id: string; text: string; descri
   ]
 };
 
+export const Route = createFileRoute("/question")({
+  validateSearch: (search: Record<string, unknown>): { category: string | undefined } => {
+    return {
+      category: (search['category'] as string) || 'Values',
+    };
+  },
+  component: QuestionScreen,
+});
+
 const answers = [
   "Strongly Agree",
   "Agree",
@@ -139,6 +123,8 @@ function QuestionScreen() {
   }, [currentQuestionIndex, categoryQuestions.length]);
 
   const next = async () => {
+    if (!currentQuestion) return;
+
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
@@ -182,6 +168,8 @@ function QuestionScreen() {
       setLoading(false);
     }
   };
+
+  if (!currentQuestion) return null;
 
   return (
     <main className="relative mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
