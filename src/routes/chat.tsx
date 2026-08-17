@@ -41,6 +41,7 @@ export const Route = createFileRoute("/chat")({
       },
     ],
   }),
+  component: ChatScreen,
 });
 
 const pinnedChats = [
