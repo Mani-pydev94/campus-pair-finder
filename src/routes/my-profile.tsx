@@ -146,7 +146,7 @@ function MyProfileScreen() {
             {/* Main Action Buttons */}
             <div className="mt-8 grid w-full grid-cols-2 gap-3">
               <Link 
-                to="/profile-setup"
+                to="/edit-profile"
                 className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand text-[15px] font-bold text-white shadow-lg shadow-brand/10 transition-transform active:scale-[0.97]"
               >
                 <Edit3 className="h-4 w-4" />
