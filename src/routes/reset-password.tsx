@@ -1,15 +1,15 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { 
-  ArrowLeft, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Check, 
+import {
+  ArrowLeft,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
   CheckCircle2,
   Sparkles,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/reset-password")({
       { title: "Reset Password — Campus Connect AI" },
       {
         name: "description",
-        content: "Create a new password to secure your account.",
+        content: "Create a new password to secure your Campus Connect AI account.",
       },
     ],
   }),
@@ -42,26 +42,29 @@ function ResetPasswordScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const passwordRequirements = useMemo(() => [
-    { label: "Minimum 8 characters", met: formData.password.length >= 8 },
-    { label: "One uppercase letter", met: /[A-Z]/.test(formData.password) },
-    { label: "One number", met: /[0-9]/.test(formData.password) },
-    { label: "One special character", met: /[^A-Za-z0-9]/.test(formData.password) },
-  ], [formData.password]);
+  const passwordRequirements = useMemo(
+    () => [
+      { label: "Minimum 8 characters", met: formData.password.length >= 8 },
+      { label: "One uppercase letter", met: /[A-Z]/.test(formData.password) },
+      { label: "One number", met: /[0-9]/.test(formData.password) },
+      { label: "One special character", met: /[^A-Za-z0-9]/.test(formData.password) },
+    ],
+    [formData.password]
+  );
 
   const passwordStrength = useMemo(() => {
-    const metCount = passwordRequirements.filter(r => r.met).length;
+    const metCount = passwordRequirements.filter((r) => r.met).length;
     if (metCount === 0) return { label: "", color: "bg-border", width: "0%" };
-    if (metCount <= 1) return { label: "Weak", color: "bg-red-500", width: "25%" };
-    if (metCount <= 2) return { label: "Fair", color: "bg-orange-400", width: "50%" };
-    if (metCount <= 3) return { label: "Strong", color: "bg-brand", width: "75%" };
+    if (metCount === 1) return { label: "Weak", color: "bg-red-500", width: "25%" };
+    if (metCount === 2) return { label: "Fair", color: "bg-orange-400", width: "50%" };
+    if (metCount === 3) return { label: "Strong", color: "bg-brand", width: "75%" };
     return { label: "Excellent", color: "bg-green-500", width: "100%" };
   }, [passwordRequirements]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (passwordRequirements.some(req => !req.met)) {
+
+    if (passwordRequirements.some((req) => !req.met)) {
       toast.error("Please meet all password requirements");
       return;
     }
@@ -72,42 +75,45 @@ function ResetPasswordScreen() {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
+
+    // Simulate password update API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     setIsSubmitting(false);
     setIsSuccess(true);
-    
+
     confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
       colors: ["#6D5EF7", "#FFD700", "#FF6B6B"],
     });
-    
-    toast.success("Password updated successfully!");
+
+    toast.success("Password updated successfully");
   };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col bg-white px-6 pb-12 pt-[max(1.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
       {/* Header */}
-      <header className="fade-up flex items-center justify-between">
-        <button 
+      <header className="flex items-center justify-between">
+        <button
           onClick={() => router.history.back()}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-border shadow-sm transition-transform active:scale-90"
+          aria-label="Go back"
         >
           <ArrowLeft className="h-5 w-5 text-ink" />
         </button>
+
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand">
           <Sparkles className="h-6 w-6" />
         </div>
+
         <div className="w-10" />
       </header>
 
       <main className="mt-12 flex flex-1 flex-col">
         {!isSuccess ? (
-          <div className="fade-up contents">
+          <div className="contents">
             <h1 className="text-[32px] font-bold leading-tight tracking-tight text-ink">
               Create a New Password
             </h1>
@@ -126,17 +132,25 @@ function ResetPasswordScreen() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, password: e.target.value }))
+                    }
                     placeholder="Enter new password"
                     className={inputBase}
+                    autoComplete="new-password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-subtle hover:text-ink transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-subtle transition-colors hover:text-ink"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -151,45 +165,64 @@ function ResetPasswordScreen() {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))
+                    }
                     placeholder="Confirm your password"
                     className={inputBase}
+                    autoComplete="new-password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-subtle hover:text-ink transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-subtle transition-colors hover:text-ink"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
 
-              {/* Password Strength */}
+              {/* Password Strength & Requirements */}
               <div className="mt-2 space-y-3 px-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-subtle/50">Strength</span>
-                  <span className={cn("text-xs font-bold", 
-                    passwordStrength.label === "Weak" && "text-red-500",
-                    passwordStrength.label === "Fair" && "text-orange-400",
-                    passwordStrength.label === "Strong" && "text-brand",
-                    passwordStrength.label === "Excellent" && "text-green-500",
-                  )}>{passwordStrength.label}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-subtle/50">
+                    Strength
+                  </span>
+                  <span
+                    className={cn(
+                      "text-xs font-bold",
+                      passwordStrength.label === "Weak" && "text-red-500",
+                      passwordStrength.label === "Fair" && "text-orange-400",
+                      passwordStrength.label === "Strong" && "text-brand",
+                      passwordStrength.label === "Excellent" && "text-green-500"
+                    )}
+                  >
+                    {passwordStrength.label}
+                  </span>
                 </div>
+
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                  <div 
+                  <div
                     className={cn("h-full transition-all duration-500 ease-out", passwordStrength.color)}
                     style={{ width: passwordStrength.width }}
                   />
                 </div>
+
                 <ul className="grid grid-cols-1 gap-2 pt-2">
                   {passwordRequirements.map((req, i) => (
                     <li key={i} className="flex items-center gap-2.5 text-[13px] font-medium transition-colors">
-                      <span className={cn(
-                        "flex h-4.5 w-4.5 items-center justify-center rounded-full border transition-all duration-300",
-                        req.met ? "bg-green-500 border-green-500 text-white" : "border-border text-transparent"
-                      )}>
+                      <span
+                        className={cn(
+                          "flex h-4.5 w-4.5 items-center justify-center rounded-full border transition-all duration-300",
+                          req.met ? "border-green-500 bg-green-500 text-white" : "border-border text-transparent"
+                        )}
+                      >
                         <Check className="h-3 w-3" strokeWidth={3} />
                       </span>
                       <span className={cn(req.met ? "text-ink" : "text-subtle/70")}>{req.label}</span>
@@ -218,17 +251,15 @@ function ResetPasswordScreen() {
             </form>
           </div>
         ) : (
-          <div className="fade-up flex flex-1 flex-col items-center justify-center text-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-[32px] bg-green-50 text-green-500 animate-in zoom-in-50 duration-500 shadow-sm">
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-[32px] bg-green-50 text-green-500 shadow-sm animate-in zoom-in-50 duration-500">
               <CheckCircle2 className="h-12 w-12" />
             </div>
-            <h2 className="mt-8 text-[28px] font-bold tracking-tight text-ink">
-              Password Updated
-            </h2>
-            <p className="mt-4 text-[16px] leading-relaxed text-subtle px-4">
-              ✓ Password updated successfully. You can now log in with your new credentials.
+            <h2 className="mt-8 text-[28px] font-bold tracking-tight text-ink">Password Updated</h2>
+            <p className="mt-4 px-4 text-[16px] leading-relaxed text-subtle">
+              ✓ Password updated successfully.
             </p>
-            
+
             <Link
               to="/login"
               className="mt-12 flex h-16 w-full items-center justify-center rounded-2xl bg-brand text-[17px] font-bold text-white shadow-lg shadow-brand/20 transition-all active:scale-[0.98]"
