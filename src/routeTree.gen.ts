@@ -19,6 +19,7 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
 import { Route as MyProfileRouteImport } from './routes/my-profile'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as ProfileSetupRouteImport } from './routes/profile-setup'
 import { Route as ProfileSetupStep2RouteImport } from './routes/profile-setup-step2'
 import { Route as QuestionRouteImport } from './routes/question'
@@ -79,6 +80,11 @@ const MyProfileRoute = MyProfileRouteImport.update({
   path: '/my-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileSetupRoute = ProfileSetupRouteImport.update({
   id: '/profile-setup',
   path: '/profile-setup',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
+  '/notifications': typeof NotificationsRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
+  '/notifications': typeof NotificationsRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
+  '/notifications': typeof NotificationsRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/my-profile'
+    | '/notifications'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/my-profile'
+    | '/notifications'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/matches-ready'
     | '/my-profile'
+    | '/notifications'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MatchesReadyRoute: typeof MatchesReadyRoute
   MyProfileRoute: typeof MyProfileRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProfileSetupRoute: typeof ProfileSetupRoute
   ProfileSetupStep2Route: typeof ProfileSetupStep2Route
   QuestionRoute: typeof QuestionRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile-setup': {
       id: '/profile-setup'
       path: '/profile-setup'
@@ -426,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MatchesReadyRoute: MatchesReadyRoute,
   MyProfileRoute: MyProfileRoute,
+  NotificationsRoute: NotificationsRoute,
   ProfileSetupRoute: ProfileSetupRoute,
   ProfileSetupStep2Route: ProfileSetupStep2Route,
   QuestionRoute: QuestionRoute,
