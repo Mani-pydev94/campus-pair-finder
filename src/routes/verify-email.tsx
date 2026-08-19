@@ -44,7 +44,9 @@ export const Route = createFileRoute('/verify-email')({
 
 function VerifyEmailScreen() {
   const router = useRouter();
+  const search = Route.useSearch();
   const [user, setUser] = useState<any>(null);
+  const [email, setEmail] = useState<string>(search.email ?? '');
   const [isVerified, setIsVerified] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
@@ -55,6 +57,7 @@ function VerifyEmailScreen() {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setUser(data.session.user);
+        if (data.session.user.email) setEmail(data.session.user.email);
         if (data.session.user.email_confirmed_at) {
           setIsVerified(true);
         }
