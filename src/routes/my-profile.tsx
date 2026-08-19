@@ -21,6 +21,7 @@ import {
   Layers,
   Sparkles,
   ExternalLink,
+  LogOut,
   Loader2,
   CheckCircle2
 } from "lucide-react";
