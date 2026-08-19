@@ -18,8 +18,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/verify-email')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    email: typeof search['email'] === 'string' ? (search['email'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Verify Your Email — Campus Connect AI" },
@@ -41,7 +45,9 @@ export const Route = createFileRoute('/verify-email')({
 
 function VerifyEmailScreen() {
   const router = useRouter();
+  const search = Route.useSearch();
   const [user, setUser] = useState<any>(null);
+  const [email, setEmail] = useState<string>(search.email ?? '');
   const [isVerified, setIsVerified] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
@@ -52,6 +58,7 @@ function VerifyEmailScreen() {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setUser(data.session.user);
+        if (data.session.user.email) setEmail(data.session.user.email);
         if (data.session.user.email_confirmed_at) {
           setIsVerified(true);
         }
@@ -99,21 +106,30 @@ function VerifyEmailScreen() {
   };
 
   const handleResend = async () => {
-    if (!user?.email) return;
+    const target = email || user?.email;
+    if (!target) {
+      toast.error('We need your email address to resend the link. Please sign in again.');
+      return;
+    }
     setIsResending(true);
-    
+
     const { error } = await supabase.auth.resend({
       type: 'signup',
-      email: user.email,
+      email: target,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
     });
 
     setIsResending(false);
     if (!error) {
       setTimeLeft(60);
+      toast.success(`Verification email sent to ${target}`);
     } else {
       setShowError(true);
+      setTimeout(() => setShowError(false), 4000);
+      toast.error(error.message || 'Could not resend the email. Please try again.');
     }
   };
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -268,7 +284,7 @@ function VerifyEmailScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-subtle mb-0.5 uppercase tracking-wider">Verification email sent to:</p>
-                <p className="text-base font-bold text-ink">{user?.email || "student@university.edu"}</p>
+                <p className="text-base font-bold text-ink">{email || user?.email || "student@university.edu"}</p>
               </div>
               <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
