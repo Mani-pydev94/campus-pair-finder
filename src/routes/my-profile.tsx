@@ -331,6 +331,21 @@ function MyProfileScreen() {
               ))}
             </div>
           </section>
+          {/* Logout */}
+          <section className="fade-up rounded-[24px] bg-white p-4 border border-black/[0.02] shadow-sm" style={{ animationDelay: '300ms' }}>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-50 p-4 text-[15px] font-bold text-rose-600 transition-transform active:scale-[0.97] disabled:opacity-60"
+            >
+              {loggingOut ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5" />
+              )}
+              {loggingOut ? "Logging out..." : "Log Out"}
+            </button>
+          </section>
         </div>
       </main>
 
