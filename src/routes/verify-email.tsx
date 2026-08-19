@@ -105,21 +105,30 @@ function VerifyEmailScreen() {
   };
 
   const handleResend = async () => {
-    if (!user?.email) return;
+    const target = email || user?.email;
+    if (!target) {
+      toast.error('We need your email address to resend the link. Please sign in again.');
+      return;
+    }
     setIsResending(true);
-    
+
     const { error } = await supabase.auth.resend({
       type: 'signup',
-      email: user.email,
+      email: target,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
     });
 
     setIsResending(false);
     if (!error) {
       setTimeLeft(60);
+      toast.success(`Verification email sent to ${target}`);
     } else {
       setShowError(true);
+      setTimeout(() => setShowError(false), 4000);
+      toast.error(error.message || 'Could not resend the email. Please try again.');
     }
   };
+
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
