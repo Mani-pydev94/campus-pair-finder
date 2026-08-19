@@ -20,6 +20,9 @@ import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Route = createFileRoute('/verify-email')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    email: typeof search['email'] === 'string' ? (search['email'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Verify Your Email — Campus Connect AI" },
