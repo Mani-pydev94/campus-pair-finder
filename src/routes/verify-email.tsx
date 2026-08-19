@@ -18,6 +18,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/verify-email')({
   validateSearch: (search: Record<string, unknown>) => ({
