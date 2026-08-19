@@ -21,6 +21,7 @@ import {
   Layers,
   Sparkles,
   ExternalLink,
+  LogOut,
   Loader2,
   CheckCircle2
 } from "lucide-react";
@@ -47,6 +48,21 @@ function MyProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
   const [academic, setAcademic] = useState<any>(null);
   const [completion, setCompletion] = useState(0);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success("Logged out successfully");
+      router.navigate({ to: "/login", replace: true });
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to log out. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  }
 
   useEffect(() => {
     async function loadProfile() {
@@ -314,6 +330,21 @@ function MyProfileScreen() {
                 </div>
               ))}
             </div>
+          </section>
+          {/* Logout */}
+          <section className="fade-up rounded-[24px] bg-white p-4 border border-black/[0.02] shadow-sm" style={{ animationDelay: '300ms' }}>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-rose-50 p-4 text-[15px] font-bold text-rose-600 transition-transform active:scale-[0.97] disabled:opacity-60"
+            >
+              {loggingOut ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <LogOut className="h-5 w-5" />
+              )}
+              {loggingOut ? "Logging out..." : "Log Out"}
+            </button>
           </section>
         </div>
       </main>
