@@ -48,6 +48,21 @@ function MyProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
   const [academic, setAcademic] = useState<any>(null);
   const [completion, setCompletion] = useState(0);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      toast.success("Logged out successfully");
+      router.navigate({ to: "/login", replace: true });
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to log out. Please try again.");
+    } finally {
+      setLoggingOut(false);
+    }
+  }
 
   useEffect(() => {
     async function loadProfile() {
