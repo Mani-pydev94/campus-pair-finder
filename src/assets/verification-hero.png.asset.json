@@ -1,11 +1,4 @@
 {
-  "version": 1,
-  "asset_id": "abf9207a-76c9-453e-b016-fc7667bb724f",
-  "project_id": "4eb87d7e-c810-43ea-82db-68095e349a59",
-  "url": "/__l5e/assets-v1/abf9207a-76c9-453e-b016-fc7667bb724f/verification-hero.png",
-  "r2_key": "a/v1/4eb87d7e-c810-43ea-82db-68095e349a59/abf9207a-76c9-453e-b016-fc7667bb724f/verification-hero.png",
-  "original_filename": "verification-hero.png",
-  "size": 31119,
-  "content_type": "image/jpeg",
-  "created_at": "2026-08-20T13:01:33Z"
+  "url": "https://images.unsplash.com/photo-1557200134-90327ee9fafa?q=80&w=2070&auto=format&fit=crop",
+  "alt": "Purple secure verification illustration"
 }
