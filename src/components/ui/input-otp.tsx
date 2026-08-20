@@ -39,6 +39,15 @@ const InputOTPSlot = React.forwardRef<
   const hasFakeCaret = slot ? slot.hasFakeCaret : false;
   const isActive = slot ? slot.isActive : false;
 
+  // Destructure to prevent passing extra props to the DOM element
+  const { 
+    char: _char, 
+    hasFakeCaret: _hasFakeCaret, 
+    isActive: _isActive, 
+    placeholderChar: _placeholderChar,
+    ...rest 
+  } = props as any;
+
   return (
     <div
       ref={ref}
@@ -47,7 +56,7 @@ const InputOTPSlot = React.forwardRef<
         isActive && "z-10 ring-1 ring-ring",
         className,
       )}
-      {...props}
+      {...rest}
     >
       {char}
       {hasFakeCaret && (
