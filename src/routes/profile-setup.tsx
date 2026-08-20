@@ -112,6 +112,10 @@ function ProfileSetupScreen() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Create a local preview URL immediately for better UX
+    const localPreviewUrl = URL.createObjectURL(file);
+    setProfilePhoto(localPreviewUrl);
+
     try {
       setLoading(true);
       
@@ -164,12 +168,15 @@ function ProfileSetupScreen() {
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Update with the final public URL
       setProfilePhoto(publicUrl);
       setShowPhotoDialog(false);
       toast.success("Profile photo uploaded!");
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       toast.error(error.message || "Failed to upload photo. Please try again.");
+      // Revert if upload fails and we don't have a previous photo
+      // setProfilePhoto(null); 
     } finally {
       setLoading(false);
     }
