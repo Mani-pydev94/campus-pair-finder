@@ -194,22 +194,37 @@ function VerifyEmailScreen() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Bar */}
-      <header className="px-6 py-4 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
-        <Link 
-          to="/signup"
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-line hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-ink" />
-        </Link>
-        
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
-            <GraduationCap className="w-5 h-5 text-white" />
+      <header className="px-6 py-4 flex flex-col items-center sticky top-0 bg-white/80 backdrop-blur-md z-10">
+        <div className="w-full flex items-center justify-between mb-4">
+          <Link 
+            to="/signup"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-line hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-ink" />
+          </Link>
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-sm tracking-tight text-ink">Campus Connect AI</span>
           </div>
-          <span className="font-bold text-sm tracking-tight text-ink">Campus Connect AI</span>
+          
+          <div className="w-10" /> {/* Spacer */}
         </div>
-        
-        <div className="w-10" /> {/* Spacer */}
+
+        {/* New Top Image */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="w-20 h-20 mb-2"
+        >
+          <img 
+            src={verifyEmailAsset.url} 
+            alt="Verification Header" 
+            className="w-full h-full object-contain"
+          />
+        </motion.div>
       </header>
 
       <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full">
