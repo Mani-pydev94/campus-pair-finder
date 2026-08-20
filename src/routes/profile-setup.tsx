@@ -115,24 +115,27 @@ function ProfileSetupScreen() {
     try {
       setLoading(true);
       
-      // Attempt to get session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      // If no session found via standard getSession, check for the user directly
-      let currentUser = session?.user;
+      // Attempt to get user directly, which is more reliable than getSession
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      let currentUser = user;
       
       if (!currentUser) {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (user) {
-          currentUser = user;
-        } else {
-          // One final check: see if we have a session in local storage but the client hasn't picked it up
-          const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
-          if (storageKey) {
+        // Fallback: check session
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user;
+      }
+      
+      if (!currentUser) {
+        // Final fallback: check local storage directly
+        const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
+        if (storageKey) {
+          try {
             const storedSession = JSON.parse(localStorage.getItem(storageKey) || '{}');
             if (storedSession?.user) {
               currentUser = storedSession.user;
             }
+          } catch (e) {
+            console.error('Error parsing stored session:', e);
           }
         }
       }
