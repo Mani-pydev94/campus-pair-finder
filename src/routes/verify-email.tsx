@@ -301,7 +301,7 @@ function VerifyEmailScreen() {
             <motion.img 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              src="/src/assets/verify-email.png" 
+              src={verifyEmailAsset.url} 
               alt="Verification" 
               className="w-24 h-24 object-contain"
             />
