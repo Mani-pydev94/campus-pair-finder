@@ -285,7 +285,7 @@ function VerifyEmailScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-subtle mb-0.5 uppercase tracking-wider">Verification email sent to:</p>
-                <p className="text-base font-bold text-ink">{email || user?.email || "student@university.edu"}</p>
+                <p className="text-base font-bold text-ink">{email || user?.email || search.email || "student@university.edu"}</p>
               </div>
               <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
