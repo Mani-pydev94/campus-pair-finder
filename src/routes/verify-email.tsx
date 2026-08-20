@@ -29,7 +29,7 @@ import verificationHeroAsset from '@/assets/verification-hero.png.asset.json';
 
 export const Route = createFileRoute('/verify-email')({
   validateSearch: (search: Record<string, unknown>) => ({
-    email: typeof search['email'] === 'string' ? (search['email'] as string) : undefined,
+    email: search['email'] as string | undefined,
   }),
   head: () => ({
     meta: [
