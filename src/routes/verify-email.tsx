@@ -221,9 +221,9 @@ function VerifyEmailScreen() {
           className="w-20 h-20 mb-2"
         >
           <img 
-            src={verifyEmailAsset.url} 
+            src={verificationHeaderAsset.url} 
             alt="Verification Header" 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain rounded-full shadow-sm"
           />
         </motion.div>
       </header>
