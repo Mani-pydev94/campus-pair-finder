@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -76,20 +77,29 @@ function ResetPasswordScreen() {
 
     setIsSubmitting(true);
 
-    // Simulate password update API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: formData.password,
+      });
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
-
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#6D5EF7", "#FFD700", "#FF6B6B"],
-    });
-
-    toast.success("Password updated successfully");
+      if (error) {
+        toast.error(error.message);
+      } else {
+        setIsSuccess(true);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#6D5EF7", "#FFD700", "#FF6B6B"],
+        });
+        toast.success("Password updated successfully");
+      }
+    } catch (err: any) {
+      toast.error("An unexpected error occurred");
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
