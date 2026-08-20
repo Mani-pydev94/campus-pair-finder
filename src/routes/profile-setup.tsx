@@ -472,6 +472,16 @@ function ProfileSetupScreen() {
         </div>
       </main>
 
+      {/* Photo Upload Input (hidden but always in DOM) */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="sr-only"
+        accept="image/*"
+        onChange={handlePhotoUpload}
+        aria-hidden="true"
+      />
+
       {/* Photo Upload Dialog */}
       <Dialog open={showPhotoDialog} onOpenChange={setShowPhotoDialog}>
         <DialogContent className="max-w-[340px] rounded-3xl p-6 gap-6">
@@ -482,7 +492,10 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                fileInputRef.current?.click();
+                setShowPhotoDialog(false);
+              }}
             >
               <Camera className="w-5 h-5 text-brand" />
               Take Photo
@@ -490,7 +503,10 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                fileInputRef.current?.click();
+                setShowPhotoDialog(false);
+              }}
             >
               <ImageIcon className="w-5 h-5 text-brand" />
               Choose From Gallery
@@ -505,13 +521,6 @@ function ProfileSetupScreen() {
                 Remove Photo
               </Button>
             )}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              style={{ display: 'none', position: 'absolute', pointerEvents: 'none' }} 
-              accept="image/*"
-              onChange={handlePhotoUpload}
-            />
           </div>
         </DialogContent>
       </Dialog>
