@@ -115,17 +115,26 @@ function ProfileSetupScreen() {
     try {
       setLoading(true);
       
-      // Get session directly from supabase.auth
+      // Attempt to get session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !session) {
-        console.error('Session error or missing:', sessionError);
-        toast.error("Authentication required. Please try logging in again.");
-        return;
+      // If no session found via standard getSession, check for the user directly
+      // This helps if there's a latency in session persistence
+      let currentUser = session?.user;
+      
+      if (!currentUser) {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (user) {
+          currentUser = user;
+        } else {
+          console.error('Session/User detection failed:', sessionError || userError);
+          toast.error("Auth session not found. Please try logging in again.");
+          return;
+        }
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
