@@ -298,17 +298,28 @@ function ProfileSetupScreen() {
         <div className="flex flex-col items-center mb-10">
           <div className="relative group">
             <button 
+              type="button"
               onClick={() => setShowPhotoDialog(true)}
-              className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-50 flex items-center justify-center overflow-hidden relative transition-transform active:scale-95"
+              className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-50 flex items-center justify-center overflow-hidden relative transition-transform active:scale-95 group"
             >
               {profilePhoto ? (
-                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                <img 
+                  src={profilePhoto} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    console.error("Image load error:", profilePhoto);
+                    (e.target as HTMLImageElement).src = ""; 
+                  }}
+                />
               ) : (
                 <div className="flex flex-col items-center text-subtle/50">
                   <User className="w-12 h-12 mb-1" strokeWidth={1.5} />
-                  <Camera className="w-6 h-6 absolute bottom-2 right-2 p-1.5 bg-brand text-white rounded-full shadow-lg" />
                 </div>
               )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                <Camera className="w-6 h-6 absolute bottom-2 right-2 p-1.5 bg-brand text-white rounded-full shadow-lg" />
+              </div>
             </button>
           </div>
           <span className="mt-3 text-xs font-bold text-subtle uppercase tracking-widest">Add Profile Photo</span>
