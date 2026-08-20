@@ -115,22 +115,35 @@ function ProfileSetupScreen() {
     try {
       setLoading(true);
       
-      // Attempt to get session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      // If no session found via standard getSession, check for the user directly
-      // This helps if there's a latency in session persistence
-      let currentUser = session?.user;
+      // Attempt to get user directly, which is more reliable than getSession
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      let currentUser = user;
       
       if (!currentUser) {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (user) {
-          currentUser = user;
-        } else {
-          console.error('Session/User detection failed:', sessionError || userError);
-          toast.error("Auth session not found. Please try logging in again.");
-          return;
+        // Fallback: check session
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user ?? null;
+      }
+      
+      if (!currentUser) {
+        // Final fallback: check local storage directly
+        const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
+        if (storageKey) {
+          try {
+            const storedSession = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            if (storedSession?.user) {
+              currentUser = storedSession.user;
+            }
+          } catch (e) {
+            console.error('Error parsing stored session:', e);
+          }
         }
+      }
+
+      if (!currentUser) {
+        console.error('Session/User detection failed');
+        toast.error("Auth session not found. Please try logging in again.");
+        return;
       }
 
       const fileExt = file.name.split('.').pop();
