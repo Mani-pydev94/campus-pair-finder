@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import verifyEmailAsset from '@/assets/verify-email.png.asset.json';
 
 export const Route = createFileRoute('/verify-email')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -193,22 +194,37 @@ function VerifyEmailScreen() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top Bar */}
-      <header className="px-6 py-4 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
-        <Link 
-          to="/signup"
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-line hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-ink" />
-        </Link>
-        
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
-            <GraduationCap className="w-5 h-5 text-white" />
+      <header className="px-6 py-4 flex flex-col items-center sticky top-0 bg-white/80 backdrop-blur-md z-10">
+        <div className="w-full flex items-center justify-between mb-4">
+          <Link 
+            to="/signup"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 border border-line hover:bg-gray-100 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-ink" />
+          </Link>
+          
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-bold text-sm tracking-tight text-ink">Campus Connect AI</span>
           </div>
-          <span className="font-bold text-sm tracking-tight text-ink">Campus Connect AI</span>
+          
+          <div className="w-10" /> {/* Spacer */}
         </div>
-        
-        <div className="w-10" /> {/* Spacer */}
+
+        {/* New Top Image */}
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="w-20 h-20 mb-2"
+        >
+          <img 
+            src={verifyEmailAsset.url} 
+            alt="Verification Header" 
+            className="w-full h-full object-contain"
+          />
+        </motion.div>
       </header>
 
       <main className="flex-1 flex flex-col p-6 max-w-md mx-auto w-full">
@@ -226,7 +242,7 @@ function VerifyEmailScreen() {
             className="relative z-10"
           >
             <img 
-              src="/src/assets/verify-email.png" 
+              src={verifyEmailAsset.url} 
               alt="Verify Email Illustration" 
               className="h-48 w-auto object-contain"
             />
@@ -284,7 +300,7 @@ function VerifyEmailScreen() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-subtle mb-0.5 uppercase tracking-wider">Verification email sent to:</p>
-                <p className="text-base font-bold text-ink">{email || user?.email || "student@university.edu"}</p>
+                <p className="text-base font-bold text-ink">{email || user?.email || search.email || "student@university.edu"}</p>
               </div>
               <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 px-3 py-1 rounded-full flex items-center gap-1.5 font-semibold shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -300,7 +316,7 @@ function VerifyEmailScreen() {
             <motion.img 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              src="/src/assets/verify-email.png" 
+              src={verifyEmailAsset.url} 
               alt="Verification" 
               className="w-24 h-24 object-contain"
             />
