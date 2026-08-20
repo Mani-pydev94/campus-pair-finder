@@ -115,22 +115,21 @@ function ProfileSetupScreen() {
     // Create a local preview URL immediately for better UX
     const localPreviewUrl = URL.createObjectURL(file);
     setProfilePhoto(localPreviewUrl);
+    setShowPhotoDialog(false);
 
     try {
       setLoading(true);
       
-      // Attempt to get user directly, which is more reliable than getSession
+      // Attempt to get user directly
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       let currentUser = user;
       
       if (!currentUser) {
-        // Fallback: check session
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user ?? null;
       }
       
       if (!currentUser) {
-        // Final fallback: check local storage directly
         const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
         if (storageKey) {
           try {
@@ -168,17 +167,20 @@ function ProfileSetupScreen() {
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update with the final public URL
+      // Finalize with the actual public URL
       setProfilePhoto(publicUrl);
-      setShowPhotoDialog(false);
       toast.success("Profile photo uploaded!");
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       toast.error(error.message || "Failed to upload photo. Please try again.");
-      // Revert if upload fails and we don't have a previous photo
+      // Optional: Clear preview on error if no existing photo
       // setProfilePhoto(null); 
     } finally {
       setLoading(false);
+      // Clean up the object URL to avoid memory leaks
+      if (localPreviewUrl.startsWith('blob:')) {
+        setTimeout(() => URL.revokeObjectURL(localPreviewUrl), 1000);
+      }
     }
   };
 
