@@ -19,7 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import verifyEmailAsset from '@/assets/verify-email.png.asset.json';
+import verificationHeaderAsset from '@/assets/verification-header.png.asset.json';
+import verificationHeroAsset from '@/assets/verification-hero.png.asset.json';
 
 export const Route = createFileRoute('/verify-email')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -220,9 +221,9 @@ function VerifyEmailScreen() {
           className="w-20 h-20 mb-2"
         >
           <img 
-            src={verifyEmailAsset.url} 
+            src={verificationHeaderAsset.url} 
             alt="Verification Header" 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain rounded-full shadow-sm"
           />
         </motion.div>
       </header>
@@ -242,9 +243,9 @@ function VerifyEmailScreen() {
             className="relative z-10"
           >
             <img 
-              src={verifyEmailAsset.url} 
+              src={verificationHeroAsset.url} 
               alt="Verify Email Illustration" 
-              className="h-48 w-auto object-contain"
+              className="h-48 w-auto object-contain rounded-3xl shadow-xl"
             />
           </motion.div>
           
@@ -316,9 +317,9 @@ function VerifyEmailScreen() {
             <motion.img 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              src={verifyEmailAsset.url} 
+              src={verificationHeroAsset.url} 
               alt="Verification" 
-              className="w-24 h-24 object-contain"
+              className="w-24 h-24 object-contain rounded-2xl shadow-md"
             />
           </div>
           
