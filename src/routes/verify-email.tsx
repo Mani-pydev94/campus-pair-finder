@@ -357,7 +357,8 @@ function VerifyEmailScreen() {
                 <InputOTPGroup className="gap-2 sm:gap-3">
                   {slots.map((slot, index) => (
                     <InputOTPSlot 
-                      key={index} 
+                      key={index}
+                      index={index}
                       {...slot} 
                       className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all"
                     />
