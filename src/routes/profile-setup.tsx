@@ -122,11 +122,12 @@ function ProfileSetupScreen() {
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`; // Changed to include prefix if required by RLS or bucket organization
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, {
+          cacheControl: '3600',
           upsert: true,
           contentType: file.type
         });
@@ -481,7 +482,7 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => { console.log('Take Photo clicked'); fileInputRef.current?.click(); }}
+              onClick={() => fileInputRef.current?.click()}
             >
               <Camera className="w-5 h-5 text-brand" />
               Take Photo
@@ -489,7 +490,7 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => { console.log('Choose From Gallery clicked'); fileInputRef.current?.click(); }}
+              onClick={() => fileInputRef.current?.click()}
             >
               <ImageIcon className="w-5 h-5 text-brand" />
               Choose From Gallery
