@@ -314,7 +314,7 @@ function VerifyEmailScreen() {
           <span className="hidden">
             '''Do not make any visual modifications. The phrases I write are commands to understand what I want, not to be written down. Understand their content well, then execute what is required.'''
             
-            Add automatic verification when the user enters all 6 OTP digits without needing to press a separate button.
+            Also i don't like images which is generated with yellow color in verify-email screen . Change complete pictures which suits to this campus connect AI app . I think application color code is purple
           </span>
         </motion.h1>
 
