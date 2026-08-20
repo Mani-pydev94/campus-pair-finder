@@ -346,22 +346,36 @@ function VerifyEmailScreen() {
         </motion.div>
 
         {/* Actions */}
-        <div className="space-y-4 mb-8">
-          <div className="relative flex justify-center mb-2">
-            <motion.img 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              src={verificationHeroAsset.url} 
-              alt="Verification" 
-              className="w-24 h-24 object-contain rounded-2xl shadow-md"
+        <div className="space-y-6 mb-8">
+          <div className="flex flex-col items-center gap-4">
+            <label className="text-sm font-semibold text-ink uppercase tracking-wider">Verification Code</label>
+            <InputOTP
+              maxLength={6}
+              value={otpCode}
+              onChange={(value) => setOtpCode(value)}
+              render={({ slots }) => (
+                <InputOTPGroup className="gap-2 sm:gap-3">
+                  {slots.map((slot, index) => (
+                    <InputOTPSlot 
+                      key={index} 
+                      {...slot} 
+                      className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all"
+                    />
+                  ))}
+                </InputOTPGroup>
+              )}
             />
           </div>
           
           <Button 
             onClick={handleVerify}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
+            disabled={otpCode.length !== 6 || isVerifying}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
           >
-            I've Verified My Email
+            {isVerifying ? (
+              <RefreshCcw className="w-5 h-5 animate-spin mr-2" />
+            ) : null}
+            {isVerifying ? "Verifying..." : "Verify Account"}
           </Button>
 
           <Button 
