@@ -218,9 +218,9 @@ function ProfileSetupScreen() {
             className="relative z-10"
           >
             <img 
-              src="/src/assets/profile-setup-hero.png" 
+              src={profileSetupHeroAsset.url} 
               alt="Profile Setup" 
-              className="h-36 w-auto object-contain"
+              className="h-36 w-auto object-contain rounded-2xl shadow-lg"
             />
           </motion.div>
           
