@@ -114,9 +114,13 @@ function ProfileSetupScreen() {
 
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Please log in to upload a photo");
+      
+      // Get session directly from supabase.auth
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Session error or missing:', sessionError);
+        toast.error("Authentication required. Please try logging in again.");
         return;
       }
 
