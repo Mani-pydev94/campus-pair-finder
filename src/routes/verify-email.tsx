@@ -437,7 +437,7 @@ function VerifyEmailScreen() {
               "Check your spam folder.",
               "Make sure your email address is correct.",
               "Wait a few minutes.",
-              "Try resending the email."
+              "Try resending the code."
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-subtle">
                 <div className="w-5 h-5 rounded-full bg-brand/10 flex items-center justify-center shrink-0 mt-0.5">
