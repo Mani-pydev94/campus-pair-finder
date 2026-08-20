@@ -16,6 +16,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
