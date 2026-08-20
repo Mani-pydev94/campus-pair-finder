@@ -353,19 +353,16 @@ function VerifyEmailScreen() {
               maxLength={6}
               value={otpCode}
               onChange={(value) => setOtpCode(value)}
-              render={({ slots }) => (
-                <InputOTPGroup className="gap-2 sm:gap-3">
-                  {slots.map((slot, index) => (
-                    <InputOTPSlot 
-                      key={index}
-                      index={index}
-                      {...slot}
-                      className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all"
-                    />
-                  ))}
-                </InputOTPGroup>
-              )}
-            />
+            >
+              <InputOTPGroup className="gap-2 sm:gap-3">
+                <InputOTPSlot index={0} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={1} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={2} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={3} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={4} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={5} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+              </InputOTPGroup>
+            </InputOTP>
           </div>
           
           <Button 
