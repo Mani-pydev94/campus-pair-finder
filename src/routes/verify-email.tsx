@@ -227,7 +227,7 @@ function VerifyEmailScreen() {
             className="relative z-10"
           >
             <img 
-              src="/src/assets/verify-email.png" 
+              src={verifyEmailAsset.url} 
               alt="Verify Email Illustration" 
               className="h-48 w-auto object-contain"
             />
