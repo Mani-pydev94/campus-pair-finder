@@ -298,7 +298,7 @@ function VerifyEmailScreen() {
             transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
             className="absolute bottom-10 left-10 p-2.5 bg-white rounded-xl shadow-md z-20"
           >
-            <Sparkles className="w-5 h-5 text-yellow-400" />
+            <Sparkles className="w-5 h-5 text-brand-light" />
           </motion.div>
 
           <div className="absolute inset-0 bg-brand/5 rounded-full blur-3xl opacity-50" />
