@@ -91,9 +91,10 @@ function VerifyEmailScreen() {
   }, [timeLeft]);
 
   const handleVerify = async () => {
-    const { data, error } = await supabase.auth.refreshSession();
+    // Refresh the user data to check confirmed status
+    const { data: { user: updatedUser }, error } = await supabase.auth.getUser();
     
-    if (data.user?.email_confirmed_at) {
+    if (updatedUser?.email_confirmed_at) {
       setIsVerified(true);
       confetti({
         particleCount: 150,
@@ -101,9 +102,25 @@ function VerifyEmailScreen() {
         origin: { y: 0.6 },
         colors: ['#6D5EF7', '#23C8A4', '#FFD700']
       });
+      toast.success("Email verified successfully!");
     } else {
-      setShowError(true);
-      setTimeout(() => setShowError(false), 4000);
+      // Force a session refresh as a fallback
+      await supabase.auth.refreshSession();
+      const { data: { user: recheckUser } } = await supabase.auth.getUser();
+      
+      if (recheckUser?.email_confirmed_at) {
+        setIsVerified(true);
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#6D5EF7', '#23C8A4', '#FFD700']
+        });
+      } else {
+        setShowError(true);
+        setTimeout(() => setShowError(false), 4000);
+        toast.error("Email not yet verified. Please check your inbox.");
+      }
     }
   };
 
