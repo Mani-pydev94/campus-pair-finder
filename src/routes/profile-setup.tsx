@@ -481,7 +481,7 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => { console.log('Take Photo clicked'); fileInputRef.current?.click(); }}
             >
               <Camera className="w-5 h-5 text-brand" />
               Take Photo
@@ -489,7 +489,7 @@ function ProfileSetupScreen() {
             <Button 
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => { console.log('Choose From Gallery clicked'); fileInputRef.current?.click(); }}
             >
               <ImageIcon className="w-5 h-5 text-brand" />
               Choose From Gallery
