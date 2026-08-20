@@ -377,7 +377,7 @@ function VerifyEmailScreen() {
           </div>
           
           <Button 
-            onClick={handleVerify}
+            onClick={() => handleVerify()}
             disabled={otpCode.length !== 6 || isVerifying}
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
           >
@@ -427,7 +427,7 @@ function VerifyEmailScreen() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={handleVerify}
+                  onClick={() => handleVerify()}
                   className="text-xs font-bold text-red-600 hover:bg-red-100"
                 >
                   Try Again
