@@ -122,7 +122,7 @@ function ProfileSetupScreen() {
       if (!currentUser) {
         // Fallback: check session
         const { data: { session } } = await supabase.auth.getSession();
-        currentUser = session?.user;
+        currentUser = session?.user ?? null;
       }
       
       if (!currentUser) {
