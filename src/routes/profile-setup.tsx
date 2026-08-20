@@ -115,22 +115,21 @@ function ProfileSetupScreen() {
     // Create a local preview URL immediately for better UX
     const localPreviewUrl = URL.createObjectURL(file);
     setProfilePhoto(localPreviewUrl);
+    setShowPhotoDialog(false);
 
     try {
       setLoading(true);
       
-      // Attempt to get user directly, which is more reliable than getSession
+      // Attempt to get user directly
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       let currentUser = user;
       
       if (!currentUser) {
-        // Fallback: check session
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user ?? null;
       }
       
       if (!currentUser) {
-        // Final fallback: check local storage directly
         const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
         if (storageKey) {
           try {
@@ -168,17 +167,20 @@ function ProfileSetupScreen() {
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update with the final public URL
+      // Finalize with the actual public URL
       setProfilePhoto(publicUrl);
-      setShowPhotoDialog(false);
       toast.success("Profile photo uploaded!");
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       toast.error(error.message || "Failed to upload photo. Please try again.");
-      // Revert if upload fails and we don't have a previous photo
+      // Optional: Clear preview on error if no existing photo
       // setProfilePhoto(null); 
     } finally {
       setLoading(false);
+      // Clean up the object URL to avoid memory leaks
+      if (localPreviewUrl.startsWith('blob:')) {
+        setTimeout(() => URL.revokeObjectURL(localPreviewUrl), 1000);
+      }
     }
   };
 
@@ -296,17 +298,28 @@ function ProfileSetupScreen() {
         <div className="flex flex-col items-center mb-10">
           <div className="relative group">
             <button 
+              type="button"
               onClick={() => setShowPhotoDialog(true)}
-              className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-50 flex items-center justify-center overflow-hidden relative transition-transform active:scale-95"
+              className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-50 flex items-center justify-center overflow-hidden relative transition-transform active:scale-95 group"
             >
               {profilePhoto ? (
-                <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                <img 
+                  src={profilePhoto} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    console.error("Image load error:", profilePhoto);
+                    (e.target as HTMLImageElement).src = ""; 
+                  }}
+                />
               ) : (
                 <div className="flex flex-col items-center text-subtle/50">
                   <User className="w-12 h-12 mb-1" strokeWidth={1.5} />
-                  <Camera className="w-6 h-6 absolute bottom-2 right-2 p-1.5 bg-brand text-white rounded-full shadow-lg" />
                 </div>
               )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                <Camera className="w-6 h-6 absolute bottom-2 right-2 p-1.5 bg-brand text-white rounded-full shadow-lg" />
+              </div>
             </button>
           </div>
           <span className="mt-3 text-xs font-bold text-subtle uppercase tracking-widest">Add Profile Photo</span>
@@ -508,11 +521,22 @@ function ProfileSetupScreen() {
       {/* Photo Upload Input (hidden but always in DOM) */}
       <input 
         type="file" 
+        id="profile-photo-input"
         ref={fileInputRef} 
-        className="sr-only"
+        style={{ 
+          position: 'absolute', 
+          width: '1px', 
+          height: '1px', 
+          padding: '0', 
+          margin: '-1px', 
+          overflow: 'hidden', 
+          clip: 'rect(0,0,0,0)', 
+          border: '0',
+          visibility: 'visible',
+          opacity: '0.01'
+        }}
         accept="image/*"
         onChange={handlePhotoUpload}
-        aria-hidden="true"
       />
 
       {/* Photo Upload Dialog */}
@@ -523,22 +547,32 @@ function ProfileSetupScreen() {
           </DialogHeader>
           <div className="grid gap-3">
             <Button 
+              type="button"
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
               onClick={() => {
-                fileInputRef.current?.click();
-                setShowPhotoDialog(false);
+                const input = document.getElementById('profile-photo-input') as HTMLInputElement;
+                if (input) {
+                  input.click();
+                } else {
+                  fileInputRef.current?.click();
+                }
               }}
             >
               <Camera className="w-5 h-5 text-brand" />
               Take Photo
             </Button>
             <Button 
+              type="button"
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
               onClick={() => {
-                fileInputRef.current?.click();
-                setShowPhotoDialog(false);
+                const input = document.getElementById('profile-photo-input') as HTMLInputElement;
+                if (input) {
+                  input.click();
+                } else {
+                  fileInputRef.current?.click();
+                }
               }}
             >
               <ImageIcon className="w-5 h-5 text-brand" />
@@ -546,6 +580,7 @@ function ProfileSetupScreen() {
             </Button>
             {profilePhoto && (
               <Button 
+                type="button"
                 variant="outline" 
                 className="h-14 rounded-2xl justify-start gap-4 px-6 border-red-100 text-red-500 font-semibold hover:bg-red-50 hover:text-red-600"
                 onClick={removePhoto}
