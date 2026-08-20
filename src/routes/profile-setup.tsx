@@ -547,22 +547,32 @@ function ProfileSetupScreen() {
           </DialogHeader>
           <div className="grid gap-3">
             <Button 
+              type="button"
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
               onClick={() => {
-                fileInputRef.current?.click();
-                setShowPhotoDialog(false);
+                const input = document.getElementById('profile-photo-input') as HTMLInputElement;
+                if (input) {
+                  input.click();
+                } else {
+                  fileInputRef.current?.click();
+                }
               }}
             >
               <Camera className="w-5 h-5 text-brand" />
               Take Photo
             </Button>
             <Button 
+              type="button"
               variant="outline" 
               className="h-14 rounded-2xl justify-start gap-4 px-6 border-line font-semibold text-ink"
               onClick={() => {
-                fileInputRef.current?.click();
-                setShowPhotoDialog(false);
+                const input = document.getElementById('profile-photo-input') as HTMLInputElement;
+                if (input) {
+                  input.click();
+                } else {
+                  fileInputRef.current?.click();
+                }
               }}
             >
               <ImageIcon className="w-5 h-5 text-brand" />
@@ -570,6 +580,7 @@ function ProfileSetupScreen() {
             </Button>
             {profilePhoto && (
               <Button 
+                type="button"
                 variant="outline" 
                 className="h-14 rounded-2xl justify-start gap-4 px-6 border-red-100 text-red-500 font-semibold hover:bg-red-50 hover:text-red-600"
                 onClick={removePhoto}
