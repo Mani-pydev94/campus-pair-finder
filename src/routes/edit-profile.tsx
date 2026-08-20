@@ -141,17 +141,54 @@ function EditProfileScreen() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Create a local preview URL immediately for better UX
+    const localPreviewUrl = URL.createObjectURL(file);
+    setProfilePhoto(localPreviewUrl);
+    setShowPhotoDialog(false);
+
     try {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      
+      // Attempt to get user directly (more reliable than session alone)
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      let currentUser = user;
+      
+      if (!currentUser) {
+        const { data: { session } } = await supabase.auth.getSession();
+        currentUser = session?.user ?? null;
+      }
+      
+      if (!currentUser) {
+        // Hydration fallback
+        const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
+        if (storageKey) {
+          try {
+            const storedSession = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            if (storedSession?.user) {
+              currentUser = storedSession.user;
+            }
+          } catch (e) {
+            console.error('Error parsing stored session:', e);
+          }
+        }
+      }
+
+      if (!currentUser) {
+        toast.error("Auth session not found. Please try logging in again.");
+        return;
+      }
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/${Math.random()}.${fileExt}`;
+      const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
 
       if (uploadError) throw uploadError;
 
@@ -160,13 +197,15 @@ function EditProfileScreen() {
         .getPublicUrl(filePath);
 
       setProfilePhoto(publicUrl);
-      setShowPhotoDialog(false);
       toast.success("Profile photo updated");
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading photo:', error);
-      toast.error("Failed to upload photo");
+      toast.error(error.message || "Failed to upload photo");
     } finally {
       setLoading(false);
+      if (localPreviewUrl.startsWith('blob:')) {
+        setTimeout(() => URL.revokeObjectURL(localPreviewUrl), 1000);
+      }
     }
   };
 
@@ -631,7 +670,7 @@ function EditProfileScreen() {
       <input
         type="file"
         ref={fileInputRef}
-        className="hidden"
+        className="sr-only"
         accept="image/*"
         onChange={handlePhotoUpload}
       />
