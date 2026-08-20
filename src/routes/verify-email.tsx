@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import verificationHeaderAsset from '@/assets/verification-header.png.asset.json';
+import verificationHeaderAsset from '@/assets/verification-header-v2.png.asset.json';
 import verificationHeroAsset from '@/assets/verification-hero.png.asset.json';
 
 export const Route = createFileRoute('/verify-email')({
