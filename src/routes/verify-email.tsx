@@ -414,7 +414,7 @@ function VerifyEmailScreen() {
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-bold text-red-900">Verification Pending</p>
-                  <p className="text-xs text-red-700">We couldn't verify your status yet. Please click the link in your email.</p>
+                  <p className="text-xs text-red-700">The verification code you entered is invalid or has expired.</p>
                 </div>
                 <Button 
                   variant="ghost" 
