@@ -296,6 +296,16 @@ function VerifyEmailScreen() {
 
         {/* Actions */}
         <div className="space-y-4 mb-8">
+          <div className="relative flex justify-center mb-2">
+            <motion.img 
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              src="/src/assets/verify-email.png" 
+              alt="Verification" 
+              className="w-24 h-24 object-contain"
+            />
+          </div>
+          
           <Button 
             onClick={handleVerify}
             className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
