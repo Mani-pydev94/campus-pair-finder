@@ -115,14 +115,21 @@ function ProfileSetupScreen() {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        toast.error("Please log in to upload a photo");
+        return;
+      }
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/${Math.random()}.${fileExt}`;
+      const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`; // Avatars bucket is configured for flat structure or user-id folders
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true,
+          contentType: file.type
+        });
 
       if (uploadError) throw uploadError;
 
@@ -132,8 +139,10 @@ function ProfileSetupScreen() {
 
       setProfilePhoto(publicUrl);
       setShowPhotoDialog(false);
-    } catch (error) {
+      toast.success("Profile photo uploaded!");
+    } catch (error: any) {
       console.error('Error uploading photo:', error);
+      toast.error(error.message || "Failed to upload photo. Please try again.");
     } finally {
       setLoading(false);
     }
