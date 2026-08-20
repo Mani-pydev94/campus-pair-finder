@@ -390,7 +390,7 @@ function VerifyEmailScreen() {
             ) : (
               <ExternalLink className="w-5 h-5 text-subtle" />
             )}
-            Resend Verification Email
+            Resend Verification Code
           </Button>
 
           {timeLeft > 0 && (
