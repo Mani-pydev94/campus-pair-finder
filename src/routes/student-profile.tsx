@@ -63,8 +63,9 @@ function StudentProfileScreen() {
   useEffect(() => {
     async function loadStudent() {
       try {
-        if (!id) {
-          // Fallback to static demo data if no ID
+        const cleanId = typeof id === 'string' ? id.replace(/"/g, '') : id;
+        
+        if (!cleanId) {
           const timer = setTimeout(() => setProgress(96), 300);
           setLoading(false);
           return;
@@ -73,14 +74,16 @@ function StudentProfileScreen() {
         const { data, error } = await supabase
           .from('profiles')
           .select('*, academic_profiles(*)')
-          .eq('id', id)
+          .eq('id', cleanId)
           .single();
         
         if (error) throw error;
         setStudentData(data);
         setTimeout(() => setProgress(Math.floor(Math.random() * 20) + 80), 300);
       } catch (e) {
-        console.error(e);
+        console.error('Error loading student profile:', e);
+        // Fallback for demo IDs like "1", "2", "3"
+        setTimeout(() => setProgress(96), 300);
       } finally {
         setLoading(false);
       }
