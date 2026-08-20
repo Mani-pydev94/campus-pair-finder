@@ -16,6 +16,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -24,7 +29,7 @@ import verificationHeroAsset from '@/assets/verification-hero.png.asset.json';
 
 export const Route = createFileRoute('/verify-email')({
   validateSearch: (search: Record<string, unknown>) => ({
-    email: typeof search['email'] === 'string' ? (search['email'] as string) : undefined,
+    email: search['email'] as string | undefined,
   }),
   head: () => ({
     meta: [
@@ -50,7 +55,9 @@ function VerifyEmailScreen() {
   const search = Route.useSearch();
   const [user, setUser] = useState<any>(null);
   const [email, setEmail] = useState<string>(search.email ?? '');
+  const [otpCode, setOtpCode] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
   const [showError, setShowError] = useState(false);
@@ -91,24 +98,30 @@ function VerifyEmailScreen() {
   }, [timeLeft]);
 
   const handleVerify = async () => {
-    // Refresh the user data to check confirmed status
-    const { data: { user: updatedUser }, error } = await supabase.auth.getUser();
-    
-    if (updatedUser?.email_confirmed_at) {
-      setIsVerified(true);
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#6D5EF7', '#23C8A4', '#FFD700']
+    if (otpCode.length !== 6) {
+      toast.error("Please enter the 6-digit verification code.");
+      return;
+    }
+
+    setIsVerifying(true);
+    const targetEmail = email || user?.email || search.email;
+
+    if (!targetEmail) {
+      toast.error("Email address not found. Please try signing up again.");
+      setIsVerifying(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: targetEmail,
+        token: otpCode,
+        type: 'signup',
       });
-      toast.success("Email verified successfully!");
-    } else {
-      // Force a session refresh as a fallback
-      await supabase.auth.refreshSession();
-      const { data: { user: recheckUser } } = await supabase.auth.getUser();
-      
-      if (recheckUser?.email_confirmed_at) {
+
+      if (error) throw error;
+
+      if (data.user) {
         setIsVerified(true);
         confetti({
           particleCount: 150,
@@ -116,11 +129,15 @@ function VerifyEmailScreen() {
           origin: { y: 0.6 },
           colors: ['#6D5EF7', '#23C8A4', '#FFD700']
         });
-      } else {
-        setShowError(true);
-        setTimeout(() => setShowError(false), 4000);
-        toast.error("Email not yet verified. Please check your inbox.");
+        toast.success("Email verified successfully!");
       }
+    } catch (error: any) {
+      console.error('Verification error:', error);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 4000);
+      toast.error(error.message || "Invalid or expired verification code.");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -302,7 +319,7 @@ function VerifyEmailScreen() {
           transition={{ delay: 0.1 }}
           className="text-subtle text-center mb-8 leading-relaxed"
         >
-          We've sent a verification link to your email address. Please check your inbox to activate your account.
+          We've sent a 6-digit verification code to your email address. Please enter it below to activate your account.
         </motion.p>
 
         {/* Email Card */}
@@ -329,22 +346,34 @@ function VerifyEmailScreen() {
         </motion.div>
 
         {/* Actions */}
-        <div className="space-y-4 mb-8">
-          <div className="relative flex justify-center mb-2">
-            <motion.img 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              src={verificationHeroAsset.url} 
-              alt="Verification" 
-              className="w-24 h-24 object-contain rounded-2xl shadow-md"
-            />
+        <div className="space-y-6 mb-8">
+          <div className="flex flex-col items-center gap-4">
+            <label className="text-sm font-semibold text-ink uppercase tracking-wider">Verification Code</label>
+            <InputOTP
+              maxLength={6}
+              value={otpCode}
+              onChange={(value) => setOtpCode(value)}
+            >
+              <InputOTPGroup className="gap-2 sm:gap-3">
+                <InputOTPSlot index={0} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={1} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={2} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={3} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={4} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+                <InputOTPSlot index={5} className="w-12 h-14 sm:w-14 sm:h-16 text-xl font-bold rounded-2xl border-line bg-gray-50/50 shadow-sm focus:bg-white focus:border-brand transition-all" />
+              </InputOTPGroup>
+            </InputOTP>
           </div>
           
           <Button 
             onClick={handleVerify}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all"
+            disabled={otpCode.length !== 6 || isVerifying}
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-lg font-semibold shadow-cta hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
           >
-            I've Verified My Email
+            {isVerifying ? (
+              <RefreshCcw className="w-5 h-5 animate-spin mr-2" />
+            ) : null}
+            {isVerifying ? "Verifying..." : "Verify Account"}
           </Button>
 
           <Button 
@@ -358,7 +387,7 @@ function VerifyEmailScreen() {
             ) : (
               <ExternalLink className="w-5 h-5 text-subtle" />
             )}
-            Resend Verification Email
+            Resend Verification Code
           </Button>
 
           {timeLeft > 0 && (
@@ -382,7 +411,7 @@ function VerifyEmailScreen() {
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-bold text-red-900">Verification Pending</p>
-                  <p className="text-xs text-red-700">We couldn't verify your status yet. Please click the link in your email.</p>
+                  <p className="text-xs text-red-700">The verification code you entered is invalid or has expired.</p>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -405,7 +434,7 @@ function VerifyEmailScreen() {
               "Check your spam folder.",
               "Make sure your email address is correct.",
               "Wait a few minutes.",
-              "Try resending the email."
+              "Try resending the code."
             ].map((text, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-subtle">
                 <div className="w-5 h-5 rounded-full bg-brand/10 flex items-center justify-center shrink-0 mt-0.5">
