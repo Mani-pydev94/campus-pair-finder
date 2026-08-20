@@ -98,24 +98,30 @@ function VerifyEmailScreen() {
   }, [timeLeft]);
 
   const handleVerify = async () => {
-    // Refresh the user data to check confirmed status
-    const { data: { user: updatedUser }, error } = await supabase.auth.getUser();
-    
-    if (updatedUser?.email_confirmed_at) {
-      setIsVerified(true);
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#6D5EF7', '#23C8A4', '#FFD700']
+    if (otpCode.length !== 6) {
+      toast.error("Please enter the 6-digit verification code.");
+      return;
+    }
+
+    setIsVerifying(true);
+    const targetEmail = email || user?.email || search.email;
+
+    if (!targetEmail) {
+      toast.error("Email address not found. Please try signing up again.");
+      setIsVerifying(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: targetEmail,
+        token: otpCode,
+        type: 'signup',
       });
-      toast.success("Email verified successfully!");
-    } else {
-      // Force a session refresh as a fallback
-      await supabase.auth.refreshSession();
-      const { data: { user: recheckUser } } = await supabase.auth.getUser();
-      
-      if (recheckUser?.email_confirmed_at) {
+
+      if (error) throw error;
+
+      if (data.user) {
         setIsVerified(true);
         confetti({
           particleCount: 150,
@@ -123,11 +129,15 @@ function VerifyEmailScreen() {
           origin: { y: 0.6 },
           colors: ['#6D5EF7', '#23C8A4', '#FFD700']
         });
-      } else {
-        setShowError(true);
-        setTimeout(() => setShowError(false), 4000);
-        toast.error("Email not yet verified. Please check your inbox.");
+        toast.success("Email verified successfully!");
       }
+    } catch (error: any) {
+      console.error('Verification error:', error);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 4000);
+      toast.error(error.message || "Invalid or expired verification code.");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
