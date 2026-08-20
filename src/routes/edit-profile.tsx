@@ -670,7 +670,7 @@ function EditProfileScreen() {
       <input
         type="file"
         ref={fileInputRef}
-        className="hidden"
+        className="sr-only"
         accept="image/*"
         onChange={handlePhotoUpload}
       />
