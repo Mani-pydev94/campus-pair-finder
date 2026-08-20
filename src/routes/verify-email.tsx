@@ -55,7 +55,9 @@ function VerifyEmailScreen() {
   const search = Route.useSearch();
   const [user, setUser] = useState<any>(null);
   const [email, setEmail] = useState<string>(search.email ?? '');
+  const [otpCode, setOtpCode] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(45);
   const [showError, setShowError] = useState(false);
