@@ -122,7 +122,7 @@ function ProfileSetupScreen() {
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${session.user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`; // Avatars bucket is configured for flat structure or user-id folders
+      const filePath = `avatars/${fileName}`; // Changed to include prefix if required by RLS or bucket organization
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -507,7 +507,7 @@ function ProfileSetupScreen() {
             <input 
               type="file" 
               ref={fileInputRef} 
-              className="hidden" 
+              style={{ display: 'none', position: 'absolute', pointerEvents: 'none' }} 
               accept="image/*"
               onChange={handlePhotoUpload}
             />
