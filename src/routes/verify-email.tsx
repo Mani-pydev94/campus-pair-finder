@@ -319,7 +319,7 @@ function VerifyEmailScreen() {
           transition={{ delay: 0.1 }}
           className="text-subtle text-center mb-8 leading-relaxed"
         >
-          We've sent a verification link to your email address. Please check your inbox to activate your account.
+          We've sent a 6-digit verification code to your email address. Please enter it below to activate your account.
         </motion.p>
 
         {/* Email Card */}
