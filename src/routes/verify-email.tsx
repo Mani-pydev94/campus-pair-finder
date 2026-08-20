@@ -243,9 +243,9 @@ function VerifyEmailScreen() {
             className="relative z-10"
           >
             <img 
-              src={verifyEmailAsset.url} 
+              src={verificationHeroAsset.url} 
               alt="Verify Email Illustration" 
-              className="h-48 w-auto object-contain"
+              className="h-48 w-auto object-contain rounded-3xl shadow-xl"
             />
           </motion.div>
           
