@@ -164,6 +164,8 @@ function SignupScreen() {
     }
 
     if (data.user) {
+      // Require an explicit login after signing up
+      if (data.session) await supabase.auth.signOut();
       setSuccess(true);
       confetti({
         particleCount: 150,
