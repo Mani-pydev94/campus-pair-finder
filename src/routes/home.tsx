@@ -74,12 +74,15 @@ const communities = [
   { name: "Startup Founders", members: "6.7k members", icon: Rocket, from: "from-amber-400", to: "to-orange-500" },
 ];
 
-const events = [
-  { name: "Azure Workshop", date: "12 Aug · 4:00 PM", place: "Block C Auditorium", from: "from-sky-400", to: "to-blue-600" },
-  { name: "Hackathon 2026", date: "19 Aug · 9:00 AM", place: "Innovation Lab", from: "from-brand", to: "to-brand-light" },
-  { name: "Startup Meetup", date: "24 Aug · 6:30 PM", place: "Koramangala Hub", from: "from-amber-400", to: "to-orange-500" },
-  { name: "AI Bootcamp", date: "02 Sep · 10:00 AM", place: "Central Library", from: "from-mint", to: "to-emerald-600" },
-];
+type EventItem = {
+  id: string;
+  name: string;
+  event_at: string;
+  place: string;
+  gradient_from: string;
+  gradient_to: string;
+};
+
 
 const navItems = [
   { label: "Home", icon: HomeIcon, active: true },
