@@ -96,6 +96,18 @@ function HomeDashboard() {
   const [progress, setProgress] = useState(0);
   const [userName, setUserName] = useState("Student");
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<EventItem[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("id,name,event_at,place,gradient_from,gradient_to")
+      .order("event_at", { ascending: true })
+      .limit(10)
+      .then(({ data }) => setEvents((data as EventItem[]) ?? []));
+  }, []);
+
+
 
   useEffect(() => {
     async function loadData() {
