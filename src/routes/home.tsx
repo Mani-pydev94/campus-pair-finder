@@ -74,12 +74,15 @@ const communities = [
   { name: "Startup Founders", members: "6.7k members", icon: Rocket, from: "from-amber-400", to: "to-orange-500" },
 ];
 
-const events = [
-  { name: "Azure Workshop", date: "12 Aug · 4:00 PM", place: "Block C Auditorium", from: "from-sky-400", to: "to-blue-600" },
-  { name: "Hackathon 2026", date: "19 Aug · 9:00 AM", place: "Innovation Lab", from: "from-brand", to: "to-brand-light" },
-  { name: "Startup Meetup", date: "24 Aug · 6:30 PM", place: "Koramangala Hub", from: "from-amber-400", to: "to-orange-500" },
-  { name: "AI Bootcamp", date: "02 Sep · 10:00 AM", place: "Central Library", from: "from-mint", to: "to-emerald-600" },
-];
+type EventItem = {
+  id: string;
+  name: string;
+  event_at: string;
+  place: string;
+  gradient_from: string;
+  gradient_to: string;
+};
+
 
 const navItems = [
   { label: "Home", icon: HomeIcon, active: true },
@@ -93,6 +96,18 @@ function HomeDashboard() {
   const [progress, setProgress] = useState(0);
   const [userName, setUserName] = useState("Student");
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<EventItem[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("events")
+      .select("id,name,event_at,place,gradient_from,gradient_to")
+      .order("event_at", { ascending: true })
+      .limit(10)
+      .then(({ data }) => setEvents((data as EventItem[]) ?? []));
+  }, []);
+
+
 
   useEffect(() => {
     async function loadData() {
@@ -269,16 +284,24 @@ function HomeDashboard() {
         <div className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {events.map((e) => (
             <article
-              key={e.name}
+              key={e.id}
               className="w-[230px] shrink-0 snap-start overflow-hidden rounded-[18px] border border-line/70 bg-card shadow-[0_14px_32px_-28px_rgba(18,18,18,0.6)]"
             >
-              <div className={`h-24 bg-gradient-to-br ${e.from} ${e.to}`} />
+              <div className={`h-24 bg-gradient-to-br ${e.gradient_from} ${e.gradient_to}`} />
               <div className="p-4">
                 <h3 className="truncate text-[15px] font-semibold text-ink">{e.name}</h3>
                 <p className="mt-2 flex items-center gap-1.5 text-[13px] text-subtle">
                   <Calendar className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{e.date}</span>
+                  <span className="truncate">
+                    {new Date(e.event_at).toLocaleString(undefined, {
+                      day: "2-digit",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
                 </p>
+
                 <p className="mt-1 flex items-center gap-1.5 text-[13px] text-subtle">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{e.place}</span>
