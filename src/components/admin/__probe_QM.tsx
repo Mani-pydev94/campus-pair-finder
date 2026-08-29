@@ -1,0 +1,945 @@
+import { useCallback, useEffect, useState } from "react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Loader2,
+  ArrowUp,
+  ArrowDown,
+  Power,
+  PowerOff,
+  ListChecks,
+  ShieldAlert,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+type DeleteQuestionResult = { ok: boolean; error: string | null; responseCount?: number };
+type DeleteQuestionFn = (data: { questionId: string }) => Promise<DeleteQuestionResult>;
+
+type CategoryRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  display_order: number;
+  emoji: string | null;
+  tone: string | null;
+  is_active: boolean;
+  question_count: number;
+};
+
+type QuestionRow = {
+  id: string;
+  external_id: string;
+  category_id: string;
+  question_text: string;
+  description: string | null;
+  question_type: string;
+  options: string[];
+  display_order: number;
+  is_active: boolean;
+  is_required: boolean;
+  ai_insight: string | null;
+  emoji: string | null;
+};
+
+const QUESTION_TYPES = ["multiple_choice"] as const;
+const DEFAULT_OPTIONS = ["Strongly Agree", "Agree", "Neutral", "Disagree", "Strongly Disagree"];
+
+const emptyCategory = {
+  name: "",
+  description: "",
+  emoji: "✨",
+  tone: "bg-brand/10 text-brand",
+  display_order: 0,
+};
+
+const emptyQuestion = {
+  external_id: "",
+  category_id: "",
+  question_text: "",
+  description: "",
+  question_type: "multiple_choice" as string,
+  options: [...DEFAULT_OPTIONS] as string[],
+  display_order: 0,
+  is_active: true,
+  is_required: true,
+  ai_insight: "",
+  emoji: "❓",
+};
+
+function parseOptions(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((o) => String(o));
+  }
+  return [...DEFAULT_OPTIONS];
+}
+
+export function QuestionnaireManager({
+  deleteQuestion,
+}: {
+  deleteQuestion: DeleteQuestionFn;
+}) {
+  const [categories, setCategories] = useState<CategoryRow[]>([
+    {
+      id: "0534838d-7b78-4a3c-a504-a32a2a28ac36",
+      name: "Values",
+      description: null,
+      display_order: 0,
+      emoji: "✨",
+      tone: "bg-brand/10 text-brand",
+      is_active: true,
+      question_count: 6,
+    },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Category form state
+  const [catForm, setCatForm] = useState({ ...emptyCategory });
+  const [catEditingId, setCatEditingId] = useState<string | null>(null);
+
+  // Question form state
+  const [questions, setQuestions] = useState<QuestionRow[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [qLoading, setQLoading] = useState(false);
+  const [qForm, setQForm] = useState({ ...emptyQuestion });
+  const [qEditingId, setQEditingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<QuestionRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const isEditingCat = catEditingId !== null;
+  const isEditingQ = qEditingId !== null;
+
+  const loadCategories = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const { data, error: catErr } = await supabase
+      .from("questionnaire_categories")
+      .select("id, name, description, display_order, emoji, tone, is_active")
+      .order("display_order", { ascending: true });
+    if (catErr) {
+      setError(catErr.message);
+      setLoading(false);
+      return;
+    }
+    const rows = (data ?? []) as CategoryRow[];
+    // Get question counts per category.
+    const { data: qCount } = await supabase.from("questionnaire_questions").select("category_id");
+    const counts = new Map<string, number>();
+    for (const r of (qCount ?? []) as { category_id: string }[]) {
+      counts.set(r.category_id, (counts.get(r.category_id) ?? 0) + 1);
+    }
+    setCategories(
+      rows.map((c) => ({ ...c, question_count: counts.get(c.id) ?? 0 })),
+    );
+    setLoading(false);
+  }, []);
+
+  const loadQuestions = useCallback(async (categoryId: string) => {
+    setQLoading(true);
+    // ===== TEMP DIAGNOSTIC (remove after debugging) =====
+    const diagStart = Date.now();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const hasSession = !!sessionData.session;
+    const hasToken = !!sessionData.session?.access_token;
+    const tokenLength = sessionData.session?.access_token?.length ?? 0;
+    const tokenParts = sessionData.session?.access_token ? sessionData.session.access_token.split(".").length : 0;
+    console.log("[DIAG questionnaire] loadQuestions called", {
+      categoryId,
+      hasSession,
+      hasToken,
+      tokenLength,
+      tokenParts,
+    });
+    // ===== END TEMP DIAGNOSTIC =====
+    console.log("[DIAG questionnaire] query executing for categoryId:", categoryId, "after", Date.now() - diagStart, "ms");
+    const { data, error: qErr } = await supabase
+      .from("questionnaire_questions")
+      .select(
+        "id, external_id, category_id, question_text, description, question_type, options, display_order, is_active, is_required, ai_insight, emoji",
+      )
+      .eq("category_id", categoryId)
+      .order("display_order", { ascending: true });
+    // ===== TEMP DIAGNOSTIC (remove after debugging) =====
+    console.log("[DIAG questionnaire] query result", {
+      rowCount: (data ?? []).length,
+      error: qErr ? { message: qErr.message, code: qErr.code, status: (qErr as unknown as { status?: number }).status } : null,
+    });
+    // ===== END TEMP DIAGNOSTIC =====
+    if (qErr) {
+      console.warn("[questionnaire] loadQuestions error:", qErr.message, qErr.code);
+      toast.error(qErr.message);
+      setQLoading(false);
+      return;
+    }
+    setQuestions(
+      (data ?? []).map((q) => ({ ...(q as Omit<QuestionRow, "options">), options: parseOptions(q.options) })),
+    );
+    setQLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void loadCategories();
+  }, [loadCategories]);
+
+  // ---------------------------------------------------------------
+  // Category handlers
+  // ---------------------------------------------------------------
+  function resetCatForm() {
+    setCatForm({ ...emptyCategory });
+    setCatEditingId(null);
+  }
+
+  async function handleCatSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!catForm.name.trim()) {
+      toast.error("Category name is required.");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      name: catForm.name.trim(),
+      description: catForm.description.trim() || null,
+      emoji: catForm.emoji.trim() || null,
+      tone: catForm.tone.trim() || null,
+      display_order: Number(catForm.display_order) || 0,
+    };
+    const { error: err } = isEditingCat
+      ? await supabase.from("questionnaire_categories").update(payload).eq("id", catEditingId)
+      : await supabase.from("questionnaire_categories").insert(payload);
+    setSaving(false);
+    if (err) {
+      // name has a UNIQUE constraint
+      if (err.message.toLowerCase().includes("unique")) {
+        toast.error("A category with that name already exists.");
+      } else {
+        toast.error(err.message);
+      }
+      return;
+    }
+    toast.success(isEditingCat ? "Category updated successfully" : "Category created successfully");
+    resetCatForm();
+    void loadCategories();
+  }
+
+  async function handleCatToggleActive(c: CategoryRow) {
+    const { error: err } = await supabase
+      .from("questionnaire_categories")
+      .update({ is_active: !c.is_active })
+      .eq("id", c.id);
+    if (err) {
+      toast.error(err.message);
+      return;
+    }
+    toast.success(c.is_active ? "Category deactivated successfully" : "Category activated successfully");
+    void loadCategories();
+  }
+
+  async function handleCatReorder(c: CategoryRow, dir: -1 | 1) {
+    const sorted = [...categories].sort((a, b) => a.display_order - b.display_order);
+    const idx = sorted.findIndex((x) => x.id === c.id);
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    const other = sorted[swapIdx];
+    setSaving(true);
+    // Swap the two display_order values via two scoped updates.
+    const { error: err1 } = await supabase
+      .from("questionnaire_categories")
+      .update({ display_order: other!.display_order })
+      .eq("id", c.id);
+    const { error: err2 } = await supabase
+      .from("questionnaire_categories")
+      .update({ display_order: c.display_order })
+      .eq("id", other!.id);
+    setSaving(false);
+    if (err1 || err2) {
+      toast.error(err1?.message ?? err2?.message ?? "Could not reorder category.");
+      return;
+    }
+    void loadCategories();
+  }
+
+  // ---------------------------------------------------------------
+  // Question handlers
+  // ---------------------------------------------------------------
+  function resetQForm() {
+    setQForm({ ...emptyQuestion, category_id: selectedCategoryId ?? "" });
+    setQEditingId(null);
+  }
+
+  function startEditQuestion(q: QuestionRow) {
+    setQEditingId(q.id);
+    setQForm({
+      external_id: q.external_id,
+      category_id: q.category_id,
+      question_text: q.question_text,
+      description: q.description ?? "",
+      question_type: q.question_type,
+      options: [...q.options],
+      display_order: q.display_order,
+      is_active: q.is_active,
+      is_required: q.is_required,
+      ai_insight: q.ai_insight ?? "",
+      emoji: q.emoji ?? "❓",
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function handleQSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!qForm.external_id.trim()) {
+      toast.error("external_id is required.");
+      return;
+    }
+    if (!qForm.category_id) {
+      toast.error("Please select a category.");
+      return;
+    }
+    if (!qForm.question_text.trim()) {
+      toast.error("Question text is required.");
+      return;
+    }
+    const cleanOptions = qForm.options.map((o) => o.trim()).filter(Boolean);
+    if (cleanOptions.length === 0) {
+      toast.error("At least one answer option is required.");
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      external_id: qForm.external_id.trim(),
+      category_id: qForm.category_id,
+      question_text: qForm.question_text.trim(),
+      description: qForm.description.trim() || null,
+      question_type: qForm.question_type,
+      options: cleanOptions,
+      display_order: Number(qForm.display_order) || 0,
+      is_active: qForm.is_active,
+      is_required: qForm.is_required,
+      ai_insight: qForm.ai_insight.trim() || null,
+      emoji: qForm.emoji.trim() || null,
+    };
+    const { error: err } = isEditingQ
+      ? await supabase.from("questionnaire_questions").update(payload).eq("id", qEditingId)
+      : await supabase.from("questionnaire_questions").insert(payload);
+    setSaving(false);
+    if (err) {
+      // external_id has a UNIQUE constraint
+      if (err.message.toLowerCase().includes("unique")) {
+        toast.error("That external_id already exists. Use a different one.");
+      } else {
+        toast.error(err.message);
+      }
+      return;
+    }
+    toast.success(isEditingQ ? "Question updated successfully" : "Question created successfully");
+    resetQForm();
+    await loadQuestions(qForm.category_id);
+    void loadCategories();
+  }
+
+  async function handleQToggleActive(q: QuestionRow) {
+    const { error: err } = await supabase
+      .from("questionnaire_questions")
+      .update({ is_active: !q.is_active })
+      .eq("id", q.id);
+    if (err) {
+      toast.error(err.message);
+      return;
+    }
+    toast.success(q.is_active ? "Question deactivated successfully" : "Question activated successfully");
+    void loadQuestions(q.category_id);
+  }
+
+  async function handleQReorder(q: QuestionRow, dir: -1 | 1) {
+    const sorted = [...questions].sort((a, b) => a.display_order - b.display_order);
+    const idx = sorted.findIndex((x) => x.id === q.id);
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    const other = sorted[swapIdx];
+    setSaving(true);
+    // Swap the two display_order values via two scoped updates.
+    const { error: err1 } = await supabase
+      .from("questionnaire_questions")
+      .update({ display_order: other!.display_order })
+      .eq("id", q.id);
+    const { error: err2 } = await supabase
+      .from("questionnaire_questions")
+      .update({ display_order: q.display_order })
+      .eq("id", other!.id);
+    setSaving(false);
+    if (err1 || err2) {
+      toast.error(err1?.message ?? err2?.message ?? "Could not reorder question.");
+      return;
+    }
+    void loadQuestions(q.category_id);
+  }
+
+  async function confirmDeleteQuestion() {
+    const target = deleteTarget;
+    if (!target) return;
+    setDeleting(true);
+    try {
+      const result = await deleteQuestion({ questionId: target.id });
+      if (result.ok) {
+        toast.success("Question deleted successfully.");
+        setDeleteTarget(null);
+        await loadQuestions(target.category_id);
+        void loadCategories();
+      } else {
+        toast.error(result.error ?? "Could not delete question.");
+        // Keep the dialog open when blocked by dependencies so the admin can
+        // read the explanation.
+        if ((result.responseCount ?? 0) === 0) {
+          setDeleteTarget(null);
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not delete question.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  function setOption(i: number, value: string) {
+    setQForm((f) => ({ ...f, options: f.options.map((o, j) => (j === i ? value : o)) }));
+  }
+  function addOption() {
+    setQForm((f) => ({ ...f, options: [...f.options, ""] }));
+  }
+  function removeOption(i: number) {
+    setQForm((f) => ({ ...f, options: f.options.filter((_, j) => j !== i) }));
+  }
+  function moveOption(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= qForm.options.length) return;
+    setQForm((f) => {
+      const next = [...f.options];
+      const tmp = next[i] ?? "";
+      next[i] = next[j] ?? "";
+      next[j] = tmp;
+      return { ...f, options: next };
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------
+  return (
+    <div className="space-y-8">
+      <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-700">
+        <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+        <span>
+          Questionnaire content management is restricted to <strong>super admins</strong> by the
+          database. Plain admins cannot create, edit, or deactivate categories and questions.
+        </span>
+      </div>
+
+      {/* ---------------- Category section ---------------- */}
+      <section>
+        <h2 className="text-[22px] font-bold tracking-[-0.01em] text-ink">Categories</h2>
+
+        <form
+          onSubmit={handleCatSubmit}
+          className="mt-4 space-y-4 rounded-[20px] border border-line/70 bg-card p-5 shadow-[0_18px_40px_-26px_rgba(18,18,18,0.4)]"
+        >
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold text-ink">
+              {isEditingCat ? "Edit category" : "Add category"}
+            </h3>
+            {isEditingCat && (
+              <button
+                type="button"
+                onClick={resetCatForm}
+                className="flex items-center gap-1 text-[13px] font-semibold text-subtle"
+              >
+                <X className="h-3.5 w-3.5" /> Cancel
+              </button>
+            )}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Name (required)</span>
+              <input
+                value={catForm.name}
+                onChange={(e) => setCatForm({ ...catForm, name: e.target.value })}
+                placeholder="Teamwork"
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Display order</span>
+              <input
+                type="number"
+                value={catForm.display_order}
+                onChange={(e) => setCatForm({ ...catForm, display_order: Number(e.target.value) })}
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+          </div>
+
+          <label className="block">
+            <span className="text-[13px] font-semibold text-subtle">Description</span>
+            <textarea
+              value={catForm.description}
+              onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
+              rows={2}
+              className="mt-1.5 w-full resize-none rounded-xl border border-line bg-background px-4 py-3 text-[15px] text-ink outline-none focus:border-brand"
+            />
+          </label>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Emoji</span>
+              <input
+                value={catForm.emoji}
+                onChange={(e) => setCatForm({ ...catForm, emoji: e.target.value })}
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Tone (class)</span>
+              <input
+                value={catForm.tone}
+                onChange={(e) => setCatForm({ ...catForm, tone: e.target.value })}
+                placeholder="bg-brand/10 text-brand"
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-[15px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97] disabled:opacity-60"
+          >
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            {isEditingCat ? "Save changes" : "Add category"}
+          </button>
+        </form>
+
+        {loading ? (
+          <div className="mt-6 flex justify-center">
+            <Loader2 className="h-5 w-5 animate-spin text-brand" />
+          </div>
+        ) : error ? (
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/5 p-4 text-[14px] text-danger">
+            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Could not load categories: {error}</span>
+          </div>
+        ) : categories.length === 0 ? (
+          <p className="mt-4 text-sm text-subtle">No categories yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {categories.map((c) => (
+              <article
+                key={c.id}
+                className="rounded-[18px] border border-line/70 bg-card p-4 shadow-[0_14px_32px_-28px_rgba(18,18,18,0.6)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+                      <span aria-hidden>{c.emoji ?? "❓"}</span> {c.name}
+                    </h3>
+                    <p className="mt-1 text-[12px] text-subtle">
+                      {c.question_count} Questions ·{" "}
+                      <span className={c.is_active ? "text-mint" : "text-subtle/70"}>
+                        {c.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-1.5">
+                    <button
+                      type="button"
+                      title="Move up"
+                      onClick={() => handleCatReorder(c, -1)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Move down"
+                      onClick={() => handleCatReorder(c, 1)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCatEditingId(c.id);
+                      setCatForm({
+                        name: c.name,
+                        description: c.description ?? "",
+                        emoji: c.emoji ?? "✨",
+                        tone: c.tone ?? "bg-brand/10 text-brand",
+                        display_order: c.display_order,
+                      });
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand/10 text-[13px] font-semibold text-brand transition-transform active:scale-[0.96]"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCatToggleActive(c)}
+                    className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-muted text-[13px] font-semibold text-ink transition-transform active:scale-[0.96]"
+                  >
+                    {c.is_active ? (
+                      <>
+                        <PowerOff className="h-3.5 w-3.5" /> Deactivate
+                      </>
+                    ) : (
+                      <>
+                        <Power className="h-3.5 w-3.5" /> Activate
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategoryId(c.id);
+                      setQForm((f) => ({ ...emptyQuestion, category_id: c.id }));
+                      setQEditingId(null);
+                      void loadQuestions(c.id);
+                    }}
+                    className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand/10 text-[13px] font-semibold text-brand transition-transform active:scale-[0.96]"
+                  >
+                    <ListChecks className="h-3.5 w-3.5" /> Questions
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ---------------- Question section ---------------- */}
+      {selectedCategoryId && (
+        <>
+        <section>
+          <div className="flex items-center justify-between">
+            <h2 className="text-[22px] font-bold tracking-[-0.01em] text-ink">
+              Questions
+              <span className="ml-2 text-[15px] font-medium text-subtle">
+                · {categories.find((c) => c.id === selectedCategoryId)?.name}
+              </span>
+            </h2>
+          </div>
+
+          <form
+            onSubmit={handleQSubmit}
+            className="mt-4 space-y-4 rounded-[20px] border border-line/70 bg-card p-5 shadow-[0_18px_40px_-26px_rgba(18,18,18,0.4)]"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-semibold text-ink">
+                {isEditingQ ? "Edit question" : "Add question"}
+              </h3>
+              {isEditingQ && (
+                <button
+                  type="button"
+                  onClick={resetQForm}
+                  className="flex items-center gap-1 text-[13px] font-semibold text-subtle"
+                >
+                  <X className="h-3.5 w-3.5" /> Cancel
+                </button>
+              )}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-subtle">external_id (required)</span>
+                <input
+                  value={qForm.external_id}
+                  onChange={(e) => setQForm({ ...qForm, external_id: e.target.value })}
+                  placeholder="t1"
+                  disabled={isEditingQ}
+                  className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand disabled:opacity-60"
+                />
+              </label>
+              <label className="block">
+                <span className="text-[13px] font-semibold text-subtle">Display order</span>
+                <input
+                  type="number"
+                  value={qForm.display_order}
+                  onChange={(e) => setQForm({ ...qForm, display_order: Number(e.target.value) })}
+                  className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+                />
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Question text (required)</span>
+              <textarea
+                value={qForm.question_text}
+                onChange={(e) => setQForm({ ...qForm, question_text: e.target.value })}
+                rows={2}
+                className="mt-1.5 w-full resize-none rounded-xl border border-line bg-background px-4 py-3 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-[13px] font-semibold text-subtle">Question type</span>
+                <select
+                  value={qForm.question_type}
+                  onChange={(e) => setQForm({ ...qForm, question_type: e.target.value })}
+                  className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+                >
+                  {QUESTION_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex items-end gap-2 pb-2">
+                <input
+                  type="checkbox"
+                  checked={qForm.is_required}
+                  onChange={(e) => setQForm({ ...qForm, is_required: e.target.checked })}
+                  className="h-4 w-4 accent-brand"
+                />
+                <span className="text-[13px] font-semibold text-subtle">Required</span>
+              </label>
+            </div>
+
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Emoji</span>
+              <input
+                value={qForm.emoji}
+                onChange={(e) => setQForm({ ...qForm, emoji: e.target.value })}
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">Description</span>
+              <input
+                value={qForm.description}
+                onChange={(e) => setQForm({ ...qForm, description: e.target.value })}
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+
+            <label className="block">
+              <span className="text-[13px] font-semibold text-subtle">AI insight</span>
+              <input
+                value={qForm.ai_insight}
+                onChange={(e) => setQForm({ ...qForm, ai_insight: e.target.value })}
+                className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-[15px] text-ink outline-none focus:border-brand"
+              />
+            </label>
+
+            <div>
+              <span className="text-[13px] font-semibold text-subtle">Answer options</span>
+              <div className="mt-2 space-y-2">
+                {qForm.options.map((opt, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      value={opt}
+                      onChange={(e) => setOption(i, e.target.value)}
+                      className="h-11 flex-1 rounded-xl border border-line bg-background px-3 text-[14px] text-ink outline-none focus:border-brand"
+                    />
+                    <button
+                      type="button"
+                      title="Move up"
+                      onClick={() => moveOption(i, -1)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                    >
+                      <ArrowUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Move down"
+                      onClick={() => moveOption(i, 1)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                    >
+                      <ArrowDown className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Remove"
+                      onClick={() => removeOption(i)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-danger/10 text-danger transition-transform active:scale-95"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addOption}
+                className="mt-2 flex items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-[13px] font-semibold text-brand transition-transform active:scale-95"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add option
+              </button>
+            </div>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={qForm.is_active}
+                onChange={(e) => setQForm({ ...qForm, is_active: e.target.checked })}
+                className="h-4 w-4 accent-brand"
+              />
+              <span className="text-[13px] font-semibold text-subtle">Active (visible in questionnaire)</span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand to-brand-light text-[15px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97] disabled:opacity-60"
+            >
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              {isEditingQ ? "Save changes" : "Add question"}
+            </button>
+          </form>
+
+          {qLoading ? (
+            <div className="mt-6 flex justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-brand" />
+            </div>
+          ) : questions.length === 0 ? (
+            <p className="mt-4 text-sm text-subtle">
+              No questions in this category yet. Add one above.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {questions.map((q, i) => (
+                <article
+                  key={q.id}
+                  className="rounded-[18px] border border-line/70 bg-card p-4 shadow-[0_14px_32px_-28px_rgba(18,18,18,0.6)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-[12px] font-mono text-subtle">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-md bg-muted text-[11px] font-semibold text-ink">
+                          {i + 1}
+                        </span>
+                        {q.external_id}
+                      </p>
+                      <h3 className="mt-0.5 text-[15px] font-semibold text-ink">{q.question_text}</h3>
+                      <p className="mt-1 text-[12px] text-subtle">
+                        {q.question_type} · {q.options.length} options ·{" "}
+                        {q.is_required ? "Required" : "Optional"} ·{" "}
+                        <span className={q.is_active ? "text-mint" : "text-subtle/70"}>
+                          {q.is_active ? "Active" : "Inactive"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-1.5">
+                      <button
+                        type="button"
+                        title="Move up"
+                        onClick={() => handleQReorder(q, -1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Move down"
+                        onClick={() => handleQReorder(q, 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-subtle transition-transform active:scale-95"
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEditQuestion(q)}
+                      className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand/10 text-[13px] font-semibold text-brand transition-transform active:scale-[0.96]"
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleQToggleActive(q)}
+                      className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-muted text-[13px] font-semibold text-ink transition-transform active:scale-[0.96]"
+                    >
+                      {q.is_active ? (
+                        <>
+                          <PowerOff className="h-3.5 w-3.5" /> Deactivate
+                        </>
+                      ) : (
+                        <>
+                          <Power className="h-3.5 w-3.5" /> Activate
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(q)}
+                      className="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-danger/10 px-3 text-[13px] font-semibold text-danger transition-transform active:scale-[0.96]"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" /> Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Delete confirmation dialog */}
+        {deleteTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-6">
+            <div className="w-full max-w-[420px] rounded-3xl bg-card p-6 shadow-2xl">
+              <h3 className="text-[20px] font-bold tracking-[-0.01em] text-ink">Delete question?</h3>
+              <p className="mt-2 text-[14px] leading-[1.55] text-subtle">
+                <span className="font-mono text-ink">{deleteTarget.external_id}</span> —{" "}
+                {deleteTarget.question_text}
+              </p>
+              <p className="mt-3 rounded-xl border border-danger/30 bg-danger/5 p-3 text-[13px] leading-[1.5] text-danger">
+                This permanently removes the question from the database. If it has any saved user
+                responses, deletion is blocked to protect compatibility data — deactivate it
+                instead.
+              </p>
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={deleting}
+                  className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-muted text-[15px] font-semibold text-ink transition-transform active:scale-[0.97] disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmDeleteQuestion}
+                  disabled={deleting}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-danger text-[15px] font-semibold text-white transition-transform active:scale-[0.97] disabled:opacity-60"
+                >
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
+      )}
+
+      </div>
+  );
+}

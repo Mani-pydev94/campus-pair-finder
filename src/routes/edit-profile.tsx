@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/client';
+import { UNIVERSITIES } from '@/constants/profileData';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/edit-profile')({
@@ -71,6 +72,8 @@ function EditProfileScreen() {
   const [degree, setDegree] = useState("");
   const [yearOfStudy, setYearOfStudy] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+  const [addingSkill, setAddingSkill] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [careerGoal, setCareerGoal] = useState("");
 
@@ -137,9 +140,22 @@ function EditProfileScreen() {
     );
   };
 
+  const addCustomSkill = () => {
+    const value = skillInput.trim();
+    if (value && !selectedSkills.includes(value)) {
+      setSelectedSkills(prev => [...prev, value]);
+    }
+    setSkillInput("");
+    setAddingSkill(false);
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Remember the previously saved photo so we can restore it if the upload fails
+    // (a temporary blob: URL must never be persisted to the database).
+    const previousPhoto = profilePhoto;
 
     // Create a local preview URL immediately for better UX
     const localPreviewUrl = URL.createObjectURL(file);
@@ -148,16 +164,16 @@ function EditProfileScreen() {
 
     try {
       setLoading(true);
-      
+
       // Attempt to get user directly (more reliable than session alone)
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       let currentUser = user;
-      
+
       if (!currentUser) {
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user ?? null;
       }
-      
+
       if (!currentUser) {
         // Hydration fallback
         const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
@@ -175,12 +191,15 @@ function EditProfileScreen() {
 
       if (!currentUser) {
         toast.error("Auth session not found. Please try logging in again.");
+        setProfilePhoto(previousPhoto);
         return;
       }
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      // Upload into the user's own folder — required by the storage RLS policy
+      // (storage.foldername(name)[1] = auth.uid()).
+      const filePath = `${currentUser.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -196,11 +215,14 @@ function EditProfileScreen() {
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Only persist the real, permanent Supabase URL (never the blob: preview).
       setProfilePhoto(publicUrl);
       toast.success("Profile photo updated");
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       toast.error(error.message || "Failed to upload photo");
+      // Revert to the previously saved photo so a blob: URL is never stored.
+      setProfilePhoto(previousPhoto);
     } finally {
       setLoading(false);
       if (localPreviewUrl.startsWith('blob:')) {
@@ -229,7 +251,8 @@ function EditProfileScreen() {
         age: age ? parseInt(age) : null,
         bio,
         languages: selectedLanguages,
-        avatar_url: profilePhoto,
+        // Never persist a temporary blob: preview URL — only a real Supabase URL.
+        avatar_url: profilePhoto && !profilePhoto.startsWith('blob:') ? profilePhoto : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -466,12 +489,15 @@ function EditProfileScreen() {
             <Label className="text-sm font-bold text-ink">College / University</Label>
             <div className="relative">
               <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle" />
-              <Input
-                placeholder="Enter your college name"
-                className="h-14 pl-10 rounded-2xl border-line bg-gray-50/50 focus:bg-white transition-all text-[15px]"
+              <select
+                className="w-full h-14 pl-10 pr-10 rounded-2xl border-line bg-gray-50/50 appearance-none px-4 text-[15px] focus:outline-none focus:border-brand focus:bg-white transition-all text-ink"
                 value={university}
                 onChange={(e) => setUniversity(e.target.value)}
-              />
+              >
+                <option value="" disabled>Select your college</option>
+                {UNIVERSITIES.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-subtle pointer-events-none" />
             </div>
           </div>
 
@@ -529,9 +555,52 @@ function EditProfileScreen() {
                   {selectedSkills.includes(skill) && <Check className="w-3.5 h-3.5" />}
                 </button>
               ))}
-              <button className="px-3.5 py-2 rounded-xl text-xs font-bold border border-dashed border-line text-subtle hover:bg-gray-50 flex items-center gap-1.5">
-                Add <Plus className="w-3.5 h-3.5" />
-              </button>
+              {addingSkill ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    autoFocus
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addCustomSkill();
+                      if (e.key === "Escape") {
+                        setSkillInput("");
+                        setAddingSkill(false);
+                      }
+                    }}
+                    onBlur={addCustomSkill}
+                    placeholder="Add a skill"
+                    className="h-8 px-3 rounded-xl border border-line bg-gray-50/50 focus:bg-white outline-none text-xs font-bold text-ink w-32"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomSkill}
+                    className="w-7 h-7 flex items-center justify-center rounded-full bg-brand text-white"
+                    aria-label="Confirm skill"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSkillInput("");
+                      setAddingSkill(false);
+                    }}
+                    className="w-7 h-7 flex items-center justify-center rounded-full border border-line text-subtle"
+                    aria-label="Cancel"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingSkill(true)}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold border border-dashed border-line text-subtle hover:bg-gray-50 flex items-center gap-1.5"
+                >
+                  Add <Plus className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 

@@ -112,6 +112,10 @@ function ProfileSetupScreen() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Remember the previously saved photo so we can restore it if the upload fails
+    // (a temporary blob: URL must never be persisted to the database).
+    const previousPhoto = profilePhoto;
+
     // Create a local preview URL immediately for better UX
     const localPreviewUrl = URL.createObjectURL(file);
     setProfilePhoto(localPreviewUrl);
@@ -119,16 +123,16 @@ function ProfileSetupScreen() {
 
     try {
       setLoading(true);
-      
+
       // Attempt to get user directly
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       let currentUser = user;
-      
+
       if (!currentUser) {
         const { data: { session } } = await supabase.auth.getSession();
         currentUser = session?.user ?? null;
       }
-      
+
       if (!currentUser) {
         const storageKey = Object.keys(localStorage).find(key => key.includes('-auth-token'));
         if (storageKey) {
@@ -146,12 +150,15 @@ function ProfileSetupScreen() {
       if (!currentUser) {
         console.error('Session/User detection failed');
         toast.error("Auth session not found. Please try logging in again.");
+        setProfilePhoto(previousPhoto);
         return;
       }
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      // Upload into the user's own folder — required by the storage RLS policy
+      // (storage.foldername(name)[1] = auth.uid()).
+      const filePath = `${currentUser.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -167,14 +174,14 @@ function ProfileSetupScreen() {
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Finalize with the actual public URL
+      // Only persist the real, permanent Supabase URL (never the blob: preview).
       setProfilePhoto(publicUrl);
       toast.success("Profile photo uploaded!");
     } catch (error: any) {
       console.error('Error uploading photo:', error);
       toast.error(error.message || "Failed to upload photo. Please try again.");
-      // Optional: Clear preview on error if no existing photo
-      // setProfilePhoto(null); 
+      // Revert to the previously saved photo so a blob: URL is never stored.
+      setProfilePhoto(previousPhoto);
     } finally {
       setLoading(false);
       // Clean up the object URL to avoid memory leaks
@@ -205,7 +212,8 @@ function ProfileSetupScreen() {
           city,
           languages: selectedLanguages,
           bio,
-          avatar_url: profilePhoto,
+          // Never persist a temporary blob: preview URL — only a real Supabase URL.
+          avatar_url: profilePhoto && !profilePhoto.startsWith('blob:') ? profilePhoto : null,
           updated_at: new Date().toISOString(),
         });
 

@@ -239,6 +239,7 @@ export type Database = {
           id: string
           importance: string
           question_id: string
+          question_uuid: string | null
           user_id: string
         }
         Insert: {
@@ -248,6 +249,7 @@ export type Database = {
           id?: string
           importance: string
           question_id: string
+          question_uuid?: string | null
           user_id: string
         }
         Update: {
@@ -257,9 +259,105 @@ export type Database = {
           id?: string
           importance?: string
           question_id?: string
+          question_uuid?: string | null
           user_id?: string
         }
         Relationships: []
+      }
+      questionnaire_categories: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          display_order: number
+          emoji: string | null
+          tone: string | null
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          display_order?: number
+          emoji?: string | null
+          tone?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          display_order?: number
+          emoji?: string | null
+          tone?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      questionnaire_questions: {
+        Row: {
+          id: string
+          external_id: string
+          category_id: string
+          question_text: string
+          description: string | null
+          question_type: string
+          options: Json | null
+          display_order: number
+          is_active: boolean
+          is_required: boolean
+          ai_insight: string | null
+          emoji: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          external_id: string
+          category_id: string
+          question_text: string
+          description?: string | null
+          question_type?: string
+          options?: Json | null
+          display_order?: number
+          is_active?: boolean
+          is_required?: boolean
+          ai_insight?: string | null
+          emoji?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          external_id?: string
+          category_id?: string
+          question_text?: string
+          description?: string | null
+          question_type?: string
+          options?: Json | null
+          display_order?: number
+          is_active?: boolean
+          is_required?: boolean
+          ai_insight?: string | null
+          emoji?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questionnaire_questions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "questionnaire_categories"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_roles: {
         Row: {
@@ -282,6 +380,45 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          id: string
+          key: string
+          description: string | null
+          category: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          description?: string | null
+          category?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          description?: string | null
+          category?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          role: Database["public"]["Enums"]["app_role"]
+          permission_id: string
+        }
+        Insert: {
+          role: Database["public"]["Enums"]["app_role"]
+          permission_id: string
+        }
+        Update: {
+          role?: Database["public"]["Enums"]["app_role"]
+          permission_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -294,9 +431,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_permission: {
+        Args: {
+          _permission: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "super_admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -424,7 +568,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "super_admin", "user"],
     },
   },
 } as const

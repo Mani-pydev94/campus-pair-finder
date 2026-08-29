@@ -7,7 +7,8 @@ import {
   Laptop, 
   Rocket, 
   Lightbulb, 
-  Check, 
+  Check,
+  X,
   ChevronDown,
   Search,
   CheckCircle2,
@@ -20,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { FIELDS_OF_STUDY, UNIVERSITIES } from '@/constants/profileData';
 import { cn } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,6 +53,8 @@ function AcademicProfileSetup() {
   const [fieldOfStudy, setFieldOfStudy] = useState("");
   const [yearOfStudy, setYearOfStudy] = useState("");
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [skillInput, setSkillInput] = useState("");
+  const [addingSkill, setAddingSkill] = useState(false);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [careerGoal, setCareerGoal] = useState("");
   const [learningBio, setLearningBio] = useState("");
@@ -83,9 +87,18 @@ function AcademicProfileSetup() {
   }, []);
 
   const toggleItem = (item: string, state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
-    setState(prev => 
+    setState(prev =>
       prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
+  };
+
+  const addCustomSkill = () => {
+    const value = skillInput.trim();
+    if (value && !selectedSkills.includes(value)) {
+      setSelectedSkills(prev => [...prev, value]);
+    }
+    setSkillInput("");
+    setAddingSkill(false);
   };
 
   const handleComplete = async () => {
@@ -232,13 +245,15 @@ function AcademicProfileSetup() {
           <div className="space-y-2.5">
             <Label className="text-sm font-medium text-[#121212]">College or University</Label>
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7B7B7B]" />
-              <Input 
-                placeholder="Select your college"
-                className="h-14 pl-12 rounded-2xl border-[#E5E7EB] bg-gray-50/50 focus:bg-white transition-all text-[15px] placeholder:text-[#7B7B7B]/60"
+              <select
+                className="w-full h-14 pl-4 pr-10 rounded-2xl border border-[#E5E7EB] bg-gray-50/50 appearance-none px-4 text-[15px] focus:outline-none focus:border-[#6D5EF7] focus:bg-white transition-all text-[#121212]"
                 value={university}
                 onChange={(e) => setUniversity(e.target.value)}
-              />
+              >
+                <option value="" disabled>Select your college</option>
+                {UNIVERSITIES.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B7B7B] pointer-events-none" />
             </div>
           </div>
 
@@ -261,12 +276,17 @@ function AcademicProfileSetup() {
           {/* Field 3: Field of Study */}
           <div className="space-y-2.5">
             <Label className="text-sm font-medium text-[#121212]">Field of Study</Label>
-            <Input 
-              placeholder="Computer Science, Electronics, etc."
-              className="h-14 rounded-2xl border-[#E5E7EB] bg-gray-50/50 focus:bg-white transition-all text-[15px]"
-              value={fieldOfStudy}
-              onChange={(e) => setFieldOfStudy(e.target.value)}
-            />
+            <div className="relative">
+              <select
+                className="w-full h-14 rounded-2xl border border-[#E5E7EB] bg-gray-50/50 appearance-none px-4 text-[15px] focus:outline-none focus:border-[#6D5EF7] focus:bg-white transition-all text-[#121212]"
+                value={fieldOfStudy}
+                onChange={(e) => setFieldOfStudy(e.target.value)}
+              >
+                <option value="" disabled>Select your field of study</option>
+                {FIELDS_OF_STUDY.map((f) => <option key={f} value={f}>{f}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7B7B7B] pointer-events-none" />
+            </div>
           </div>
 
           {/* Field 4: Year of Study */}
@@ -309,9 +329,52 @@ function AcademicProfileSetup() {
                   {selectedSkills.includes(skill) && <Check className="w-3.5 h-3.5" />}
                 </button>
               ))}
-              <button className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-[#E5E7EB] text-[#7B7B7B] hover:bg-gray-50 flex items-center gap-2">
-                Add Skill <Plus className="w-3.5 h-3.5" />
-              </button>
+              {addingSkill ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addCustomSkill();
+                      if (e.key === "Escape") {
+                        setSkillInput("");
+                        setAddingSkill(false);
+                      }
+                    }}
+                    onBlur={addCustomSkill}
+                    placeholder="Add a skill"
+                    className="h-9 px-3 rounded-xl border border-[#E5E7EB] bg-gray-50/50 focus:bg-white outline-none text-xs font-semibold text-[#121212] w-36"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomSkill}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-[#6D5EF7] text-white"
+                    aria-label="Confirm skill"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSkillInput("");
+                      setAddingSkill(false);
+                    }}
+                    className="w-8 h-8 flex items-center justify-center rounded-full border border-[#E5E7EB] text-[#7B7B7B]"
+                    aria-label="Cancel"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingSkill(true)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-[#E5E7EB] text-[#7B7B7B] hover:bg-gray-50 flex items-center gap-2"
+                >
+                  Add Skill <Plus className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
 

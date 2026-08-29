@@ -11,11 +11,10 @@ import {
   GraduationCap,
   Heart,
   HelpCircle,
-  Lock,
   MessageCircle,
   Palette,
-  Sparkles,
   Target,
+  Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,84 +32,91 @@ export const Route = createFileRoute("/questionnaire-hub")({
   component: QuestionnaireHub,
 });
 
-type Status = "current" | "locked" | "completed";
-
 const RING = 2 * Math.PI * 52;
+
+type CategorySection = {
+  name: string;
+  emoji: string | null;
+  description: string | null;
+  tone: string | null;
+  count: number;
+  display_order: number;
+};
+
+// Map category names to lucide icons (for UI consistency)
+const categoryIcons: Record<string, any> = {
+  "Values": Heart,
+  "Personality": Brain,
+  "Communication": MessageCircle,
+  "Learning Style": GraduationCap,
+  "Career Goals": Target,
+  "Lifestyle": Globe,
+  "Interests & Hobbies": Palette,
+};
+
+// Fallback tones matching the hardcoded design
+const categoryTones: Record<string, string> = {
+  "Values": "bg-brand/10 text-brand",
+  "Personality": "bg-rose-100 text-rose-500",
+  "Communication": "bg-sky-100 text-sky-600",
+  "Learning Style": "bg-amber-100 text-amber-600",
+  "Career Goals": "bg-mint/15 text-mint",
+  "Lifestyle": "bg-emerald-100 text-emerald-600",
+  "Interests & Hobbies": "bg-violet-100 text-violet-600",
+};
 
 function QuestionnaireHub() {
   const router = useRouter();
   const [answered, setAnswered] = useState(0);
   const [sectionProgress, setSectionProgress] = useState<Record<string, number>>({});
-  const total = 40;
-  const percent = Math.round((answered / total) * 100);
+  const [sections, setSections] = useState<CategorySection[]>([]);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [ringPercent, setRingPercent] = useState(0);
 
-  const sections: {
-    icon: any;
-    emoji: string;
-    title: string;
-    count: number;
-    description: string;
-    tone: string;
-  }[] = [
-    {
-      icon: Heart,
-      emoji: "❤️",
-      title: "Values",
-      count: 6,
-      description: "Help us understand what matters most to you.",
-      tone: "bg-brand/10 text-brand",
-    },
-    {
-      icon: Brain,
-      emoji: "🧠",
-      title: "Personality",
-      count: 8,
-      description: "Tell us how you think, work and interact with others.",
-      tone: "bg-rose-100 text-rose-500",
-    },
-    {
-      icon: MessageCircle,
-      emoji: "💬",
-      title: "Communication",
-      count: 6,
-      description: "Describe how you prefer to communicate and collaborate.",
-      tone: "bg-sky-100 text-sky-600",
-    },
-    {
-      icon: GraduationCap,
-      emoji: "📚",
-      title: "Learning Style",
-      count: 5,
-      description: "Tell us how you learn best.",
-      tone: "bg-amber-100 text-amber-600",
-    },
-    {
-      icon: Target,
-      emoji: "🎯",
-      title: "Career Goals",
-      count: 5,
-      description: "Help us understand your future ambitions.",
-      tone: "bg-mint/15 text-mint",
-    },
-    {
-      icon: Globe,
-      emoji: "🌍",
-      title: "Lifestyle",
-      count: 5,
-      description: "Tell us about your daily habits and preferences.",
-      tone: "bg-emerald-100 text-emerald-600",
-    },
-    {
-      icon: Palette,
-      emoji: "🎨",
-      title: "Interests & Hobbies",
-      count: 5,
-      description: "Share your hobbies and interests.",
-      tone: "bg-violet-100 text-violet-600",
-    },
-  ];
+  // Fetch categories with question counts from database
+  useEffect(() => {
+    let mounted = true;
+    async function fetchCategories() {
+      setLoading(true);
+      const { data: categories, error } = await supabase
+        .from('questionnaire_categories')
+        .select(`
+          name,
+          emoji,
+          description,
+          tone,
+          display_order,
+          questionnaire_questions (
+            id
+          )
+        `)
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
 
+      if (mounted) {
+        if (error) {
+          console.error('Error fetching categories:', error);
+        } else if (categories) {
+          const sectionData: CategorySection[] = categories.map(cat => ({
+            name: cat.name,
+            emoji: cat.emoji ?? '',
+            description: cat.description ?? '',
+            tone: cat.tone ?? categoryTones[cat.name] ?? 'bg-brand/10 text-brand',
+            count: cat.questionnaire_questions?.length || 0,
+            display_order: cat.display_order,
+          }));
+          setSections(sectionData);
+          setTotalQuestions(sectionData.reduce((sum, s) => sum + s.count, 0));
+        }
+        setLoading(false);
+      }
+    }
+    fetchCategories();
+    return () => { mounted = false; };
+  }, []);
+
+  // Fetch user's progress
   useEffect(() => {
     async function fetchProgress() {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -125,16 +131,10 @@ function QuestionnaireHub() {
       if (data) {
         setAnswered(data.length);
         const progressMap: Record<string, number> = {};
-        
-        const sectionMax: Record<string, number> = {
-          "Values": 6,
-          "Personality": 8,
-          "Communication": 6,
-          "Learning Style": 5,
-          "Career Goals": 5,
-          "Lifestyle": 5,
-          "Interests & Hobbies": 5
-        };
+
+        // Build sectionMax from fetched sections
+        const sectionMax: Record<string, number> = {};
+        sections.forEach(s => { sectionMax[s.name] = s.count; });
 
         (data as any[]).forEach(resp => {
           if (resp.category) {
@@ -146,7 +146,7 @@ function QuestionnaireHub() {
         const finalMap: Record<string, number> = {};
         Object.keys(sectionMax).forEach(cat => {
           const count = progressMap[cat] || 0;
-          const max = (sectionMax as Record<string, number>)[cat] || 1;
+          const max = sectionMax[cat] || 1;
           finalMap[cat] = Math.min(Math.round((count / max) * 100), 100);
         });
 
@@ -154,7 +154,9 @@ function QuestionnaireHub() {
       }
     }
     fetchProgress();
-  }, []);
+  }, [sections]);
+
+  const percent = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
 
   useEffect(() => {
     const t = setTimeout(() => setRingPercent(percent), 250);
@@ -162,11 +164,33 @@ function QuestionnaireHub() {
   }, [percent]);
 
   const handleSectionClick = (title: string) => {
-    router.navigate({ 
-      to: "/question", 
-      search: { category: title } 
+    router.navigate({
+      to: "/question",
+      search: { category: title }
     });
   };
+
+  if (loading) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+        <header className="relative flex h-12 shrink-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform active:scale-90"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-[17px] font-semibold tracking-[-0.01em] text-ink">
+            Compatibility Profile
+          </h1>
+        </header>
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
@@ -221,7 +245,7 @@ function QuestionnaireHub() {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-[26px] font-bold leading-none text-ink">{percent}%</span>
             <span className="mt-1 text-[11px] font-medium text-subtle">
-              {answered} / {total} Questions
+              {answered} / {totalQuestions} Questions
             </span>
           </div>
         </div>
@@ -237,14 +261,14 @@ function QuestionnaireHub() {
       {/* Sections */}
       <section className="mt-6 space-y-4">
         {sections.map((section, i) => {
-          const progress = sectionProgress[section.title] || 0;
+          const progress = sectionProgress[section.name] || 0;
           const isCompleted = progress === 100;
-          
+
           return (
             <button
-              key={section.title}
+              key={section.name}
               type="button"
-              onClick={() => handleSectionClick(section.title)}
+              onClick={() => handleSectionClick(section.name)}
               className="fade-up flex w-full items-start gap-4 rounded-3xl border p-5 text-left shadow-[0_18px_44px_-30px_rgba(18,18,18,0.4)] border-brand/30 bg-card active:shadow-[0_24px_50px_-26px_rgba(109,94,247,0.55)] transition-all active:scale-[0.98]"
               style={{ animationDelay: `${200 + i * 80}ms` }}
             >
@@ -257,7 +281,7 @@ function QuestionnaireHub() {
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
                   <span className="text-[20px] font-semibold tracking-[-0.01em] text-ink">
-                    {section.title}
+                    {section.name}
                   </span>
                   {isCompleted ? (
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white">

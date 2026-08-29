@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { 
-  ArrowLeft, 
-  Sliders, 
-  Search, 
-  Mic, 
-  Bookmark, 
+import {
+  ArrowLeft,
+  Sliders,
+  Search,
+  Mic,
+  Bookmark,
   Sparkles,
   Info,
   CheckCircle2,
@@ -20,7 +20,12 @@ import {
 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { loadMatchDataFn } from "@/routes/-matching-loader.server";
+import {
+  findCompatibleMatches,
+  MIN_COMPATIBILITY_SCORE,
+  type CompatibilityResult,
+} from "@/lib/matching";
 
 // Import assets
 import student1 from "@/assets/matches/student-1.jpg";
@@ -60,145 +65,136 @@ const filterCategories = [
   "Friends",
 ];
 
-const matches = [
-  {
-    id: 1,
-    name: "Sarah Chen",
-    age: 21,
-    college: "Stanford University",
-    course: "Computer Science",
-    city: "Palo Alto",
-    image: student1,
-    score: 96,
-    tags: ["Study Buddy", "Hackathon", "Python"],
-    insight: "You both enjoy collaborative learning and have similar career goals in Cloud Computing.",
-    reasons: ["Similar Values", "Same Learning Style", "Great Communication Match"]
-  },
-  {
-    id: 2,
-    name: "Marcus Miller",
-    age: 22,
-    college: "MIT",
-    course: "Business Administration",
-    city: "Boston",
-    image: student2,
-    score: 92,
-    tags: ["Startup", "Networking", "FinTech"],
-    insight: "Your expertise in development perfectly complements Marcus's business strategy background for potential startups.",
-    reasons: ["Complementary Skills", "Goal Alignment", "Work Ethic Match"]
-  },
-  {
-    id: 3,
-    name: "Elena Rodriguez",
-    age: 20,
-    college: "UC Berkeley",
-    course: "Data Science",
-    city: "Berkeley",
-    image: student3,
-    score: 88,
-    tags: ["Research", "AI Enthusiast", "Python"],
-    insight: "Elena is currently researching LLMs, which aligns with your interest in AI-powered applications.",
-    reasons: ["Shared Interests", "Active Learner", "Similar Research Goals"]
-  },
-  {
-    id: 4,
-    name: "James Wilson",
-    age: 22,
-    college: "Harvard University",
-    course: "Applied Math",
-    city: "Cambridge",
-    image: student4,
-    score: 75,
-    tags: ["Placement Prep", "Cloud Computing", "Math"],
-    insight: "While you have different backgrounds, you both are currently focusing on Azure Certification preparation.",
-    reasons: ["Niche Skill Overlap", "Mutual Career Goal", "Study Schedule Sync"]
-  }
+// Compatibility tier labels for the legend
+const SCORE_TIERS = [
+  { label: "Excellent Match", range: "90–100%", color: "text-rose-500", bar: "bg-rose-500" },
+  { label: "Strong Match", range: "80–89%", color: "text-emerald-500", bar: "bg-emerald-500" },
+  { label: "Good Match", range: "75–79%", color: "text-orange-400", bar: "bg-orange-400" },
+  { label: "Below Threshold", range: `< ${MIN_COMPATIBILITY_SCORE}%`, color: "text-subtle", bar: "bg-subtle" },
 ];
+
+interface MatchWithScore {
+  id: string;
+  name: string;
+  age: number;
+  college: string;
+  course: string;
+  city: string;
+  image: string | null;
+  score: number;
+  tags: string[];
+  insight: string;
+  reasons: string[];
+  compatibility: CompatibilityResult | null;
+}
 
 function ExploreMatchesScreen() {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [bookmarked, setBookmarked] = useState<number[]>([]);
-  const [dbMatches, setDbMatches] = useState<any[]>([]);
+  const [bookmarked, setBookmarked] = useState<string[]>([]);
+  const [dbMatches, setDbMatches] = useState<MatchWithScore[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadMatches() {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        // Fetch profiles excluding current user
-        let query = supabase
-          .from('profiles')
-          .select(`
-            *,
-            academic_profiles (*)
-          `);
-        
-        if (session) {
-          query = query.neq('id', session.user.id);
+        setLoading(true);
+        const result = await loadMatchDataFn();
+
+        if (!result.ok) {
+          setError(result.error ?? "Could not load match data");
+          setLoading(false);
+          return;
         }
 
-        const { data, error } = await query.limit(20);
-        
-        if (error) throw error;
-        
-        if (data) {
-          // Map DB profiles to UI match objects
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            name: p.display_name || "Anonymous",
-            age: p.age || 20,
-            college: p.academic_profiles?.university || "Unknown University",
-            course: p.academic_profiles?.degree || "Student",
-            city: p.city || "Remote",
-            image: p.avatar_url || student1,
-            score: Math.floor(Math.random() * 30) + 70, // Simulated score until engine built
-            tags: [
-              ...(p.academic_profiles?.skills?.slice(0, 2) || []),
-              ...(p.academic_profiles?.interests?.slice(0, 1) || [])
-            ],
-            insight: p.bio || "No bio provided yet.",
-            reasons: ["Verified Student", "Active Profile"]
-          }));
-          setDbMatches(mapped);
-        }
+        // Run the pure matching engine
+        const matches = findCompatibleMatches(
+          result.targetUserId,
+          result.targetResponses,
+          result.targetProfile,
+          result.candidates,
+          result.questionMeta,
+        );
+
+        // Map to UI format
+        const mapped: MatchWithScore[] = matches.map((m) => {
+          const age = m.profile.id ? Math.abs(hashCode(m.profile.id) % 10) + 19 : 21;
+          const interests = m.profile.academic_profiles?.interests ?? [];
+          const skills = m.profile.academic_profiles?.skills ?? [];
+          const tags = [...(skills.slice(0, 2)), ...(interests.slice(0, 1))];
+          // Ensure tags are strings
+          const safeTags = tags.map((t) => String(t));
+
+          return {
+            id: m.userId,
+            name: m.profile.display_name || "Anonymous",
+            age,
+            college: m.profile.academic_profiles?.university || "Unknown University",
+            course: m.profile.academic_profiles?.degree || "Student",
+            city: m.profile.city || "Remote",
+            image: m.profile.avatar_url,
+            score: m.compatibility.score,
+            tags: safeTags.length > 0 ? safeTags : ["Student"],
+            insight: m.compatibility.insight,
+            reasons: m.compatibility.reasons,
+            compatibility: m.compatibility,
+          };
+        });
+
+        setDbMatches(mapped);
       } catch (e) {
-        console.error(e);
+        console.error("[explore-matches] Error loading matches:", e);
+        setError(e instanceof Error ? e.message : "Unexpected error");
       } finally {
         setLoading(false);
       }
     }
-    loadMatches();
+    void loadMatches();
   }, []);
+
+  // Simple hash function for deterministic demo age
+  function hashCode(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0; // Convert to 32-bit integer
+    }
+    return hash;
+  }
 
   // Filter logic
   const filteredMatches = useMemo(() => {
-    // Merge static demo matches for richness if no DB matches yet
-    const baseMatches = dbMatches.length > 0 ? dbMatches : matches;
-    
-    return baseMatches.filter(m => {
-      const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          m.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          m.tags.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      
+    return dbMatches.filter((m) => {
+      const matchesSearch =
+        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+
       if (activeFilter === "All") return matchesSearch;
       return matchesSearch && m.tags.includes(activeFilter);
     });
   }, [dbMatches, searchQuery, activeFilter]);
 
-  const toggleBookmark = (id: number) => {
-    setBookmarked(prev => 
-      prev.includes(id) ? prev.filter(b => b !== id) : [...prev, id]
+  const toggleBookmark = (id: string) => {
+    setBookmarked((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id],
     );
+  };
+
+  const getScoreTier = (score: number) => {
+    if (score >= 90) return SCORE_TIERS[0]!;
+    if (score >= 80) return SCORE_TIERS[1]!;
+    if (score >= 75) return SCORE_TIERS[2]!;
+    return SCORE_TIERS[3]!;
   };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-white pb-[max(4.5rem,env(safe-area-inset-bottom)+1rem)] pt-[max(1rem,env(safe-area-inset-top))]">
       {/* Top App Bar */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
-        <button 
+        <button
           onClick={() => router.history.back()}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white transition-transform active:scale-95"
         >
@@ -216,7 +212,7 @@ function ExploreMatchesScreen() {
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-subtle transition-colors group-focus-within:text-brand">
             <Search className="h-5 w-5" />
           </div>
-          <input 
+          <input
             type="text"
             placeholder="Search by name, skill, interest or college..."
             value={searchQuery}
@@ -236,8 +232,8 @@ function ExploreMatchesScreen() {
               onClick={() => setActiveFilter(cat)}
               className={cn(
                 "whitespace-nowrap rounded-full px-5 py-2.5 text-[14px] font-semibold transition-all active:scale-95",
-                activeFilter === cat 
-                  ? "bg-brand text-white shadow-md shadow-brand/20" 
+                activeFilter === cat
+                  ? "bg-brand text-white shadow-md shadow-brand/20"
                   : "bg-white border border-line text-subtle hover:border-brand/40"
               )}
             >
@@ -252,6 +248,13 @@ function ExploreMatchesScreen() {
           <p className="text-[13px] text-subtle mt-0.5">Sorted by AI Compatibility</p>
         </div>
 
+        {/* Error state */}
+        {error && (
+          <div className="rounded-xl border border-danger/30 bg-danger/5 p-4 text-[14px] text-danger">
+            <span>Could not load matches: {error}</span>
+          </div>
+        )}
+
         {/* Match List */}
         <div className="space-y-6">
           {loading ? (
@@ -259,87 +262,131 @@ function ExploreMatchesScreen() {
               <Loader2 className="h-10 w-10 text-brand animate-spin" />
               <p className="text-subtle font-medium">Finding compatible students...</p>
             </div>
-          ) : filteredMatches.map((match, idx) => (
-            <div 
-              key={match.id}
-              className="fade-up rounded-[28px] bg-white border border-line/60 p-5 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.06)] group"
-              style={{ animationDelay: `${idx * 100}ms` }}
-            >
-              {/* Header Info */}
-              <div className="flex items-start gap-4">
-                <div className="relative shrink-0">
-                  <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-brand/10 group-hover:scale-105 transition-transform duration-500">
-                    <img src={match.image} alt={match.name} className="h-full w-full object-cover" />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white shadow-md border-2 border-white">
-                    {match.score}%
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0 py-0.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-[18px] font-bold text-ink truncate">{match.name}, {match.age}</h3>
-                  </div>
-                  <p className="text-[14px] font-medium text-subtle truncate">{match.college}</p>
-                  <p className="text-[13px] text-subtle truncate">{match.course} • {match.city}</p>
-                </div>
-              </div>
-
-              {/* Purpose Tags */}
-              <div className="flex flex-wrap gap-1.5 mt-5">
-                {match.tags.map((tag: string) => (
-                  <span key={tag} className="rounded-full bg-[#F5F5F7] px-3 py-1 text-[11px] font-bold text-subtle uppercase tracking-wider">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* AI Insight Card */}
-              <div className="mt-5 rounded-2xl bg-brand/[0.03] border border-brand/5 p-4 relative overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand/40" />
-                <div className="flex items-start gap-2.5">
-                  <Sparkles className="h-4 w-4 text-brand shrink-0 mt-0.5" />
-                  <p className="text-[14px] leading-[1.6] text-ink font-medium">
-                    {match.insight}
-                  </p>
-                </div>
-              </div>
-
-              {/* Match Reasons */}
-              <div className="flex flex-wrap gap-2 mt-4">
-                {match.reasons.map((reason: string) => (
-                  <div key={reason} className="flex items-center gap-1.5 rounded-full bg-mint/10 px-3 py-1.5 text-[12px] font-semibold text-mint-deep">
-                    <CheckCircle2 className="h-3.5 w-3.5" />
-                    {reason}
-                  </div>
-                ))}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3 mt-6">
-                <Link 
-                  to="/student-profile"
-                  search={{ id: match.id }}
-                  className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-brand text-[16px] font-bold text-white shadow-lg shadow-brand/20 transition-all active:scale-95"
-                >
-                  View Profile
-                </Link>
-                <button 
-                  onClick={() => toggleBookmark(match.id)}
-                  className={cn(
-                    "flex h-[52px] w-[52px] items-center justify-center rounded-2xl border transition-all active:scale-95",
-                    bookmarked.includes(match.id) 
-                      ? "bg-brand/10 border-brand text-brand" 
-                      : "bg-white border-line text-subtle"
-                  )}
-                >
-                  <Bookmark className={cn("h-5 w-5", bookmarked.includes(match.id) && "fill-brand")} />
-                </button>
-                <button className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-line bg-white text-subtle transition-all active:scale-95">
-                  <ExternalLink className="h-5 w-5" />
-                </button>
-              </div>
+          ) : filteredMatches.length === 0 && !loading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Users className="h-12 w-12 text-subtle/30" />
+              <p className="text-subtle font-medium">No matches found</p>
+              <p className="text-[13px] text-subtle/70 text-center max-w-[280px]">
+                {searchQuery
+                  ? "Try adjusting your search or filters"
+                  : "Complete your questionnaire to see compatible matches!"}
+              </p>
             </div>
-          ))}
+          ) : (
+            filteredMatches.map((match, idx) => {
+              const tier = getScoreTier(match.score);
+              return (
+              <div
+                key={match.id}
+                className="fade-up rounded-[28px] bg-white border border-line/60 p-5 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.06)] group"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                {/* Header Info */}
+                <div className="flex items-start gap-4">
+                  <div className="relative shrink-0">
+                    <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-brand/10 group-hover:scale-105 transition-transform duration-500">
+                      {match.image ? (
+                        <img src={match.image} alt={match.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${match.name}`} alt={match.name} className="h-full w-full object-cover" />
+                      )}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-white shadow-md border-2 border-white">
+                      {match.score}%
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0 py-0.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-[18px] font-bold text-ink truncate">{match.name}, {match.age}</h3>
+                      <span className={cn("text-[10px] font-bold uppercase", tier.color)}>
+                        {tier.label}
+                      </span>
+                    </div>
+                    <p className="text-[14px] font-medium text-subtle truncate">{match.college}</p>
+                    <p className="text-[13px] text-subtle truncate">{match.course} • {match.city}</p>
+                  </div>
+                </div>
+
+                {/* Purpose Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-5">
+                  {match.tags.slice(0, 3).map((tag) => (
+                    <span key={tag} className="rounded-full bg-[#F5F5F7] px-3 py-1 text-[11px] font-bold text-subtle uppercase tracking-wider">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* AI Insight Card */}
+                <div className="mt-5 rounded-2xl bg-brand/[0.03] border border-brand/5 p-4 relative overflow-hidden">
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand/40" />
+                  <div className="flex items-start gap-2.5">
+                    <Sparkles className="h-4 w-4 text-brand shrink-0 mt-0.5" />
+                    <p className="text-[14px] leading-[1.6] text-ink font-medium">
+                      {match.insight || "You have compatible perspectives and interests."}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Match Reasons */}
+                {match.reasons.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {match.reasons.map((reason) => (
+                      <div key={reason} className="flex items-center gap-1.5 rounded-full bg-mint/10 px-3 py-1.5 text-[12px] font-semibold text-mint-deep">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        {reason}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Compatibility breakdown */}
+                {match.compatibility && (
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-[12px]">
+                    {Object.entries(match.compatibility.categoryScores).map(([cat, score]) => (
+                      <div key={cat} className="flex justify-between">
+                        <span className="text-subtle">{cat}</span>
+                        <span className="font-semibold text-ink">{score}%</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between">
+                      <span className="text-subtle">Interest Overlap</span>
+                      <span className="font-semibold text-ink">{match.compatibility.interestOverlap}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-subtle">Questions Matched</span>
+                      <span className="font-semibold text-ink">{match.compatibility.matchedQuestionCount}/{match.compatibility.totalQuestionCount}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-3 mt-6">
+                  <Link
+                    to="/student-profile"
+                    search={{ id: match.id }}
+                    className="flex-1 h-[52px] flex items-center justify-center rounded-2xl bg-brand text-[16px] font-bold text-white shadow-lg shadow-brand/20 transition-all active:scale-95"
+                  >
+                    View Profile
+                  </Link>
+                  <button
+                    onClick={() => toggleBookmark(match.id)}
+                    className={cn(
+                      "flex h-[52px] w-[52px] items-center justify-center rounded-2xl border transition-all active:scale-95",
+                      bookmarked.includes(match.id)
+                        ? "bg-brand/10 border-brand text-brand"
+                        : "bg-white border-line text-subtle"
+                    )}
+                  >
+                    <Bookmark className={cn("h-5 w-5", bookmarked.includes(match.id) && "fill-brand")} />
+                  </button>
+                  <button className="flex h-[52px] w-[52px] items-center justify-center rounded-2xl border border-line bg-white text-subtle transition-all active:scale-95">
+                    <ExternalLink className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+              );
+            })
+          )}
         </div>
 
         {/* AI Match Score Legend */}
@@ -349,32 +396,27 @@ function ExploreMatchesScreen() {
               <Info className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-[17px] font-bold text-ink">How Match Scores Work</h3>
+              <h3 className="text-[17px] bold text-ink">How Match Scores Work</h3>
               <p className="text-[13px] text-subtle mt-0.5">Calculated by Campus Connect AI</p>
             </div>
           </div>
-          
+
           <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between py-2 border-b border-line/50">
-              <span className="text-[14px] font-bold text-brand">90–100%</span>
-              <span className="text-[14px] font-semibold text-ink">Excellent Match</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-line/50">
-              <span className="text-[14px] font-bold text-emerald-500">80–89%</span>
-              <span className="text-[14px] font-semibold text-ink">Strong Match</span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b border-line/50">
-              <span className="text-[14px] font-bold text-orange-400">70–79%</span>
-              <span className="text-[14px] font-semibold text-ink">Good Match</span>
-            </div>
+            {SCORE_TIERS.slice(0, 3).map((tier) => (
+              <div key={tier.label} className="flex items-center justify-between py-2 border-b border-line/50">
+                <span className={cn("text-[14px] font-bold", tier.color)}>{tier.range}</span>
+                <span className="text-[14px] font-semibold text-ink">{tier.label}</span>
+              </div>
+            ))}
             <div className="flex items-center justify-between py-2">
-              <span className="text-[14px] font-bold text-subtle">Below 70%</span>
-              <span className="text-[14px] font-semibold text-ink">Different Perspectives</span>
+              <span className={cn("text-[14px] font-bold", SCORE_TIERS[3]!.color)}>&lt; {MIN_COMPATIBILITY_SCORE}%</span>
+              <span className="text-[14px] font-semibold text-ink">Below Threshold</span>
             </div>
           </div>
-          
+
           <p className="mt-5 text-[13px] leading-relaxed text-subtle">
-            High percentages indicate similar ways of thinking, while lower scores suggest diverse perspectives which can also create highly successful teams.
+            Scores blend your questionnaire compatibility (55%), shared interests and skills (30%),
+            and answer overlap (15%). Only matches at or above {MIN_COMPATIBILITY_SCORE}% are shown.
           </p>
         </div>
 
@@ -385,7 +427,7 @@ function ExploreMatchesScreen() {
           <p className="mt-2 text-[15px] font-medium text-white/80 leading-relaxed">
             Students preparing for Azure Certification are active now.
           </p>
-          <Link 
+          <Link
             to="/communities"
             className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-[15px] font-bold text-brand transition-all active:scale-95 w-fit"
           >
@@ -394,9 +436,9 @@ function ExploreMatchesScreen() {
           </Link>
         </div>
       </div>
- 
+
       {/* Floating Action Button */}
-      <Link 
+      <Link
         to="/chat"
         search={{ name: undefined, avatar: undefined, score: undefined }}
         className="fixed bottom-24 right-6 flex items-center gap-2 rounded-full bg-brand p-4 px-6 text-white shadow-[0_12px_24px_-8px_rgba(109,94,247,0.5)] transition-transform active:scale-95 z-50"
