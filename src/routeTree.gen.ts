@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ApplyMigrationRouteImport } from './routes/apply-migration'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as EditProfileRouteImport } from './routes/edit-profile'
@@ -21,6 +22,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MatchesReadyRouteImport } from './routes/matches-ready'
 import { Route as MyProfileRouteImport } from './routes/my-profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ProbeDebugRouteImport } from './routes/probe-debug'
 import { Route as ProfileSetupRouteImport } from './routes/profile-setup'
 import { Route as ProfileSetupStep2RouteImport } from './routes/profile-setup-step2'
 import { Route as QuestionRouteImport } from './routes/question'
@@ -29,6 +31,11 @@ import { Route as QuestionnaireIntroRouteImport } from './routes/questionnaire-i
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as StudentProfileRouteImport } from './routes/student-profile'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminEventsRouteImport } from './routes/admin/events'
+import { Route as AdminQuestionnaireRouteImport } from './routes/admin/questionnaire'
+import { Route as AdminRolesRouteImport } from './routes/admin/roles'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -38,6 +45,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApplyMigrationRoute = ApplyMigrationRouteImport.update({
+  id: '/apply-migration',
+  path: '/apply-migration',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -90,6 +102,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProbeDebugRoute = ProbeDebugRouteImport.update({
+  id: '/probe-debug',
+  path: '/probe-debug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileSetupRoute = ProfileSetupRouteImport.update({
   id: '/profile-setup',
   path: '/profile-setup',
@@ -130,10 +147,36 @@ const StudentProfileRoute = StudentProfileRouteImport.update({
   path: '/student-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsRoute = AdminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminQuestionnaireRoute = AdminQuestionnaireRouteImport.update({
+  id: '/questionnaire',
+  path: '/questionnaire',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/apply-migration': typeof ApplyMigrationRoute
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/edit-profile': typeof EditProfileRoute
@@ -144,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
   '/notifications': typeof NotificationsRoute
+  '/probe-debug': typeof ProbeDebugRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -152,10 +196,15 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/questionnaire': typeof AdminQuestionnaireRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/apply-migration': typeof ApplyMigrationRoute
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/edit-profile': typeof EditProfileRoute
@@ -166,6 +215,7 @@ export interface FileRoutesByTo {
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
   '/notifications': typeof NotificationsRoute
+  '/probe-debug': typeof ProbeDebugRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -174,11 +224,17 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/questionnaire': typeof AdminQuestionnaireRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/apply-migration': typeof ApplyMigrationRoute
   '/chat': typeof ChatRoute
   '/communities': typeof CommunitiesRoute
   '/edit-profile': typeof EditProfileRoute
@@ -189,6 +245,7 @@ export interface FileRoutesById {
   '/matches-ready': typeof MatchesReadyRoute
   '/my-profile': typeof MyProfileRoute
   '/notifications': typeof NotificationsRoute
+  '/probe-debug': typeof ProbeDebugRoute
   '/profile-setup': typeof ProfileSetupRoute
   '/profile-setup-step2': typeof ProfileSetupStep2Route
   '/question': typeof QuestionRoute
@@ -197,12 +254,18 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/student-profile': typeof StudentProfileRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/questionnaire': typeof AdminQuestionnaireRoute
+  '/admin/roles': typeof AdminRolesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
+    | '/apply-migration'
     | '/chat'
     | '/communities'
     | '/edit-profile'
@@ -213,6 +276,7 @@ export interface FileRouteTypes {
     | '/matches-ready'
     | '/my-profile'
     | '/notifications'
+    | '/probe-debug'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -221,10 +285,15 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/student-profile'
+    | '/admin/events'
+    | '/admin/questionnaire'
+    | '/admin/roles'
+    | '/admin/users'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
+    | '/apply-migration'
     | '/chat'
     | '/communities'
     | '/edit-profile'
@@ -235,6 +304,7 @@ export interface FileRouteTypes {
     | '/matches-ready'
     | '/my-profile'
     | '/notifications'
+    | '/probe-debug'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -243,10 +313,16 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/student-profile'
+    | '/admin/events'
+    | '/admin/questionnaire'
+    | '/admin/roles'
+    | '/admin/users'
+    | '/admin'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/apply-migration'
     | '/chat'
     | '/communities'
     | '/edit-profile'
@@ -257,6 +333,7 @@ export interface FileRouteTypes {
     | '/matches-ready'
     | '/my-profile'
     | '/notifications'
+    | '/probe-debug'
     | '/profile-setup'
     | '/profile-setup-step2'
     | '/question'
@@ -265,11 +342,17 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/signup'
     | '/student-profile'
+    | '/admin/events'
+    | '/admin/questionnaire'
+    | '/admin/roles'
+    | '/admin/users'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  ApplyMigrationRoute: typeof ApplyMigrationRoute
   ChatRoute: typeof ChatRoute
   CommunitiesRoute: typeof CommunitiesRoute
   EditProfileRoute: typeof EditProfileRoute
@@ -280,6 +363,7 @@ export interface RootRouteChildren {
   MatchesReadyRoute: typeof MatchesReadyRoute
   MyProfileRoute: typeof MyProfileRoute
   NotificationsRoute: typeof NotificationsRoute
+  ProbeDebugRoute: typeof ProbeDebugRoute
   ProfileSetupRoute: typeof ProfileSetupRoute
   ProfileSetupStep2Route: typeof ProfileSetupStep2Route
   QuestionRoute: typeof QuestionRoute
@@ -304,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apply-migration': {
+      id: '/apply-migration'
+      path: '/apply-migration'
+      fullPath: '/apply-migration'
+      preLoaderRoute: typeof ApplyMigrationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -376,6 +467,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/probe-debug': {
+      id: '/probe-debug'
+      path: '/probe-debug'
+      fullPath: '/probe-debug'
+      preLoaderRoute: typeof ProbeDebugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile-setup': {
       id: '/profile-setup'
       path: '/profile-setup'
@@ -432,12 +530,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events': {
+      id: '/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminEventsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/questionnaire': {
+      id: '/admin/questionnaire'
+      path: '/questionnaire'
+      fullPath: '/admin/questionnaire'
+      preLoaderRoute: typeof AdminQuestionnaireRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminEventsRoute: typeof AdminEventsRoute
+  AdminQuestionnaireRoute: typeof AdminQuestionnaireRoute
+  AdminRolesRoute: typeof AdminRolesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminEventsRoute: AdminEventsRoute,
+  AdminQuestionnaireRoute: AdminQuestionnaireRoute,
+  AdminRolesRoute: AdminRolesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
+  ApplyMigrationRoute: ApplyMigrationRoute,
   ChatRoute: ChatRoute,
   CommunitiesRoute: CommunitiesRoute,
   EditProfileRoute: EditProfileRoute,
@@ -448,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatchesReadyRoute: MatchesReadyRoute,
   MyProfileRoute: MyProfileRoute,
   NotificationsRoute: NotificationsRoute,
+  ProbeDebugRoute: ProbeDebugRoute,
   ProfileSetupRoute: ProfileSetupRoute,
   ProfileSetupStep2Route: ProfileSetupStep2Route,
   QuestionRoute: QuestionRoute,

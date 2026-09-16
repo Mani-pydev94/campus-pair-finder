@@ -28,6 +28,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAdminStatus } from "@/lib/useAdminStatus";
+import { ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/my-profile")({
   head: () => ({
@@ -49,6 +51,8 @@ function MyProfileScreen() {
   const [academic, setAcademic] = useState<any>(null);
   const [completion, setCompletion] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const { isAdmin, isSuperAdmin } = useAdminStatus();
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -331,6 +335,28 @@ function MyProfileScreen() {
               ))}
             </div>
           </section>
+          {/* Admin Panel Link (only visible to admins/super_admins) */}
+          {isAdmin && (
+            <section className="fade-up rounded-[24px] bg-gradient-to-br from-brand/5 to-brand/10 p-4 border border-brand/20 shadow-sm" style={{ animationDelay: '300ms' }}>
+              <Link
+                to="/admin"
+                className="flex w-full items-center justify-between gap-2 rounded-2xl bg-white p-4 text-[15px] font-bold text-ink transition-transform active:scale-[0.97] shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
+                    <ShieldCheck className="h-5 w-5 text-brand" />
+                  </div>
+                  <span>Admin Panel</span>
+                </div>
+                {isSuperAdmin && (
+                  <span className="text-[10px] font-black uppercase tracking-tighter text-brand">
+                    Super Admin
+                  </span>
+                )}
+                <ChevronRight className="h-4 w-4 text-subtle ml-auto" />
+              </Link>
+            </section>
+          )}
           {/* Logout */}
           <section className="fade-up rounded-[24px] bg-white p-4 border border-black/[0.02] shadow-sm" style={{ animationDelay: '300ms' }}>
             <button

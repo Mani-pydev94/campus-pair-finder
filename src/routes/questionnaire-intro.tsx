@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -13,8 +14,10 @@ import {
   Users,
   UserPlus,
   Check,
+  Loader2,
 } from "lucide-react";
 import hero from "@/assets/questionnaire-hero.png";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/questionnaire-intro")({
   head: () => ({
@@ -46,16 +49,6 @@ const discoveries = [
   { label: "Friends with Similar Interests", icon: UserPlus, tone: "bg-emerald-100 text-emerald-600" },
 ];
 
-const sections = [
-  { label: "Values", count: 6 },
-  { label: "Personality", count: 8 },
-  { label: "Communication", count: 6 },
-  { label: "Learning Style", count: 5 },
-  { label: "Career Goals", count: 5 },
-  { label: "Lifestyle", count: 5 },
-  { label: "Interests", count: 5 },
-];
-
 const floaters = [
   { icon: GraduationCap, className: "left-1 top-4 bg-brand/10 text-brand", delay: "0s", dur: "6s" },
   { icon: Lightbulb, className: "right-2 top-2 bg-amber-100 text-amber-500", delay: "0.9s", dur: "7s" },
@@ -64,8 +57,113 @@ const floaters = [
   { icon: BookOpen, className: "right-1/3 -top-1 bg-sky-100 text-sky-600", delay: "1.8s", dur: "8s" },
 ];
 
+type CategorySection = {
+  name: string;
+  count: number;
+  emoji: string | null;
+  tone: string | null;
+  description: string | null;
+};
+
 function QuestionnaireIntro() {
   const router = useRouter();
+  const [sections, setSections] = useState<CategorySection[]>([]);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchCategories() {
+      setLoading(true);
+      setError(null);
+
+      // Fetch categories with question counts
+      const { data: categories, error: catError } = await supabase
+        .from('questionnaire_categories')
+        .select(`
+          name,
+          emoji,
+          tone,
+          description,
+          display_order,
+          questionnaire_questions (
+            id
+          )
+        `)
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (mounted) {
+        if (catError) {
+          setError(catError.message);
+        } else if (categories) {
+          const sectionData = categories.map(cat => ({
+            name: cat.name,
+            count: cat.questionnaire_questions?.length || 0,
+            emoji: cat.emoji,
+            tone: cat.tone,
+            description: cat.description,
+          }));
+          setSections(sectionData);
+          setTotalQuestions(sectionData.reduce((sum, s) => sum + s.count, 0));
+        }
+        setLoading(false);
+      }
+    }
+
+    fetchCategories();
+    return () => { mounted = false; };
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+        <header className="relative flex h-12 shrink-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            aria-label="Go back"
+            className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform active:scale-90"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-[17px] font-semibold tracking-[-0.01em] text-ink">
+            Compatibility Profile
+          </h1>
+        </header>
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" />
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
+        <header className="relative flex h-12 shrink-0 items-center justify-center">
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            aria-label="Go back"
+            className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform active:scale-90"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-[17px] font-semibold tracking-[-0.01em] text-ink">
+            Compatibility Profile
+          </h1>
+        </header>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/5 p-4 text-[14px] text-danger">
+            <Check className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>Could not load questionnaire: {error}</span>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-background px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
@@ -157,12 +255,12 @@ function QuestionnaireIntro() {
           Questionnaire Overview
         </h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {sections.map(({ label, count }) => (
+          {sections.map(({ name, count, tone }) => (
             <span
-              key={label}
+              key={name}
               className="rounded-full border border-line bg-secondary/60 px-3 py-2 text-[13px] font-medium text-ink"
             >
-              {label}
+              {name}
               <span className="ml-1.5 text-subtle">{count}</span>
             </span>
           ))}
@@ -170,7 +268,7 @@ function QuestionnaireIntro() {
         <div className="mt-4 flex items-center justify-between rounded-2xl bg-brand/8 px-4 py-3">
           <div>
             <p className="text-[13px] font-medium text-subtle">Total</p>
-            <p className="text-[17px] font-semibold text-ink">40 Questions</p>
+            <p className="text-[17px] font-semibold text-ink">{totalQuestions} Questions</p>
           </div>
           <div className="flex items-center gap-2 text-brand">
             <Clock className="h-4 w-4" />
@@ -198,7 +296,7 @@ function QuestionnaireIntro() {
       <div className="fade-up mt-7 space-y-3" style={{ animationDelay: "560ms" }}>
         <Link
           to="/question"
-          search={{ category: "Values" }}
+          search={{ category: sections[0]?.name || "Values" }}
           className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-brand-light to-brand-deep text-[18px] font-semibold text-on-brand shadow-cta transition-transform active:scale-[0.97]"
         >
           Start Questionnaire
